@@ -1,0 +1,2262 @@
+{
+  "variant": "sim_baseline",
+  "config": {
+    "task": "lang",
+    "window": 5,
+    "ensemble": true,
+    "action_scale": 1.0,
+    "rotation": "euler_to_axangle",
+    "stats": "self"
+  },
+  "suite": "move_near",
+  "embodiment": "google_robot",
+  "partial": false,
+  "per_task": {
+    "move_near": {
+      "success_rate": 0.0375,
+      "n": 240,
+      "stages": {
+        "all_obj_keep_height": 0.8958333333333334,
+        "is_closest_to_tgt": 0.625,
+        "moved_correct_obj": 0.15,
+        "moved_wrong_obj": 0.2625,
+        "near_tgt_obj": 0.07916666666666666,
+        "success": 0.0375
+      }
+    }
+  },
+  "mean_success": 0.0375,
+  "episodes": 240,
+  "minutes": 26.9,
+  "peak_gpu_mem_mib": 4916,
+  "jobs": [
+    {
+      "task": "move_near",
+      "env_name": "MoveNearGoogleBakedTexInScene-v0",
+      "urdf_version": "None",
+      "build_kwargs": {
+        "urdf_version": "None"
+      },
+      "robot_init": [
+        0.35,
+        0.21
+      ],
+      "success": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "seconds": 403.2,
+      "episode_stats": [
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": true
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": true
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": true
+        }
+      ]
+    },
+    {
+      "task": "move_near",
+      "env_name": "MoveNearGoogleBakedTexInScene-v0",
+      "urdf_version": "recolor_tabletop_visual_matching_1",
+      "build_kwargs": {
+        "urdf_version": "recolor_tabletop_visual_matching_1"
+      },
+      "robot_init": [
+        0.35,
+        0.21
+      ],
+      "success": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "seconds": 394.7,
+      "episode_stats": [
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": true
+        }
+      ]
+    },
+    {
+      "task": "move_near",
+      "env_name": "MoveNearGoogleBakedTexInScene-v0",
+      "urdf_version": "recolor_tabletop_visual_matching_2",
+      "build_kwargs": {
+        "urdf_version": "recolor_tabletop_visual_matching_2"
+      },
+      "robot_init": [
+        0.35,
+        0.21
+      ],
+      "success": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "seconds": 409.7,
+      "episode_stats": [
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": true
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": true
+        }
+      ]
+    },
+    {
+      "task": "move_near",
+      "env_name": "MoveNearGoogleBakedTexInScene-v0",
+      "urdf_version": "recolor_cabinet_visual_matching_1",
+      "build_kwargs": {
+        "urdf_version": "recolor_cabinet_visual_matching_1"
+      },
+      "robot_init": [
+        0.35,
+        0.21
+      ],
+      "success": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "seconds": 406.8,
+      "episode_stats": [
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": false,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": true,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": false,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": false,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": false,
+          "is_closest_to_tgt": true,
+          "success": false
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": true
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": true
+        },
+        {
+          "all_obj_keep_height": true,
+          "moved_correct_obj": true,
+          "moved_wrong_obj": false,
+          "near_tgt_obj": true,
+          "is_closest_to_tgt": true,
+          "success": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+variant,suite,embodiment,task,success_rate,n,partial
+sim_baseline,bridge,widowx,StackGreenCubeOnYellowCubeBakedTexInScene-v0,0.0,24,False
+sim_baseline,bridge,widowx,PutCarrotOnPlateInScene-v0,0.041666666666666664,24,False
+sim_baseline,bridge,widowx,PutSpoonOnTableClothInScene-v0,0.041666666666666664,24,False
+sim_baseline,bridge,widowx,PutEggplantInBasketScene-v0,0.7083333333333334,24,False
+sim_baseline,coke_can,google_robot,pick_coke_can_horizontal,0.0,100,False
+sim_baseline,coke_can,google_robot,pick_coke_can_standing,0.02,100,False
+sim_baseline,coke_can,google_robot,pick_coke_can_vertical,0.0,100,False
+sim_baseline,move_near,google_robot,move_near,0.0375,240,False
