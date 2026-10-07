@@ -1,0 +1,23 @@
+[project]
+name = "isaacgym-env"
+version = "0.1.0"
+description = "Isaac Gym Preview 4 on RTX 5070 (Blackwell sm_120) with a source-built PyTorch 2.4.1"
+# Isaac Gym Preview 4 ships Python bindings only for 3.6-3.8.
+requires-python = "==3.8.*"
+dependencies = [
+    "isaacgym",
+    # Official cp38 torch wheels (<=2.4.1) have no sm_120 kernels; this one is built by
+    # .toolchain/build_torch.sh against a local CUDA 12.8 toolkit.
+    "torch==2.4.1+cu128sm120",
+    "numpy<1.24",
+    "scipy",
+    "pyyaml",
+    "pillow",
+    "imageio",
+    "ninja",
+    "setuptools<70",  # gymtorch JIT-builds a C++ extension via torch.utils.cpp_extension
+]
+
+[tool.uv.sources]
+isaacgym = { path = "isaacgym/python", editable = true }
+torch = { path = "wheels/torch-2.4.1+cu128sm120-cp38-cp38-linux_x86_64.whl" }

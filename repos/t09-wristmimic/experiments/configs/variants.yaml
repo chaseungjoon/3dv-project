@@ -1,0 +1,162 @@
+# T09 실험 변형 정의 (single source of truth)
+#
+# 모든 학습 설정은 base 파일에서 아래 overrides만 바꿔서 만든다.
+#   python experiments/tools/make_configs.py   ->  experiments/configs/env/<이름>.yaml 생성
+# make_configs.py는 손목 관련 키(allowed_keys) 외의 값이 바뀌면 에러를 낸다.
+# 즉 "손목 항목만 바꾼다"(T09 범위)는 규칙을 코드로 강제한다.
+#
+# 창(window) 정의는 코드 기준이다 (docs/CODE_NOTES.md 3절):
+#   손목 reset/보상 창 = [c - graspWindowBefore, c + graspWindowAfter]  (c = 참조 첫 접촉 프레임)
+#   stage 1 = [c - graspWindowBefore, c + resetTransitionFrame1]
+#   stage 2 = (c + resetTransitionFrame1, c + resetTransitionFrame2]   <- "key part", 가장 엄격
+#   stage 3 = (c + resetTransitionFrame2, c + graspWindowAfter]
+# resetWindow*/fingerWindow*는 코드에서 출력만 되고 쓰이지 않는다. 창 이동 변형에서는
+# 로그가 헷갈리지 않도록 같이 옮긴다.
+
+base: intermimic/data/cfg/parahome_train_12gb.yaml
+
+allowed_keys:
+  env:
+    - graspWindowBefore
+    - graspWindowAfter
+    - fingerWindowBefore
+    - fingerWindowAfter
+    - resetWindowBefore
+    - resetWindowAfter
+    - resetTransitionFrame1
+    - resetTransitionFrame2
+    - wristPosResetThreshold1
+    - wristRotResetThreshold1
+    - wristPosResetThreshold2
+    - wristRotResetThreshold2
+    - wristPosResetThreshold3
+    - wristRotResetThreshold3
+  env.rewardWeights:
+    - gwp1
+    - gwr1
+    - gwp2
+    - gwr2
+    - gwp3
+    - gwr3
+
+# 평가 설정: 모든 변형을 이 설정 하나로 평가한다 (기본 손목 임계값 = 같은 채점 기준).
+eval:
+  name: eval_default
+  source: default          # 아래 variants의 default와 동일한 env 설정
+  overrides: {}
+
+variants:
+  # ---------------- 기준 ----------------
+  default:
+    group: baseline
+    desc: "WristMimic 기본 손목 설정 (12GB PhysX 버퍼만 축소)"
+    overrides: {}
+
+  # ---------------- 최소 비교 (가이드: 손목 제약 없음) ----------------
+  reset_off:
+    group: minimal
+    desc: "손목 reset 끔 (3단계 임계값 = 100). 손목 보상은 그대로"
+    overrides:
+      env:
+        wristPosResetThreshold1: 100.0
+        wristRotResetThreshold1: 100.0
+        wristPosResetThreshold2: 100.0
+        wristRotResetThreshold2: 100.0
+        wristPosResetThreshold3: 100.0
+        wristRotResetThreshold3: 100.0
+
+  wrist_off:
+    group: minimal
+    desc: "손목 제약 전부 끔 (reset 끔 + 손목 전용 보상 gwp/gwr = 0). 몸 보상 속 손목 위치 항은 남음"
+    overrides:
+      env:
+        wristPosResetThreshold1: 100.0
+        wristRotResetThreshold1: 100.0
+        wristPosResetThreshold2: 100.0
+        wristRotResetThreshold2: 100.0
+        wristPosResetThreshold3: 100.0
+        wristRotResetThreshold3: 100.0
+      env.rewardWeights:
+        gwp1: 0.0
+        gwr1: 0.0
+        gwp2: 0.0
+        gwr2: 0.0
+        gwp3: 0.0
+        gwr3: 0.0
+
+  # ---------------- RQ1: reset 창 폭, 위치 vs 회전 민감도 (stage 2) ----------------
+  pos2_x0.5:
+    group: rq1
+    desc: "stage 2 손목 위치 임계값 0.07 -> 0.035 m (엄격)"
+    overrides:
+      env:
+        wristPosResetThreshold2: 0.035
+
+  pos2_x2:
+    group: rq1
+    desc: "stage 2 손목 위치 임계값 0.07 -> 0.14 m (느슨)"
+    overrides:
+      env:
+        wristPosResetThreshold2: 0.14
+
+  rot2_x0.5:
+    group: rq1
+    desc: "stage 2 손목 회전 임계값 0.2 -> 0.1 rad (엄격)"
+    overrides:
+      env:
+        wristRotResetThreshold2: 0.1
+
+  rot2_x2:
+    group: rq1
+    desc: "stage 2 손목 회전 임계값 0.2 -> 0.4 rad (느슨)"
+    overrides:
+      env:
+        wristRotResetThreshold2: 0.4
+
+  # ---------------- RQ2: 손목 보상 가중치 (손목 우선순위) ----------------
+  gwp_30:
+    group: rq2
+    desc: "손목 위치 보상 가중치 gwp1-3: 70 -> 30 (손목 우선순위 낮춤)"
+    overrides:
+      env.rewardWeights:
+        gwp1: 30.0
+        gwp2: 30.0
+        gwp3: 30.0
+
+  gwp_140:
+    group: rq2
+    desc: "손목 위치 보상 가중치 gwp1-3: 70 -> 140 (손목 우선순위 높임)"
+    overrides:
+      env.rewardWeights:
+        gwp1: 140.0
+        gwp2: 140.0
+        gwp3: 140.0
+
+  # ---------------- RQ2: 접촉 창 시점 이동 (창 길이와 stage 길이는 유지) ----------------
+  win_early5:
+    group: rq2
+    desc: "손목 창 전체를 5프레임(0.17 s) 앞으로: [c-15, c+10], stage 경계 c-7 / c+7"
+    overrides:
+      env:
+        graspWindowBefore: 15
+        graspWindowAfter: 10
+        fingerWindowBefore: 10
+        fingerWindowAfter: 10
+        resetWindowBefore: 10
+        resetWindowAfter: 10
+        resetTransitionFrame1: -7
+        resetTransitionFrame2: 7
+
+  win_late5:
+    group: rq2
+    desc: "손목 창 전체를 5프레임(0.17 s) 뒤로: [c-5, c+20], stage 경계 c+3 / c+17"
+    overrides:
+      env:
+        graspWindowBefore: 5
+        graspWindowAfter: 20
+        fingerWindowBefore: 0
+        fingerWindowAfter: 20
+        resetWindowBefore: 0
+        resetWindowAfter: 20
+        resetTransitionFrame1: 3
+        resetTransitionFrame2: 17

@@ -1,0 +1,2 @@
+run,variant,seed,epochs,last_epoch,num_envs,sec_per_epoch,env_steps_per_s,wall_s_total,peak_gpu_mem_mib,exit_code,git,gpu
+default_s0_1004-175106,default,0,6000,6001,1024,5.9,6012.8,42999,9304.0,0,c67d8f5,"NVIDIA GeForce RTX 5070, 595.71.05"

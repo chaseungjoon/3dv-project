@@ -1,0 +1,57 @@
+diff --git a/cmake/Modules_CUDA_fix/upstream/FindCUDA/select_compute_arch.cmake b/cmake/Modules_CUDA_fix/upstream/FindCUDA/select_compute_arch.cmake
+index 90de8fb..2a9a1c5 100644
+--- a/cmake/Modules_CUDA_fix/upstream/FindCUDA/select_compute_arch.cmake
++++ b/cmake/Modules_CUDA_fix/upstream/FindCUDA/select_compute_arch.cmake
+@@ -186,7 +186,7 @@ function(CUDA_SELECT_NVCC_ARCH_FLAGS out_variable)
+       set(add_ptx TRUE)
+       set(arch_name ${CMAKE_MATCH_1})
+     endif()
+-    if(arch_name MATCHES "^([0-9]\\.[0-9]a?(\\([0-9]\\.[0-9]\\))?)$")
++    if(arch_name MATCHES "^([0-9]+\\.[0-9]a?(\\([0-9]+\\.[0-9]\\))?)$")
+       set(arch_bin ${CMAKE_MATCH_1})
+       set(arch_ptx ${arch_bin})
+     else()
+diff --git a/torch/__init__.py b/torch/__init__.py
+index 1c4d5e4..e735df9 100644
+--- a/torch/__init__.py
++++ b/torch/__init__.py
+@@ -170,6 +170,17 @@ def _preload_cuda_deps(lib_folder, lib_name):
+     ctypes.CDLL(lib_path)
+ 
+ # See Note [Global dependencies]
++# [sm_120 local build] Preload the CUDA 12.8 NVRTC this wheel was built against. ATen's lazy
++# dlopen("libnvrtc.so.12") ignores RUNPATH and would otherwise pick an older system copy
++# (Ubuntu's CUDA 12.0), which rejects --gpu-architecture=sm_120 in jiterator kernels.
++if sys.platform == "linux":
++    for _lib in ("libnvrtc-builtins.so.12.8", "libnvrtc.so.12"):
++        try:
++            ctypes.CDLL("/home/chaseungjoon/code/3dv-project/isaacgym-env/.toolchain/cuda-12.8/lib64/" + _lib, mode=ctypes.RTLD_GLOBAL)
++        except OSError:
++            pass
++
++
+ def _load_global_deps() -> None:
+ 
+     LIBTORCH_PKG_NAME = "libtorchsplit"
+diff --git a/torch/utils/cpp_extension.py b/torch/utils/cpp_extension.py
+index bc1a9d8..bb1bf92 100644
+--- a/torch/utils/cpp_extension.py
++++ b/torch/utils/cpp_extension.py
+@@ -1951,7 +1951,7 @@ def _get_cuda_arch_flags(cflags: Optional[List[str]] = None) -> List[str]:
+     ])
+ 
+     supported_arches = ['3.5', '3.7', '5.0', '5.2', '5.3', '6.0', '6.1', '6.2',
+-                        '7.0', '7.2', '7.5', '8.0', '8.6', '8.7', '8.9', '9.0', '9.0a']
++                        '7.0', '7.2', '7.5', '8.0', '8.6', '8.7', '8.9', '9.0', '9.0a', '10.0', '12.0']
+     valid_arch_strings = supported_arches + [s + "+PTX" for s in supported_arches]
+ 
+     # The default is sm_30 for CUDA 9.x and 10.x
+@@ -1997,7 +1997,7 @@ def _get_cuda_arch_flags(cflags: Optional[List[str]] = None) -> List[str]:
+         if arch not in valid_arch_strings:
+             raise ValueError(f"Unknown CUDA arch ({arch}) or GPU not supported")
+         else:
+-            num = arch[0] + arch[2:].split("+")[0]
++            num = arch.split("+")[0].replace(".", "")  # sm_120: major may have two digits
+             flags.append(f'-gencode=arch=compute_{num},code=sm_{num}')
+             if arch.endswith('+PTX'):
+                 flags.append(f'-gencode=arch=compute_{num},code=compute_{num}')

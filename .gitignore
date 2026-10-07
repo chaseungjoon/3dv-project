@@ -1,0 +1,30 @@
+# Python / envs
+__pycache__/
+*.py[cod]
+.venv/
+.venv-*/
+*.egg-info/
+
+# Weights, logs, media (large / regenerable)
+*.pth
+*.ckpt
+*.log
+*.whl
+*.tar.gz
+
+# Editor / tooling
+.vscode/
+.idea/
+.claude/
+.DS_Store
+
+# Isaac Gym env: NVIDIA's package is not redistributable, the torch wheel is 170MB,
+# and .toolchain holds the CUDA toolkit + pytorch source (14GB).
+# Kept: README, pyproject, uv.lock, scripts/, and the torch build script + patch.
+/isaacgym-env/isaacgym/
+/isaacgym-env/wheels/
+/isaacgym-env/.toolchain/*
+!/isaacgym-env/.toolchain/build_torch.sh
+!/isaacgym-env/.toolchain/sm120-pytorch-2.4.1.patch
+
+# repos/t09-wristmimic has its own .gitignore (checkpoints, experiments/runs, wandb, ...)
