@@ -4,6 +4,7 @@
 
 Episodes per suite: bridge 4x24 = 96, coke_can 3 orientations x 25 positions x 4 URDFs = 300,
 move_near 60 x 4 URDFs = 240, drawer 6 tasks x 9 poses x 4 URDFs = 216 (ray-traced, slow).
+*_quick suites keep only the original URDF (screening for conversion sweeps).
 """
 
 URDFS = ["None", "recolor_tabletop_visual_matching_1", "recolor_tabletop_visual_matching_2",
@@ -92,5 +93,15 @@ def drawer(asset_dir):
     return jobs
 
 
-SUITES = {"bridge": bridge, "coke_can": coke_can, "move_near": move_near, "drawer": drawer}
-EMBODIMENT = {"bridge": "widowx", "coke_can": "google_robot", "move_near": "google_robot", "drawer": "google_robot"}
+def _first_urdf(fn):
+    """Screening subset: only the original URDF (the 4 URDF recolorings gave the same success in the baseline,
+    BASELINE_T10.md 3절). coke_can_quick = 75 episodes, move_near_quick = 60."""
+    def suite(asset_dir):
+        return [j for j in fn(asset_dir) if "urdf_version=None" in j[1]]
+    return suite
+
+
+SUITES = {"bridge": bridge, "coke_can": coke_can, "move_near": move_near, "drawer": drawer,
+          "coke_can_quick": _first_urdf(coke_can), "move_near_quick": _first_urdf(move_near)}
+EMBODIMENT = {"bridge": "widowx", "coke_can": "google_robot", "move_near": "google_robot", "drawer": "google_robot",
+              "coke_can_quick": "google_robot", "move_near_quick": "google_robot"}

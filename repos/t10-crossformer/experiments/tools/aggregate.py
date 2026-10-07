@@ -194,6 +194,131 @@ def sim_tables(sim):
     return lines
 
 
+# SimplerEnv visual-matching numbers reported for Octo-Base in the SimplerEnv paper (Li et al., 2024) and README.
+# Reference only: re-check against the paper table before quoting. Bridge numbers are averages over init_rng 0/2/4.
+OCTO_BASE_PUBLISHED = {
+    "PutSpoonOnTableClothInScene-v0": 0.125, "PutCarrotOnPlateInScene-v0": 0.083,
+    "StackGreenCubeOnYellowCubeBakedTexInScene-v0": 0.000, "PutEggplantInBasketScene-v0": 0.431,
+    "coke_can": 0.170, "move_near": 0.042,
+}
+BRIDGE_TASKS = ["PutSpoonOnTableClothInScene-v0", "PutCarrotOnPlateInScene-v0",
+                "StackGreenCubeOnYellowCubeBakedTexInScene-v0", "PutEggplantInBasketScene-v0"]
+SHORT = {"PutSpoonOnTableClothInScene-v0": "spoon", "PutCarrotOnPlateInScene-v0": "carrot",
+         "StackGreenCubeOnYellowCubeBakedTexInScene-v0": "stack", "PutEggplantInBasketScene-v0": "eggplant"}
+GRASP_KEY = {"bridge": "is_src_obj_grasped", "coke_can": "grasped", "move_near": "moved_correct_obj"}
+
+
+def sim_episodes(sim, variant, family, only_first_urdf):
+    """{episode key: (success, stage flag)} for one variant and suite family (bridge / coke_can / move_near),
+    taken from the full or the *_quick result. Keys identify the same initial state across variants."""
+    for suite in ([family] if family == "bridge" else [family + "_quick", family]):
+        r = sim.get((variant, suite))
+        if r is None:
+            continue
+        out = {}
+        for j in r["jobs"]:
+            if only_first_urdf and j["urdf_version"] != "None":
+                continue
+            stats = j.get("episode_stats") or [{} for _ in j["success"]]
+            for i, (succ, st) in enumerate(zip(j["success"], stats)):
+                key = (j["task"], j["env_name"], j["urdf_version"], tuple(j["robot_init"]), i)
+                out[key] = (bool(succ), bool(st.get(GRASP_KEY[family], False)))
+        return out
+    return None
+
+
+def mcnemar_p(a, b):
+    """Exact two-sided McNemar test on paired booleans."""
+    from math import comb
+
+    n01 = sum(1 for x, y in zip(a, b) if not x and y)
+    n10 = sum(1 for x, y in zip(a, b) if x and not y)
+    n = n01 + n10
+    if n == 0:
+        return 1.0
+    k = min(n01, n10)
+    return min(1.0, 2 * sum(comb(n, i) for i in range(k + 1)) / 2 ** n)
+
+
+def table_screening(sim, ref="sim_baseline"):
+    """Closed-loop screening: every variant vs the baseline on the SAME episodes (original URDF for Google)."""
+    variants = sorted({v for v, _ in sim}, key=lambda v: (v != ref, v))
+    fams = [("bridge", False), ("coke_can", True), ("move_near", True)]
+    lines = ["| variant | WidowX success (grasp) | Google coke can success (grasp) | Google move near success "
+             "(correct object moved) | paired vs baseline: success p / grasp p |",
+             "|---|---|---|---|---|"]
+    base = {f: sim_episodes(sim, ref, f, u) for f, u in fams}
+    for v in variants:
+        cells, ps = [], []
+        for f, u in fams:
+            cur = sim_episodes(sim, v, f, u)
+            if not cur:
+                cells.append("-")
+                continue
+            succ = np.mean([x[0] for x in cur.values()])
+            grasp = np.mean([x[1] for x in cur.values()])
+            cells.append(f"{100 * succ:.1f}% ({100 * grasp:.0f}%) n={len(cur)}")
+            b = base.get(f)
+            if v != ref and b:
+                common = sorted(set(cur) & set(b))
+                if common:
+                    p_s = mcnemar_p([b[k][0] for k in common], [cur[k][0] for k in common])
+                    p_g = mcnemar_p([b[k][1] for k in common], [cur[k][1] for k in common])
+                    ps.append(f"{f}: {p_s:.3f} / {p_g:.3f}")
+        lines.append(f"| {v} | " + " | ".join(cells) + f" | {'; '.join(ps) if ps else '-'} |")
+    lines += ["", "Google 열은 원래 URDF만 (기준선은 전체 run에서 같은 episode를 뽑음). 괄호 = 잡기(또는 맞는 물체 이동) 단계 도달 비율. "
+              "p = 같은 episode끼리의 exact McNemar (p < 0.05면 차이 있음)."]
+    return lines
+
+
+def table_octo_validity(sim):
+    runs = sorted({v for v, _ in sim if v.startswith("octo-base_rng")})
+    if not runs:
+        return ["(아직 없음: `bash experiments/scripts/phase5_sim_validity.sh`)"]
+    lines = ["| task | 우리 Octo-Base (seed 수) | 논문 보고값 | 우리 CrossFormer baseline |", "|---|---|---|---|"]
+
+    def rate(variant, family, task=None, first_urdf=True):
+        e = sim_episodes(sim, variant, family, first_urdf if family != "bridge" else False)
+        if not e:
+            return None
+        vals = [x[0] for k, x in e.items() if task is None or k[1] == task]
+        return float(np.mean(vals)) if vals else None
+
+    for task in BRIDGE_TASKS + ["coke_can", "move_near"]:
+        fam, t = ("bridge", task) if task in BRIDGE_TASKS else (task, None)
+        ours = [x for x in (rate(r, fam, t) for r in runs) if x is not None]
+        cf = rate("sim_baseline", fam, t)
+        name = SHORT.get(task, task) + ("" if fam == "bridge" else " (원래 URDF)")
+        lines.append(f"| {name} | {100 * np.mean(ours):.1f}% ({len(ours)}) | {100 * OCTO_BASE_PUBLISHED[task]:.1f}% | "
+                     f"{'-' if cf is None else f'{100 * cf:.1f}%'} |" if ours else f"| {name} | - | "
+                     f"{100 * OCTO_BASE_PUBLISHED[task]:.1f}% | - |")
+    lines += ["", "논문 값은 Google task에서 URDF 4종 전체 평균이고 우리 Octo는 원래 URDF만이라 Google 행은 근사 비교다."]
+    return lines
+
+
+def table_offline_scale(datasets):
+    """Least-squares scalar s* with s*·pred ~= GT on the metre-space translation of the executed action."""
+    import json as _json
+
+    lines = ["| variant | embodiment | 최적 scale s* (오프라인) | 크기 비율 중앙값 |", "|---|---|---|---|"]
+    stats = load_stats()
+    for run in ["baseline_lang", "baseline_goal"]:
+        for ds in datasets:
+            p = RUNS / run / ds / "pred.npz"
+            c = RES / "conventions" / f"{ds}.json"
+            if not p.exists() or not c.exists():
+                continue
+            d = np.load(p)
+            A = np.asarray(_json.loads(c.read_text())["A_action_to_m"])
+            pred = unnormalize(d["pred_norm"], stats[ds]["action"])[:, 0, :3] @ A.T
+            gt = d["gt"][:, 0, :3] @ A.T
+            s_opt = float((pred * gt).sum() / (pred * pred).sum())
+            mv = np.linalg.norm(gt, axis=1) > 0.002
+            ratio = np.median(np.linalg.norm(pred[mv], axis=1) / np.linalg.norm(gt[mv], axis=1))
+            lines.append(f"| {run} | {EMB_NAME.get(ds, ds)} | {s_opt:.2f} | {ratio:.2f} |")
+    return lines
+
+
 def fig_bars(rows, runs, datasets, path, title):
     keys = [("norm_l1", "normalized L1 (executed step)"), ("trans_err_mm_s", "translation error (mm/s)"),
             ("grip_acc", "gripper accuracy")]
@@ -301,6 +426,9 @@ def main():
     md += ["## 단위가 다른 raw MSE를 합치면: embodiment별 비중", ""]
     md += table_unit_dominance(rows, "baseline_goal", datasets) + [""]
     md += ["## Phase 4 closed-loop (SimplerEnv visual matching)", ""] + sim_tables(sim) + [""]
+    md += ["## Phase 5 simulator validity: 같은 설치에서 Octo-Base가 논문 값을 재현하는가", ""] + table_octo_validity(sim) + [""]
+    md += ["## Phase 6 viability screening: 출력 변환만 바꾼 closed-loop", ""] + table_screening(sim) + [""]
+    md += ["## 오프라인에서 예측한 action scale (closed-loop sweep과 비교용)", ""] + table_offline_scale(datasets) + [""]
 
     figs = []
     if fig_bars(rows, PHASE["Phase 1 baseline"], datasets, OUT / "fig_phase1.png", "Phase 1: frozen CrossFormer"):

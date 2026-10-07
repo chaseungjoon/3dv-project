@@ -28,7 +28,7 @@ uv 환경(jax 0.6.2 + CUDA 12, TF 2.19), 체크포인트(500 MB), held-out 데�
 문장 인코더 캐시를 받고, 로봇별 action 규약을 측정한다. 다시 실행해도 안전하다 (있는 것은 건너뜀). 이미 다 있으면 약 1분.
 **sudo는 필요 없다.**
 
-## 2. 파이프라인 점검 (약 8분, 2026-10-07 통과)
+## 2. 파이프라인 점검 (약 10분, 2026-10-07 통과)
 
 ```bash
 bash experiments/scripts/pipeline_check.sh
@@ -57,6 +57,19 @@ bash experiments/scripts/phase2_conditioning.sh && \
 bash experiments/scripts/phase3_mismatch.sh && \
 bash experiments/scripts/phase4_closed_loop.sh
 ```
+
+### 3.1 Baseline 이후: 시뮬레이터 검증 + viability (2026-10-07 추가, PROTOCOL.md 6절)
+
+| 단계 | 명령 | 시간 (추정) | 무엇을 얻나 |
+|---|---|---|---|
+| **Phase 5** | `bash experiments/scripts/phase5_sim_validity.sh` | 약 45분 | 같은 설치에서 Octo-Base가 논문 값을 재현하는가 → 시뮬레이터 신뢰 여부 |
+| **Phase 6** | `bash experiments/scripts/phase6_viability.sh` | 약 2.5시간 | 언어 제거, ensemble 끄기, action_scale 1.5/2/3/5 → 출력 변환만으로 성공률/잡기가 움직이는가 |
+
+```bash
+bash experiments/scripts/phase5_sim_validity.sh && bash experiments/scripts/phase6_viability.sh
+```
+
+결과는 REPORT.md의 "Phase 5 simulator validity", "Phase 6 viability screening" 표. Phase 6은 variant 하나가 끝날 때마다 리포트를 갱신한다.
 
 시간은 점검에서 잰 속도(오프라인 약 10 ms/window, closed-loop episode당 약 6~10초)로 계산한 추정이다.
 각 Phase 스크립트는 끝나면 `report.sh`를 자동으로 부른다.

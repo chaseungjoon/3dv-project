@@ -85,6 +85,20 @@
 - 평가는 SimplerEnv의 `maniskill2_evaluator`를 그대로 호출한다. 성공 판정, episode 길이, 초기 자세, 배경 overlay 모두 공식 값 (`tools/sim_suites.py`가 공식 `scripts/*.sh`의 인자를 옮긴 것).
 - 점검 episode 관찰: WidowX는 목표 쪽(접시)으로 바로 가는 등 지시를 무시하는 듯한 동작, Google Robot은 몇 step 만에 gripper를 닫고 이동이 매우 작음 (raw 약 0.01 = 약 3 mm/step, 데이터 중앙값 16 mm).
 
+### 6.1 시뮬레이터 검증용 Octo (Phase 5)
+
+- SimplerEnv README가 지정한 Octo 1.0 (`octo-models/octo@653c54a`)을 `experiments/third_party/octo`에 받아 jax 0.6 이름 변경만 적용 (setup.sh 4b단계, `crossformer/`와 같은 sed).
+  설치하지 않고 PYTHONPATH로 쓴다. 추가 의존성: `transformers<5` (T5 언어 인코더의 Flax 모델, v5에서 Flax 제거), `distrax` (Octo action head).
+- 정책은 SimplerEnv의 `OctoInference`를 **수정 없이** 쓰고, 모델만 한 번 로드해서 넘긴다 (`sim_eval.py --policy octo-base`).
+  `'observations' is missing items ... image_wrist, proprio` 경고는 SimplerEnv 공식 사용에서도 나는 것으로 정상이다.
+- Octo-Base는 diffusion head라 sampling이 있다 → 논문처럼 init_rng 0/2/4로 반복.
+
+### 6.2 단계 지표
+
+SimplerEnv는 episode 통계(잡았는가, 맞는 물체를 움직였는가 등)를 **영상 파일 이름**에 넣는다
+(`failure_obj_episode_3_moved_correct_obj_False_..._src_on_target_False.mp4`). `sim_eval.py`가 job마다 새로 생긴 영상 이름을 파싱해
+`episode_stats`로 저장하고, 예전 결과는 `sim_backfill_stages.py`로 채웠다 (성공 수가 기록과 일치하는지 assert).
+
 ## 7. 성능과 메모리 (RTX 5070 12 GB, Ryzen 9 9950X, 64 GB)
 
 | 항목 | 값 |

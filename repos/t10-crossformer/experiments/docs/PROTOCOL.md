@@ -98,8 +98,43 @@ baseline = **공식 사용법 그대로** (Phase 1의 두 variant, Phase 4의 `s
 
 closed-loop의 `action_scale`, `rotation`, `stats`, `sticky_repeat` 등은 이미 `sim_variants.yaml`의 knob으로 열어 두었다.
 
-## 6. 변경 기록
+## 6. Phase 5, 6: 시뮬레이터 검증과 viability screening (baseline 결과를 본 뒤 추가, 실행 전에 기준 고정)
+
+baseline closed-loop 결과(WidowX 19.8%, Google 0.7%/3.8%, 실패는 "잡기" 단계, 움직임이 데이터보다 2~5배 작음)를 보고 추가했다.
+**아래 판정 기준은 Phase 5, 6을 돌리기 전에 정한 것이다.**
+
+### 6.1 Phase 5: 시뮬레이터 검증 (Octo-Base 대조)
+
+SimplerEnv의 공식 Octo wrapper(`simpler_env/policies/octo/octo_model.py`, 수정 없음)와 공식 Octo-Base(Octo@653c54a, SimplerEnv가 논문에 쓴 버전)를
+우리 설치에서 돌린다. WidowX는 논문과 같이 init_rng 0/2/4 × 4 task × 24 episode, Google은 원래 URDF subset (coke can 75, move near 60) seed 0.
+
+- **통과**: WidowX 4 task 평균이 논문 값 평균(16.0%)의 ±10%p 안이고, task 순서(가지가 가장 높음)가 같다.
+  → 우리 시뮬레이터 설치는 믿을 수 있고, CrossFormer의 낮은 성공률은 정책/변환의 문제로 해석한다.
+- **실패**: 위 범위를 벗어나면 closed-loop 숫자에는 "설치 차이 가능성"을 붙이고, 결론은 오프라인 지표 중심으로 낸다.
+- Google 행은 논문(URDF 4종 평균)과 subset이 달라 참고로만 본다.
+
+### 6.2 Phase 6: 출력 변환만 바꾼 screening
+
+가중치와 입력은 그대로, closed-loop 출력 변환만 바꾼다: `sim_notask`, `sim_no_ensemble`, `sim_scale{1.5,2,3,5}` (official `action_scale` knob).
+suite: WidowX 전체 96 episode + Google 원래 URDF subset 135 episode. baseline과 **같은 초기 상태끼리** 비교 (exact McNemar).
+
+- 지표: 성공률, 그리고 성공이 드문 Google을 위해 **단계 지표** (WidowX/coke can: 잡기 성공, move near: 맞는 물체를 움직임).
+- **"유망" 판정**: 어떤 variant가 한 embodiment에서 성공률 또는 단계 지표를 baseline보다 올리고 paired p < 0.05.
+  6 variant × 3 suite = 18개 비교라 screening으로만 쓴다. 유망한 variant는 Google 전체 suite(URDF 4종)로 **한 번 더 확인**한 뒤에만 주장한다.
+- **언어 확인**: `sim_notask`가 baseline과 p ≥ 0.05이고 차이 5%p 이내면 "closed-loop에서도 언어를 쓰지 않는다"로 본다.
+- **T10 진행 판단**:
+  GO = 출력 변환 중 하나 이상이 유망 (T10 범위 안에서 고칠 여지가 있음).
+  보류 = 아무것도 움직이지 않음 → closed-loop 개선 주제는 접고, 오프라인 규약 분석(단위/주기/좌표계 probe)을 주제로 좁히거나 과제 변경 검토.
+
+### 6.3 오프라인 최적 scale
+
+오프라인에서 s·pred ≈ GT인 최소제곱 s*는 0.94~1.12로 거의 1이었다 (REPORT "오프라인에서 예측한 action scale").
+즉 **오프라인 데이터는 closed-loop의 2~5배 부족을 예측하지 못한다**. closed-loop에서 정책이 학습 분포 밖 상태를 보며 움직임을 줄이는 것으로 해석하며,
+그래서 scale은 closed-loop sweep으로 정한다.
+
+## 7. 변경 기록
 
 | 날짜 | 변경 | 이유 |
 |---|---|---|
 | 2026-10-07 | 최초 작성 | |
+| 2026-10-07 | 6절 추가: Phase 5 (Octo 대조), Phase 6 (변환 screening), 단계 지표, paired McNemar, Google 원래-URDF subset | baseline 결과를 본 뒤. 성공이 드물어 성공률만으로는 비교가 안 되고, 시뮬레이터 설치 자체를 검증할 대조군이 없었음 |

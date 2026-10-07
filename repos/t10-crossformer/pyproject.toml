@@ -37,6 +37,9 @@ dependencies = [
     "simpler-env",
     "mani-skill2-real2sim",
     "transforms3d",
+    # Octo 1.0 (simulator-validity control, experiments/third_party/octo on PYTHONPATH): T5 language encoder in Flax
+    "transformers>=4.40,<5",
+    "distrax",
 ]
 
 [dependency-groups]

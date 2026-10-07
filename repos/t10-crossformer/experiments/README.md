@@ -26,6 +26,8 @@ T10의 정의: 여러 로봇 데이터로 학습한 정책을 **고정(frozen)**
 | 2 | 조건(task)과 history 길이의 영향 | REPORT.md 2절 |
 | 3 | 규약 불일치 probe: 관측(crop, 좌우 반전), 제어 주기, action 단위(통계) | REPORT.md 3절 |
 | 4 | **Closed-loop 성공률**: SimplerEnv visual matching (WidowX 4 task, Google Robot 3~4 task) | REPORT.md 4절 |
+| 5 | 시뮬레이터 검증: 같은 설치에서 공식 Octo-Base가 논문 값을 재현하는가 | REPORT.md "Phase 5" |
+| 6 | Viability screening: 출력 변환(언어, ensemble, action_scale)만 바꾼 closed-loop, baseline과 같은 episode끼리 비교 | REPORT.md "Phase 6" |
 
 ### 두 embodiment
 
@@ -64,14 +66,15 @@ experiments/
 │   ├── metrics.py             지표 + 제약 위반 + 통계 probe → results/metrics/
 │   ├── sim_policy.py          SimplerEnv용 CrossFormer 정책 (공식 Octo wrapper와 같은 변환)
 │   ├── sim_suites.py          SimplerEnv 공식 visual-matching episode grid
-│   ├── sim_eval.py            closed-loop 평가 → results/sim/
+│   ├── sim_eval.py            closed-loop 평가 (--policy crossformer|octo-base) → results/sim/ (단계 지표 포함)
+│   ├── sim_backfill_stages.py 단계 지표가 없는 예전 closed-loop 결과에 영상 이름에서 단계 지표 추가
 │   ├── notebook_repro.py      Phase 0
 │   └── aggregate.py           표, 그림, REPORT.md
 ├── scripts/                   실행 스크립트 (setup, pipeline_check, phase0~4, report)
 ├── results/                   (git 포함) conventions/, metrics/, sim/, notebook/, report/
 ├── data/                      (git 제외) held-out subset, 약 1.6 GB
 ├── checkpoints/               (git 제외) crossformer/ 500 MB, tfhub/ 600 MB (문장 인코더)
-├── third_party/               (git 제외) ManiSkill2_real2sim (SimplerEnv scene asset)
+├── third_party/               (git 제외) ManiSkill2_real2sim (SimplerEnv scene asset), octo (Octo 1.0, 대조 정책)
 └── runs/                      (git 제외) pred.npz, closed-loop 영상과 action log
 ```
 

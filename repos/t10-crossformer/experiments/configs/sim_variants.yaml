@@ -12,3 +12,10 @@
 sim_baseline:      {task: lang, window: 5, ensemble: true, action_scale: 1.0, rotation: euler_to_axangle, stats: self}
 sim_notask:        {task: none, window: 5, ensemble: true, action_scale: 1.0, rotation: euler_to_axangle, stats: self}
 sim_no_ensemble:   {task: lang, window: 5, ensemble: false, action_scale: 1.0, rotation: euler_to_axangle, stats: self}
+
+# Phase 6 viability screening (added 2026-10-07 after the baseline, see PROTOCOL.md 6절):
+# closed-loop moves were 2x (WidowX) to 5x (Google) smaller than the demonstrations -> official action_scale knob
+sim_scale1.5:      {task: lang, window: 5, ensemble: true, action_scale: 1.5, rotation: euler_to_axangle, stats: self}
+sim_scale2:        {task: lang, window: 5, ensemble: true, action_scale: 2.0, rotation: euler_to_axangle, stats: self}
+sim_scale3:        {task: lang, window: 5, ensemble: true, action_scale: 3.0, rotation: euler_to_axangle, stats: self}
+sim_scale5:        {task: lang, window: 5, ensemble: true, action_scale: 5.0, rotation: euler_to_axangle, stats: self}

@@ -7,6 +7,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
 set -e
 
 MS2_COMMIT=ef7a4d4fdf4b69f2c2154db5b15b9ac8dfe10682   # pyproject.toml의 mani-skill2-real2sim과 같은 commit
+OCTO_COMMIT=653c54acde686fde619855f2eac0dd6edad7116b  # SimplerEnv가 논문 값에 쓴 Octo 1.0
 
 t10_log "1/6 uv sync"
 uv sync
@@ -25,6 +26,18 @@ if [[ ! -d "$TP/data/real_inpainting" ]]; then
   git -C "$TP" remote add origin https://github.com/simpler-env/ManiSkill2_real2sim
   git -C "$TP" fetch -q --depth 1 origin "$MS2_COMMIT"
   git -C "$TP" checkout -q FETCH_HEAD
+fi
+
+t10_log "4b/6 Octo 1.0 (시뮬레이터 검증용 대조 정책, Octo@${OCTO_COMMIT:0:7} + jax 0.6 API 이름 변경)"
+OC=experiments/third_party/octo
+if [[ ! -f "$OC/octo/model/octo_model.py" ]]; then
+  rm -rf "$OC"; mkdir -p "$OC"
+  git -C "$OC" init -q
+  git -C "$OC" remote add origin https://github.com/octo-models/octo
+  git -C "$OC" fetch -q --depth 1 origin "$OCTO_COMMIT"
+  git -C "$OC" checkout -q FETCH_HEAD
+  grep -rlZ "jax.random.KeyArray\|jax.tree_map\|jax.tree_leaves" "$OC/octo" | xargs -0 sed -i \
+    -e 's/jax\.random\.KeyArray/jax.Array/g' -e 's/jax\.tree_map(/jax.tree.map(/g' -e 's/jax\.tree_leaves(/jax.tree.leaves(/g'
 fi
 
 t10_log "5/6 모델 로드 + 문장 인코더(Universal Sentence Encoder) 캐시"

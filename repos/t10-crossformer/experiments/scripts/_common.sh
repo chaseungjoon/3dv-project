@@ -10,7 +10,8 @@ PY="${PY:-$T10_REPO/.venv/bin/python}"
 DATASETS="${DATASETS:-bridge_dataset fractal20220817_data}"
 EVAL_BATCH="${EVAL_BATCH:-32}"   # 12GB에서 128은 OOM, 32가 안전
 
-export PYTHONPATH="$T10_REPO${PYTHONPATH:+:$PYTHONPATH}"   # crossformer 패키지는 설치하지 않고 경로로 쓴다
+# crossformer와 Octo(시뮬레이터 검증용, third_party)는 설치하지 않고 경로로 쓴다
+export PYTHONPATH="$T10_REPO:$T10_REPO/experiments/third_party/octo${PYTHONPATH:+:$PYTHONPATH}"
 export XLA_PYTHON_CLIENT_PREALLOCATE=false                  # jax가 VRAM 75%를 미리 잡지 않게 (SAPIEN과 공유)
 export TFHUB_CACHE_DIR="${TFHUB_CACHE_DIR:-$T10_REPO/experiments/checkpoints/tfhub}"   # Universal Sentence Encoder
 export MS2_REAL2SIM_ASSET_DIR="${MS2_REAL2SIM_ASSET_DIR:-$T10_REPO/experiments/third_party/ManiSkill2_real2sim/data}"
@@ -40,6 +41,17 @@ t10_require_setup() {
 
 t10_require_sim() {
   [[ -d "$MS2_REAL2SIM_ASSET_DIR/real_inpainting" ]] || { echo "SimplerEnv asset 없음: bash experiments/scripts/setup.sh" >&2; exit 2; }
+}
+
+t10_require_octo() {
+  [[ -f experiments/third_party/octo/octo/model/octo_model.py ]] || { echo "Octo 없음: bash experiments/scripts/setup.sh" >&2; exit 2; }
+}
+
+# closed-loop 한 번: run_sim <suite> <sim_eval 인자...>
+run_sim() {
+  local s="$1"; shift
+  t10_log "closed-loop: $* / $s"
+  "$PY" experiments/tools/sim_eval.py --suite "$s" "$@" 2>&1 | t10_filter | grep -E '^\[sim|^\[octo|^->|rror'
 }
 
 # 한 variant를 오프라인 평가: run_offline <variant> [추가 인자...]
