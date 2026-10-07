@@ -6,6 +6,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Static Badge](https://img.shields.io/badge/Project-Page-a)](https://crossformer-model.github.io/)
 
+> **T10 (3dv-project) setup:** this copy runs on an RTX 5070 with uv (jax 0.6.2 / TF 2.19) and adds a baseline
+> evaluation suite (offline held-out action error + SimplerEnv closed-loop). Start at
+> [experiments/QUICKSTART.md](experiments/QUICKSTART.md); local changes are listed in
+> [experiments/docs/CODE_NOTES.md](experiments/docs/CODE_NOTES.md).
+
 [Ria Doshi](https://www.linkedin.com/in/riadoshi/), [Homer Walke](https://homerwalke.com/), [Oier Mees](https://www.oiermees.com/), [Sudeep Dasari](https://sudeepdasari.github.io/), [Sergey Levine](https://people.eecs.berkeley.edu/~svlevine/)
 <hr style="border: 2px solid gray;"></hr>
 

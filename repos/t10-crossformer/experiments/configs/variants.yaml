@@ -1,0 +1,36 @@
+# Inference-time variants of the frozen CrossFormer policy (no weights change in any of them).
+# Every variant runs open-loop over the held-out episodes of each dataset in configs/datasets.yaml and stores
+# NORMALIZED predictions; unnormalization (which embodiment's statistics) is applied later in metrics.py,
+# so the statistics-swap probes need no extra inference.
+#
+# keys
+#   task:    lang        zero goal image + USE(instruction)          (official notebook, language mode)
+#            goal_final  last frame as goal + zero language          (matches training: released config keeps
+#                                                                      goal images with p=1 and zero-pads language)
+#            goal_final_nb  last frame as goal + USE("")             (official notebook, goal mode)
+#            goal_sub    frame min(t+goal_offset, T-1) as goal       (oracle sub-goal; training relabels goals
+#                                                                      uniformly within 15 steps)
+#            none        zero goal image + zero language             (no task: how much the task matters)
+#   window:  history length fed to the model (1..5; trained with 5)
+#   frame_skip: k>1 feeds every k-th frame and compares with the k summed GT actions
+#               (= running the robot at control_hz / k; probes control-rate mismatch)
+#   image:   squash      resize full frame to 224x224 (training preprocessing)
+#            center_crop crop the central square first, then resize (common deployment mistake on
+#                        non-square cameras; identical to squash for 256x256 Bridge)
+#            hflip       mirror the camera image (camera frame convention flipped)
+
+baseline_lang:      {task: lang, window: 5, frame_skip: 1, image: squash}
+baseline_goal:      {task: goal_final, window: 5, frame_skip: 1, image: squash}
+
+# Phase 2: conditioning and history (how the official usage choices change offline error)
+cond_goal_nb:       {task: goal_final_nb, window: 5, frame_skip: 1, image: squash}
+cond_goal_sub8:     {task: goal_sub, goal_offset: 8, window: 5, frame_skip: 1, image: squash}
+cond_none:          {task: none, window: 5, frame_skip: 1, image: squash}
+hist_w1:            {task: goal_final, window: 1, frame_skip: 1, image: squash}
+hist_w2:            {task: goal_final, window: 2, frame_skip: 1, image: squash}
+
+# Phase 3: convention-mismatch probes (observation side + control rate; action-unit probes are offline)
+rate_x2:            {task: goal_final, window: 5, frame_skip: 2, image: squash}
+rate_x3:            {task: goal_final, window: 5, frame_skip: 3, image: squash}
+obs_center_crop:    {task: goal_final, window: 5, frame_skip: 1, image: center_crop}
+obs_hflip:          {task: goal_final, window: 5, frame_skip: 1, image: hflip}

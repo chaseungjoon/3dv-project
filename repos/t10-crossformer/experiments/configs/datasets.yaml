@@ -1,0 +1,40 @@
+# Held-out evaluation subsets for T10 (offline open-loop).
+# Only a few shards are downloaded; tools/download_subset.py rewrites dataset_info.json so the
+# local copy exposes exactly those shards as split "val".
+#
+# Held-out rule (crossformer/data/dataset.py:457): if a dataset has a "val" split, training used "train";
+# otherwise training used "train[:95%]". So bridge "val", taco "test" and fractal "train[95%:]" were never
+# trained on. download_subset.py asserts this for the shards it picks.
+
+bridge_dataset:            # WidowX 250 (Bridge V2, rail copy = the exact version CrossFormer trained on)
+  embodiment: widowx
+  version: 1.0.0
+  base_url: https://rail.eecs.berkeley.edu/datasets/bridge_release/data/tfds/bridge_dataset/1.0.0
+  source_split: val
+  shards: first:4          # ~215 episodes, ~0.5 GB
+  heldout: split           # whole split unseen in training
+  control_hz: 5
+  # proprio after bridge_dataset_transform = state: [x, y, z, roll, pitch, yaw, gripper] (m, rad)
+  eef_pos_dims: [0, 1, 2]
+
+fractal20220817_data:      # Google Robot (RT-1 data)
+  embodiment: google_robot
+  version: 0.1.0
+  base_url: https://storage.googleapis.com/gresearch/robotics/fractal20220817_data/0.1.0
+  source_split: train
+  shards: last:4           # ~330 episodes, ~0.5 GB, inside train[95%:]
+  heldout: tail95          # only train[95%:] is unseen
+  control_hz: 3
+  # proprio after rt1_dataset_transform = [base_pose_tool_reached (xyz + quat xyzw), gripper_closed]
+  eef_pos_dims: [0, 1, 2]
+
+taco_play:                 # Franka Panda (optional third embodiment, offline only)
+  embodiment: franka
+  version: 0.1.0
+  base_url: https://storage.googleapis.com/gresearch/robotics/taco_play/0.1.0
+  source_split: test
+  shards: first:8          # ~45 episodes, ~0.65 GB
+  heldout: split           # "test" is never read by the CrossFormer loader
+  control_hz: 15
+  # proprio after taco_dataset_transform = [robot_obs[:6] (ee pos m + euler rad), gripper width]
+  eef_pos_dims: [0, 1, 2]
