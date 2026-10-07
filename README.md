@@ -1,7 +1,5 @@
 # 3DV Project
 
-This is a course team project.
-
 ## Layout
 
 | Path | What it is |
