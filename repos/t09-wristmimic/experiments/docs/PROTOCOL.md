@@ -1,6 +1,6 @@
 # T09 실험 프로토콜
 
-과제 T09 Wrist-guided humanoid manipulation. Baseline은 과제 가이드(`3dv-project/README.md` 4절, `05_robotic_manipulation` T09)가 지정한 **WristMimic**이다.
+과제 T09 Wrist-guided humanoid manipulation. Baseline은 **WristMimic**이다.
 이 문서는 **결과를 보기 전에** 정해 둔 규칙이다. 결과를 본 뒤 규칙을 바꾸면 그 사실과 이유를 이 문서 끝 "변경 기록"에 적는다.
 
 작성일: 2026-10-04. 기준 코드: `repos/t09-wristmimic` (원본 commit `8e0178d` + `experiments/docs/CODE_NOTES.md` 1절의 로컬 수정).

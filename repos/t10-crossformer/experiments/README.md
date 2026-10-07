@@ -1,6 +1,6 @@
 # T10 CrossFormer 실험 실행 가이드
 
-과제 **T10 Cross-embodiment robot manipulation** (`3dv-project/05_robotic_manipulation.pdf` T10)의 baseline 평가 가이드다.
+과제 **T10 Cross-embodiment robot manipulation**의 baseline 평가 가이드다.
 baseline은 가이드가 지정한 **CrossFormer** (공식 130M 체크포인트 `hf://rail-berkeley/crossformer`, inference only)이다.
 
 - 바로 실행: [QUICKSTART.md](QUICKSTART.md)

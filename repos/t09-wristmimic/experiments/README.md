@@ -1,7 +1,7 @@
 # T09 WristMimic 실험 실행 가이드
 
 과제 **T09 Wrist-guided humanoid manipulation**의 baseline 학습, 손목 변형 실험, 평가, 발표 자료 생성을 위한 실행 가이드다.
-baseline은 과제 가이드(`3dv-project/README.md`)가 지정한 **WristMimic**이고, 전체 계획은 `3dv-project/proposal.md`에 있다.
+baseline은 **WristMimic**이고, 전체 계획은 `3dv-project/PROPOSAL_T09.md`에 있다.
 
 - 무엇을 어떻게 재는지(규칙, 지표 정의, 가설 판정): [`docs/PROTOCOL.md`](docs/PROTOCOL.md)
 - 코드에서 확인한 사실과 원본 대비 변경점(발표 슬라이드용): [`docs/CODE_NOTES.md`](docs/CODE_NOTES.md)
@@ -145,7 +145,7 @@ GPU 1장, 순차 실행. epoch당 6.15초 기준이다 (평가는 run당 수 분
 | Phase 5 (변형 2개) | 4 | 13.7 h | 20.5 h | 27.3 h |
 | **합계** | 17 | **65 h** | **92 h** | **120 h** |
 
-**중간발표 최소선** (proposal.md 5절): Phase 1 + Phase 2 + Phase 3의 앞 두 개(`reset_off`, `pos2_x2`) + 실패 영상 1개.
+**중간발표 최소선** (PROPOSAL_T09.md 5절): Phase 1 + Phase 2 + Phase 3의 앞 두 개(`reset_off`, `pos2_x2`) + 실패 영상 1개.
 T = 3000이면 10.3 + 10.3 + 10.3 ≈ **31시간**.
 
 ## 5. 모니터링
@@ -238,10 +238,10 @@ bash experiments/scripts/record_video.sh experiments/runs/<run>/nn/<run>_000XXXX
 
 ## 9. 중간발표 체크리스트 대응
 
-| 체크리스트 (`3dv-project/README.md` 6절) | 근거 자료 |
+| 중간발표 체크리스트 | 근거 자료 |
 |---|---|
-| 과제, 입출력 1장 | proposal.md 1절 |
-| baseline 선택 이유와 상태 (Conditional) | proposal.md 2절, CODE_NOTES.md 1절 |
+| 과제, 입출력 1장 | PROPOSAL_T09.md 1절 |
+| baseline 선택 이유와 상태 (Conditional) | PROPOSAL_T09.md 2절, CODE_NOTES.md 1절 |
 | 입력 1개 실행 + 측정 (GPU, VRAM, 시간) | `REPORT.md` 9절 자원 표, 이 문서 2절 |
 | 같은 조건의 정량 평가 | `REPORT.md` 2~5절 (같은 예산 T, 같은 평가 설정) |
 | 관찰한 실패 사례 | `videos/*.mp4` + `fig_series_*.png` + `REPORT.md` 6절 |

@@ -1,6 +1,6 @@
 # T10 실험 프로토콜
 
-과제 T10 Cross-embodiment robot manipulation. Baseline은 과제 가이드(`3dv-project/05_robotic_manipulation.pdf` T10)가 지정한
+과제 T10 Cross-embodiment robot manipulation. Baseline은 과제 가이드가 지정한
 **CrossFormer** (공식 130M 체크포인트, frozen)이다. 이 문서는 **본 결과를 보기 전에** 정해 둔 규칙이다.
 결과를 본 뒤 규칙을 바꾸면 그 사실과 이유를 끝의 "변경 기록"에 적는다.
 

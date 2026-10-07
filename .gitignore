@@ -28,3 +28,6 @@ __pycache__/
 !/isaacgym-env/.toolchain/sm120-pytorch-2.4.1.patch
 
 # repos/t09-wristmimic has its own .gitignore (checkpoints, experiments/runs, wandb, ...)
+
+# Course handouts
+*.pdf
