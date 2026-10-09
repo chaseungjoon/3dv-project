@@ -1,0 +1,2 @@
+run,task,step,n,successes,success_rate,ci_lo,ci_hi,mean_steps
+02_push_button_dp_s1000,02_push_button,200,2,2,1.0,0.34237195288961925,1.0,324.5

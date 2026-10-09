@@ -1,0 +1,39 @@
+[project]
+name = "skillmimic-v2-env"
+version = "0.1.0"
+description = "uv env for SkillMimic-V2 on RTX 5070: Isaac Gym Preview 4 + source-built torch 2.4.1 (sm_120)"
+requires-python = "==3.8.*"
+dependencies = [
+    "isaacgym",
+    "torch==2.4.1+cu128sm120",
+    "rl-games==1.1.4",
+    "gym==0.26.2",
+    "numpy==1.23.5",  # torch wheel is built against the numpy 1.23 C-API; <1.24 keeps np.float etc.
+    "scipy",
+    "pyyaml",
+    "termcolor==1.1.0",
+    "tensorboard>=2.13.0",
+    "tensorboardX",
+    "protobuf==3.20.0",
+    "six",
+    "pytorch-lightning==1.9.0",
+    "trimesh==4.2.4",
+    "easydict",
+    "psutil",
+    "joblib",
+    "setproctitle",
+    "ninja",
+    "setuptools<70",
+    "matplotlib>=3.7,<3.8",
+    "imageio",
+    "imageio-ffmpeg",
+    "opencv-python-headless<4.11",
+    "tqdm",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+isaacgym = { path = "../../isaacgym-env/isaacgym/python", editable = true }
+torch = { path = "../../isaacgym-env/wheels/torch-2.4.1+cu128sm120-cp38-cp38-linux_x86_64.whl" }

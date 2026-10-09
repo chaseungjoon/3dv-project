@@ -1,0 +1,9 @@
+__pycache__
+# 3dv: dataset (9 GB unzipped) and local outputs
+/data/seq/
+/data/scan/
+/data/smplx_seq/
+/data/*.zip
+/.venv/
+/experiments/runs/
+/experiments/logs/

@@ -27,3 +27,6 @@ __pycache__/
 /experiments/runs/
 /experiments/results/_checks/
 /experiments/results/videos/frames_*/
+
+# 3dv: generated from the ParaHome scan by ../parahome/experiments/tools/make_bookshelf_asset.py (115 MB)
+/intermimic/data/assets/parahome/sim_object/bookshelf/base_*.obj
