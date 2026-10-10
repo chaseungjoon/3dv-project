@@ -1,219 +1,199 @@
-# T09 Wrist-guided Humanoid Manipulation (WristMimic) 제안서
+# T09 제안서: SkillMimic-V2 baseline (컵 / 책 / 주전자)
 
-과제: **T09. Wrist-guided humanoid manipulation** (Theme 5, Conditional candidate, 난이도 High)
-Baseline: **WristMimic** (Yu et al., ECCV 2026, arXiv 2607.06438)
+과제: **T09. Wrist-guided humanoid manipulation** (Theme 5, Conditional candidate)
+Baseline: **SkillMimic-V2** (Yu et al., SIGGRAPH 2025, arXiv 2505.02094), 코드 `Ingrid789/SkillMimic-V2@8e05ad7`
+장면: ParaHome **Drink Cup**, **Place Book**, **Place Kettle** (clip 하나에 정책 하나)
 환경: RTX 5070 12GB, Ubuntu 24.04, Isaac Gym Preview 4, 직접 빌드한 torch 2.4.1 (sm_120)
+작성: 2026-10-10 · 상태: **준비와 점검 완료, baseline 학습 전**
 
-> **진행 현황 (2026-10-04).** Step 0~3(환경 고정, 장면/손 모델 고정, 평가 파이프라인, 지표 기록)은 끝났다.
-> 실행 방법은 `repos/t09-wristmimic/experiments/README.md`, 규칙과 지표 정의는 같은 폴더의 `docs/PROTOCOL.md`에 있다.
-> 이 제안서와 달라진 점: (1) 손 모델은 `s110_ROM.xml`(데이터 뼈 길이와 일치)로 확정, (2) **평가가 결정적이지 않다**
-> (GPU PhysX 비결정성) → 결정적 평가도 env 8개로 반복, (3) 실측 epoch 시간 6.15초 → 1000 epoch ≈ 1.7시간.
-> 다음 할 일은 Step 4(Phase 1 긴 학습)부터다.
+> **결정 (2026-10-10).** 팀은 T09의 baseline을 WristMimic에서 **SkillMimic-V2**로 바꾸고, `BASELINE_T09_VARIETY.md`에서 고른
+> 세 clip(컵, 책, 주전자)으로 baseline을 만든다. 이유는 셋이다.
+> (1) WristMimic은 이 GPU에서 주전자를 쥐고 드는 순간(frame 45~60)을 넘지 못해 성공률 0%였다 (`BASELINE_T09.md`).
+> (2) SkillMimic-V2는 WristMimic 논문의 비교 대상이고(과제 안내서 T09 항목), 같은 ParaHome 데이터와 같은 Isaac Gym을 쓰며,
+> 논문에서 세 clip 모두 성공률 100%다. (3) 논문과 같은 2048 env가 12GB에 들어간다 (WristMimic은 2048 env에서 메모리 부족).
+> 실행 방법: `repos/skillmimic-v2/QUICKSTART.md`. 결과: `BASELINE_SKILLMIMIC.md` (`write_results.sh`가 자동 생성).
 
 ---
 
 ## 1. 문제 정의
 
-**한 줄 요약.** 사람의 물체 조작 동작(ParaHome)을 시뮬레이터 속 휴머노이드가 따라 하게 할 때, **손목 관련 설정만** 바꾸면 잡기 성공률과 전신 안정성이 어떻게 달라지는지 잰다.
+**한 줄 요약.** 사람이 컵, 책, 주전자를 다루는 동작(ParaHome)을 시뮬레이터 속 휴머노이드가 물리적으로 따라 하게 학습하고,
+**물체를 쥐고 들어 올리는 데 성공하는지**, 실패한다면 **어느 순간에** 실패하는지 잰다.
 
 | | 내용 |
 |---|---|
-| 입력 | 참조 시퀀스 1개(SMPL-X 몸 자세, 물체 궤적, 접촉 라벨), 휴머노이드 XML, 물체 URDF, Isaac Gym |
-| 출력 | 장면 1개당 PPO 정책 1개, 그리고 성공률, 물체 자세 오차, 손목 reset 횟수, 안정성 지표(넘어짐, 발 미끄러짐, 관절 한계 도달, 몸통 기울기) |
-| 핵심 가정 | 손목은 거의 접촉이 없어서 kinematic하게 따라가도 된다. 손가락은 자세 목표 없이 물체 추적 보상과 접촉 보상만으로 잡는 법을 배운다 |
-| 바꾸는 것 | 손목 항목만: ① 손목 reset 임계값(위치, 회전, 3단계), ② 손목 보상 가중치(`gwp*`, `gwr*`), ③ 접촉 window 시점(`resetWindow*`, `resetTransitionFrame*`) |
-| 안 바꾸는 것 | 네트워크 구조, PPO 하이퍼파라미터, 손가락/몸/물체 보상, 관측, 데이터 |
+| 입력 | 참조 시퀀스 1개 (몸 자세, 손가락 관절, 물체 궤적), 휴머노이드 MJCF (ParaHome 골격, 상자 모양 손가락), 물체/가구 모델, Isaac Gym |
+| 출력 | clip 하나에 PPO 정책 하나, 그리고 과제 성공률, 들어올림 성공률, 물체 위치 오차, 넘어짐, 실패 frame, 학습 시간과 VRAM |
+| 핵심 가정 | 사람 동작 데이터는 잡음이 있고 드물다 (clip 하나). 그래도 참조 주변에는 물리적으로 가능한 궤적이 많다. 그 주변 전체에서 시작해 참조로 돌아오는 법을 배우면 잡기가 강건해진다 |
+| baseline 단계에서 바꾸는 것 | 없음. 논문 설정 그대로, 학습량만 하드웨어에 맞춰 줄인다 (5절) |
 
-**왜 어려운가.** 손 위치 궤적에는 접촉 힘 정보가 없다. 손가락까지 모두 따라가게 하면 잡기가 과하게 제약되고, 손목 제약을 빼면 잡기 자체가 안 생긴다. 모션 캡처 오차로 손목이 잡을 수 있는 영역을 벗어나면 물체를 떨어뜨린다. 그리고 손목을 세게 맞추라고 하면 그 대가를 하체/몸통이 치를 수 있다(넘어짐, 발 미끄러짐). 이 줄다리기가 우리가 재려는 것이다.
+**왜 어려운가.** 손가락과 물체 사이 2 cm 오차만으로도 잡기가 깨진다. 모션 캡처 데이터에는 이 정도 오차가 흔하고, 그러면 참조를 그대로
+따라가는 정책은 "쥐고 드는" 한 지점에서 연쇄가 끊긴다 (논문의 "chain break"). T09 WristMimic baseline이 정확히 이 지점(주전자 들기
+시작)에서 0%였다. SkillMimic(v1)도 논문에서 세 clip 모두 0%다.
 
-## 2. Baseline 선택 이유와 현재 상태
+## 2. 왜 SkillMimic-V2인가
 
-- 과제 가이드가 지정한 기본 baseline이고, 코드, ParaHome/OMOMO 동작 데이터, 물체 모델이 **저장소에 다 들어 있다**(따로 받을 데이터 없음).
-- 시뮬레이터 안에서 **성공률을 직접 잴 수 있다**(테스트 모드에 성공률과 물체 오차 출력이 이미 있다).
-- 실험 변수(손목 임계값, 가중치, window)가 모두 `parahome_train.yaml` 한 파일에 모여 있어서, "손목 항목만 바꾼다"는 범위를 지키기 쉽다.
-- **공개 체크포인트가 없다.** baseline 수치는 우리가 직접 학습해서 만들어야 한다. 이것이 일정상 가장 큰 부담이다.
+| 기준 | WristMimic (이전 baseline) | SkillMimic-V2 (새 baseline) |
+|---|---|---|
+| T09와의 관계 | 과제 안내서의 기본 baseline | 안내서에 WristMimic의 비교 대상으로 나옴. 같은 데이터(ParaHome), 같은 시뮬레이터 |
+| 이 GPU에서 결과 | 6000 epoch, 성공 0%. 주전자를 쥐고 드는 순간(frame 45~60)에서 막힘 | 아직 없음 (이 제안서의 baseline) |
+| 논문 성공률 (세 clip) | 주전자 장면만 시도 | Drink Cup 100%, Place Book 100%, Place Kettle 100% (표 2) |
+| 2048 env (논문 설정) | 메모리 부족 → 1024로 줄임 | 들어감 (9.5~10.8 GB) |
+| 학습 종료 조건 | 물체, 손목, 접촉이 벗어나면 끝 (엄격) | 넘어질 때만 끝. 랜덤 frame에서 시작 |
+| 공개 코드 | 있음 | 있음. 단 ParaHome 학습 명령, 모델, history encoder는 미공개 → 코드를 읽고 맞춤 (7절) |
 
-### 이 컴퓨터에서 확인한 것 (2026-09-29)
+**주전자 clip이 다리 역할을 한다.** T09에서 실패한 물체와 같은 물체라서, "방법을 바꾸면 주전자도 되는가"를 직접 본다.
+컵(한 손, 들어서 입으로)과 책(두 손으로 들어 옮기기)은 같은 방법이 다른 물체에서도 되는지를 본다.
 
-| 항목 | 결과 |
-|---|---|
-| Isaac Gym GPU 물리 / viewer | ✅ |
-| PyTorch | ⚠️ PyPI의 cp38 torch는 sm_120 커널이 없어 직접 빌드(`isaacgym-env/wheels`, 약 25분) |
-| WristMimic 학습 1024 envs | ✅ 약 5,700 env-step/s, 최대 VRAM 8.2GB |
-| WristMimic 학습 512 envs | ✅ 약 4,700 env-step/s, 6.5GB |
-| WristMimic 학습 2048 envs (논문 설정) | ❌ CUDA OOM |
-| 장면 하나를 끝까지 학습하는 시간 | **아직 모름. 가장 먼저 재야 함** |
-| 테스트(평가) 모드 | **아직 안 돌려 봄** |
+## 3. 방법 요약 (논문 4절)
 
-### 원본 대비 바뀐 것 (발표 때 반드시 명시)
+SkillMimic-V2는 **RLID**(Reinforcement Learning from Interaction Demonstration) 위에 데이터 증강 2개와 학습 기법 2개를 얹는다.
 
-| 항목 | 논문/원본 | 우리 | 이유 |
+| 구성 요소 | 논문 | 이 코드에서 | ParaHome에서 |
 |---|---|---|---|
-| 병렬 환경 수 | 2048 | 1024 | 12GB VRAM |
-| PPO epoch당 샘플 | 2048×32 = 65,536 (minibatch 16,384 × 4) | 1024×32 = 32,768 (minibatch 16,384 × 2) | 위와 같음. epoch당 gradient step이 절반 |
-| PhysX 버퍼 | `default_buffer_size_multiplier` 20, `max_gpu_contact_pairs` 33.5M | 5, 8.4M (`parahome_train_12gb.yaml`) | 원래 값은 24GB용이라 메모리 할당 실패 |
-| numpy | 1.21.1 | 1.23.5 | 직접 빌드한 torch의 C-API |
-| `silu` 활성화 | rl-games에 없음(원본 버그) | network builder에 등록 | `ValueError: silu` |
-| GPU | RTX 3090 24GB | RTX 5070 12GB | |
+| 보상 | 몸 × 물체 × 상대 위치 × 접촉, 곱 형태라 [0, 1] (식 2) | `compute_humanoid_reward`. 가중치 p 20, r 20, op 1, rel 20 (표 10) | 접촉 항은 끔 (r_cg = 1) |
+| **STF** (State Transition Field) | 참조 상태 주변 ε 안에서 시작 상태를 뽑고(ε-NSI), 가장 비슷한 참조 frame으로 연결. 거리가 멀면 그 사이에 **빈(masked) frame**을 넣어 보상 없이 건너게 함 (식 6, 7) | `--state_init_random_prob 0.1` (p_n = 0.1), `noisy_resample_time`, `--enable_buffernode` (빈 frame 수 = min(−⌊log10 유사도⌋, 10)) | 사용 |
+| **ATS** (Adaptive Trajectory Sampling) | 시작 frame을 그 frame에서 시작했을 때의 평균 보상이 낮을수록 자주 뽑음 (식 8) | `--reweight --reweight_alpha 1.0`. 가중치 exp(−5·r̄) | 사용 |
+| **HE** (History Encoder) | 지난 60 frame을 3차원으로 압축해 정책 입력에 붙임. 미리 학습하고 고정 (식 9, 10) | `--hist_length 60 --history_embedding_size 3` | 사용 (encoder는 우리가 학습, 7절) |
+| STG (Stitched Trajectory Graph) | 다른 skill의 상태에서 이 skill로 넘어가는 연결을 만듦 | `--graph_file` | **안 씀** (논문 5.3절: 물체가 서로 달라 연결이 무의미) |
 
-저장소 commit: `8e0178d` + 위 로컬 수정(`intermimic_network_builder.py`, `parahome_train_12gb.yaml`, `pyproject.toml`).
-**우리 결과는 "논문 재현"이 아니라 "축소 설정에서의 baseline"이라고 부른다.**
+- 정책: MLP 1024-512-512, 행동 분산 고정 0.055 (σ = e^−2.9), PPO (표 8). 학습 episode 60 frame.
+- 논문과 코드가 다른 점: ATS의 λ_s가 논문 표 9에는 10, 코드에는 5. **코드 값을 쓴다** (논문 결과도 이 코드에서 나왔다고 본다).
 
-## 3. 연구 질문과 가설 (초안)
+## 4. 데이터: 세 clip
 
-baseline을 돌려서 실제 실패 사례를 본 뒤 하나로 확정한다. 지금은 후보 두 개.
+| clip | 내용 | 길이 | 물체 / 가구 | ParaHome 장면 | 논문 SR / ε-NSR / NR (SM + Ours) | 논문 SkillMimic(v1) SR |
+|---|---|---|---|---|---|---|
+| `drink_cup` | 식탁의 컵을 한 손으로 들어 입으로 가져가 마시기 | 180 frame (6초) | cup / diningtable | s6 | 100 / 33.9 / 0.89 | 0 |
+| `place_book` | 책상의 책을 들어 옮겨 놓기 | 150 frame (5초) | book / desk | s6 | 100 / 82.4 / 0.86 | 0 |
+| `place_kettle` | 주전자를 들어 옮겨 놓기 | 100 frame (3.3초) | kettle / diningtable | s10 | 100 / 49.9 / 0.52 | 0 |
 
-- **RQ1. 손목 reset window의 폭은 잡기 성공과 전신 안정성을 어떻게 맞바꾸는가? 위치 임계값과 회전 임계값 중 어느 쪽이 더 민감한가?**
-  - 가설 H1: stage 2(접촉 직후 "key part") 손목 **위치** 임계값을 0.07m에서 2배/0.5배로 바꾸면, **회전** 임계값(0.2rad)을 같은 비율로 바꿀 때보다 성공률이 더 크게 변한다(3 seed 평균 차이로 판정).
-  - 반증 조건: 위치 쪽 변화량 ≤ 회전 쪽 변화량이면 기각.
-- **RQ2. 손목 보상 가중치를 높이면(손목 우선) 하체 안정성이 나빠지는가? 접촉 window를 앞/뒤로 옮기면 무엇이 먼저 깨지는가?**
-  - 가설 H2: `gwp`를 70에서 30으로 낮추면 발 미끄러짐/몸통 기울기는 줄지만 물체 위치 오차는 커진다.
-  - 반증 조건: 안정성 지표가 개선되지 않거나, 물체 오차가 커지지 않으면 기각.
+clip은 저장소에 들어 있는 것을 그대로 쓴다. 가구 위치는 원본 ParaHome 시퀀스(`repos/parahome/data/seq/s6, s10, s22`)에서 읽는다.
 
-## 4. 비교, 지표, 평가 규칙
+## 5. 실험 설정 (고정)
 
-**최소 비교 (가이드 기준).** ① WristMimic 기본 손목 설정, ② 손목 제약 없음(손목 reset 끔), ③ 제안 손목 설정. 중간발표에서는 ①을 확실히, ②는 가능하면, ③은 계획으로 보여준다.
+| 항목 | 값 | 근거 |
+|---|---|---|
+| 방법 | SkillMimic-V2 = SM + STF + ATS + HE + buffer node (STG 없음) | 논문 5.3절의 ParaHome 설정 |
+| 환경 설정 | 업스트림 `parahome_<clip>_hist60_noisyinit_simpara.yaml` 그대로 (세 clip 같은 물리, 같은 보상) | |
+| env 수 | **2048** (논문과 같음) | 12GB에 들어감 (실측 9.5~10.8 GB) |
+| PPO | 논문 표 8 그대로: 65,536 샘플/update, minibatch 16,384, lr 2e-5, γ 0.99, GAE 0.95, clip 0.2 | |
+| 예산 | clip당 **3000 epoch = 1.97억 샘플** (논문 약 1.0B의 20%) | T09 WristMimic baseline과 **같은 샘플 수**. 논문 예산은 이 GPU에서 clip당 약 45시간 |
+| seed | 0 | 시간 제약. 결과가 판정 경계(0.5 근처)면 seed 추가 |
+| 체크포인트 | **10 epoch마다, 하나도 지우지 않음** (clip당 약 300개, 13 GB) | 학습이 끊겨도 잃는 것은 최대 10 epoch(약 2분) |
+| 이어 학습 | 같은 명령을 다시 실행하면 마지막 체크포인트부터 epoch, optimizer, 정규화 통계, ATS 상태, 난수 상태까지 복원 | 원본 코드는 가중치만 복원했다 (7절) |
+
+학습 시간 (실측 s/epoch 기준): 컵 약 8.9시간, 책 약 8.8시간, 주전자 약 10시간, 합계 약 28시간. 평가는 run당 약 10분.
+
+## 6. 평가 규칙과 지표 (결과를 보기 전에 고정)
+
+**평가 규칙.**
+
+1. 참조 frame 2에서 시작해 300 step(10초) 진행. **처음 넘어지면 그 env는 거기서 끝** (재시작 없음. 업스트림 player는 재시작한 뒤의 frame까지 합산한다).
+2. `det` = 결정적 행동 8 env. GPU PhysX가 비트 단위로 재현되지 않아 결정적이어도 여러 번 돌린다 (T09에서 확인). 8 env의 해상도는 0.125이므로 그보다 작은 차이는 "차이 없음".
+3. `stoch` = 학습 때의 행동 잡음으로 32 env. `stoch_perturb` = 물체 시작 자세 교란(z축 ±45°, xy 10 cm 이내) 32 env = 논문 ε-NSR과 같은 범위.
+4. 250 epoch마다의 체크포인트를 `det`로 평가해 학습 곡선을 만든다. 마지막(3000 epoch)은 세 방식 모두.
+5. 학습 clip = 평가 clip. 일반화나 실제 로봇 성공을 주장하지 않는다.
 
 **지표.**
 
-| 종류 | 지표 | 지금 코드에 있나 |
+| 지표 | 정의 | 왜 |
 |---|---|---|
-| 성공 | 공식 성공(시퀀스 끝까지 termination 없음, `--test_no_reset`) | ✅ 있음 |
-| 성공 | 진행률(처음 실패한 프레임 / 시퀀스 길이) | ❌ 추가 필요 |
-| 물체 | 물체 위치 오차(m), 회전 오차(rad), 에피소드 평균 | ✅ 있음 |
-| 손목 | 손목 위치/회전 추적 오차(좌/우), 손목 reset 발생 횟수 | ❌ 추가 필요 (계산은 이미 하고 있음, 기록만 안 함) |
-| 안정성 | 넘어짐(몸 높이 < `terminationHeight`), 발 미끄러짐(접지 중 발 수평 속도), 관절 한계 도달 비율, 몸통 기울기(몸통 up 벡터와 z축 각도) | ❌ 추가 필요 |
-| 실패 원인 | 어떤 termination이 먼저 걸렸나: 넘어짐 / 몸 kinematic / 물체 / 손목 / 접촉 | ❌ 추가 필요 |
-| 자원 | 학습 시간(wall-clock), epoch 수, env-step 수, 최대 VRAM | 일부(wandb/tensorboard) |
+| **과제 성공** | clip의 모든 frame에서 물체 위치 오차 ≤ 10 cm **그리고** 넘어지지 않음 | T09의 "과제 성공"과 같은 정의 → WristMimic 결과와 바로 비교 |
+| **들어올림 성공** | 참조 들어올림 높이의 50% 이상 들었고, 그때 물체가 손목 0.2 m 안 | T09가 막힌 "쥐고 들기"만 따로 본다 |
+| 논문 지표 | 업스트림 metric (Place: 골반 z > 0.5, 손목-물체 < 0.2 m, 물체 z > 0.9가 60 frame 넘게. Drink: 물체 z > 1.2가 30 frame 넘게) | 논문 SR과 비교 (참고용. 주전자 참조 자체가 60 frame 조건을 45 frame만 만족) |
+| 실패 frame | 처음으로 물체 오차 > 10 cm 또는 넘어진 frame | 실패가 들기 전/중/후 어디서 나는지. 참조의 들기 시작 frame과 같이 보고 |
+| 그 밖 | 과제 진행률, 물체/몸 추적 오차, 넘어짐 비율, 최대 들어올림 높이, 들고 있던 frame 수, 학습 속도, VRAM | |
 
-**평가 규칙 (지키지 않으면 비교가 무의미해진다).**
+## 7. 원본 대비 바뀐 것 (발표 때 반드시 명시)
 
-1. **평가 기준은 모든 설정에서 같아야 한다.** 코드상 테스트 모드의 "실패"에는 손목 reset 조건(설정 파일의 임계값)이 포함된다. 즉 학습용 손목 임계값을 바꾼 설정을 그 설정 그대로 평가하면 **채점 기준 자체가 바뀐다.** 모든 변형은 **같은 테스트 설정 파일(기본 임계값)** 로 평가하고, 손목 조건과 무관한 지표도 따로 보고한다:
-   - "과제 성공" = 시퀀스 내내 물체 위치 오차 < ε **그리고** 넘어지지 않음. ε는 baseline 결과를 보기 **전에** 정해 고정한다(예: 0.1m, 근거를 같이 적음).
-2. **평가가 결정적(deterministic)이다.** 시작 상태가 고정(`stateInit: Start`)이고 정책도 결정적이라, 같은 체크포인트를 env 1개로 여러 번 돌리면 같은 결과가 나온다. 그래서 성공률의 분산은 **학습 seed**에서 나온다. 보고 방식:
-   - 주 지표: seed 3개 × 결정적 평가 1회 → "3개 중 몇 개 성공" + 진행률/오차의 평균±표준편차
-   - 보조 지표: 확률적 행동(σ = e^-2.9 ≈ 0.055)으로 env 32개 평가 → 행동 잡음에 대한 강건성 성공률
-3. **학습 장면 = 평가 장면이다**(장면당 정책 1개). 일반화를 주장하지 않는다. 시뮬레이터 성공률을 실제 로봇 성공률이라고 하지 않는다.
-4. 모든 비교는 **같은 학습 예산**(같은 epoch 수 또는 같은 wall-clock)에서 한다.
+| 항목 | 원본 | 우리 | 동작 영향 |
+|---|---|---|---|
+| GPU / 학습량 | RTX 4090 24GB, clip당 약 1.0B 샘플 | RTX 5070 12GB, 1.97억 샘플 (20%) | **있음.** "논문 재현"이 아니라 "축소 예산 baseline"이라고 부른다 |
+| PyTorch | conda torch | 직접 빌드한 torch 2.4.1 cu128 sm_120 (T09와 같은 휠) | 없음 |
+| ParaHome 실행 경로 | README에 없음, 모델/encoder 미공개 | 코드에서 방법 ↔ task/asset/플래그 대응을 찾음 (`experiments/docs/CODE_NOTES.md` 2절). History encoder는 ParaHome 8개 clip으로 직접 학습 (3000 epoch, 6분, MSE 0.00023) | encoder가 원본과 다를 수 있음 |
+| 장면 pickle 읽기 | env마다 40 MB 파일을 다시 읽음 | 경로별 1회 캐시 | 없음 (시작이 약 105초 빨라짐) |
+| **이어 학습** | `--resume_from`이 가중치와 입력 정규화만 복원 → epoch 0부터 다시 세고, optimizer와 value 정규화가 초기화되고, 앞 구간의 번호 체크포인트를 **덮어씀** (점검에서 확인) | epoch, optimizer, value 정규화, frame, ATS 가중치, 난수 상태까지 저장/복원. 저장은 임시 파일에 쓰고 이름 바꾸기 (끊겨도 깨진 파일 없음) | 없음 (끊기지 않은 run과 같은 학습이 이어짐) |
+| 체크포인트 주기 | 50 epoch (최신 1개만 유지) | 10 epoch, 번호 붙여 모두 유지 | 없음 |
+| 평가 | player의 성공률 (재시작 frame 합산) | 우리 평가기 (`experiments/tools/evaluate.py`, 6절 규칙) | 측정 방식만 다름 |
 
----
+## 8. 예상 결과와 판정 기준 (실험 전에 고정)
 
-## 5. Baseline 실행 계획: 처음부터 끝까지
+**예상** (`BASELINE_T09_VARIETY.md` 4절의 추정을 그대로 옮김, 확률은 대략):
 
-목표: 중간발표 체크리스트(한 입력 실행 + 측정, 같은 조건의 정량 평가, 관찰한 실패 사례, 연구 질문과 반증 가능한 가설, 실험 계획)를 채울 만큼의 baseline 결과.
+| clip | 예상 | 될 확률 | 근거 |
+|---|---|---|---|
+| 컵 | 들어올림은 됨. 10 cm 안으로 끝까지 따라가기는 더 드묾 | 약 60% | 느슨한 종료 조건. 학습량은 논문의 20% |
+| 책 | 잡고 듦, 옮기다 어긋남 | 약 50% | 논문에서 가장 강건했던 clip (ε-NSR 82.4%) |
+| 주전자 | 셋 중 가장 어려움 | 약 35% | 논문에서도 SM + Ours만 성공. NR 0.52로 가장 낮음 |
 
-### Step 0. 환경 고정과 기록 (반나절)
+**판정** (`repos/skillmimic-v2/experiments/docs/PROTOCOL.md` 5절. `write_results.sh`가 이 규칙을 그대로 적용해 적는다):
 
-- [ ] `repos/t09-wristmimic`에 지금 로컬 수정을 commit해서 기준점을 만든다(원본 commit `8e0178d`와 diff가 남도록).
-- [ ] 기록할 것: GPU, 드라이버(595.71), CUDA 12.8 toolkit, torch wheel 이름, Isaac Gym 버전, Python 3.8, numpy 1.23.5.
-- [ ] `run.py`가 실행마다 설정 snapshot, git 정보, `test_command.sh`를 실험 폴더에 저장하는지 확인한다. 이걸 결과 provenance로 쓴다.
-- [ ] wandb 대신 tensorboard만 쓸지 정한다(`WANDB_MODE=disabled` 또는 offline). 팀원이 결과를 같이 볼 방법도 정한다.
-- [ ] `isaacgym-env/README.md`의 torch 빌드 과정을 최종 README에 옮길 준비를 한다(교수님 재현용). 이 디렉터리를 옮기면 wheel 경로를 다시 패치해야 한다는 점도 적는다.
-
-### Step 1. 장면과 손 모델 고정 (1시간)
-
-- [ ] 주 장면: **`s110_0_kettle_table2desk`** (주전자 옮기기. 기본 학습 스크립트와 가이드 예시가 모두 이 장면).
-- [ ] 예비 장면 1개: 한 손, 작은 물체(예: `s110_16_cup_drink` 또는 `s79_0_cup_desk2table`). 주 장면이 학습이 안 될 때만 쓴다.
-- [ ] 손 모델 하나로 고정: README는 `s110_intermimic_ROM.xml`, 스크립트는 `s110_ROM.xml`을 쓴다. 두 XML의 손 차이를 확인해서 **하나만** 고르고 이유를 적는다.
-- [ ] 각 장면의 시퀀스 길이(프레임 수)와 처음 접촉하는 프레임을 적는다. 학습 episode 길이(300)와 테스트 episode 길이(1000) 대비 어디까지 덮는지 확인한다.
-
-### Step 2. 평가 파이프라인을 먼저 뚫는다 (반나절, 긴 학습 전에 반드시)
-
-긴 학습을 돌린 뒤에 평가가 안 되는 걸 발견하면 하루가 날아간다. 짧게 학습해서 끝까지 한 번 통과시킨다.
-
-- [ ] 기본 설정으로 **짧게 학습**(예: 500 epoch, 약 1시간)해서 체크포인트를 하나 만든다.
-- [ ] 테스트 모드로 그 체크포인트를 돌린다. 확인할 것:
-  - [ ] **관측 차원이 맞는가.** `parahome_test.yaml`은 `numObsNew: 3492`, 학습 설정은 `2236`이다. 체크포인트 로딩이 실패하면 학습 값에 맞춘 테스트 설정을 만든다.
-  - [ ] **PhysX 버퍼.** 테스트 설정은 24GB용 원래 값(20, 33.5M)이다. 메모리 오류가 나면 `parahome_test_12gb.yaml`을 만든다.
-  - [ ] **평가가 끝나는가.** player 코드에 `num_test_episodes = 10000`이 하드코딩되어 있다. 에피소드 수 상한을 인자로 받게 하거나, 원하는 수에서 멈추게 한다.
-  - [ ] headless로 평가가 되는가. 영상 저장(viewer 녹화)이 되는가(실패 사례용).
-- [ ] 성공/실패와 물체 오차가 출력되는 것까지 확인하면 통과.
-
-### Step 3. 지표 기록 추가 (1일, 동작은 바꾸지 않음)
-
-정책 동작은 건드리지 않고 **기록만** 추가한다.
-
-- [ ] 실패 원인 분해: termination을 만든 조건(넘어짐 / 몸 kinematic / 물체 / 손목 / 접촉)을 env별로 저장하고, 처음 실패한 프레임을 저장한다.
-- [ ] 손목: 좌/우 손목 위치·회전 오차(이미 보상 계산에서 구함), 손목 reset 조건이 참이 된 횟수. `--test_no_reset`에서는 reset이 실제로 일어나지 않으므로 "조건 발생 횟수"로 센다.
-- [ ] 안정성: 넘어짐 여부, 발 미끄러짐(발 접촉 중 발 수평 속도의 평균/누적), 관절 한계 근처(ε 이내) 비율, 몸통 기울기(최대/평균).
-- [ ] 과제 성공(위 4장 규칙 1의 ε 기준) 계산.
-- [ ] 에피소드별 결과를 CSV/JSON으로 저장(체크포인트 이름, seed, 설정 이름, 모든 지표). 발표 표와 그래프는 이 파일에서 만든다.
-- [ ] **검증:** Step 2의 체크포인트로 기록 추가 전/후 성공 여부와 물체 오차가 같은지 확인한다(기록 코드가 동작을 바꾸지 않았다는 증거).
-
-### Step 4. 학습 길이 측정: 가장 큰 미지수 (하룻밤, 약 10~12시간)
-
-- [ ] 기본 손목 설정, seed 0, 1024 envs, `parahome_train_12gb.yaml`로 **한 번 길게** 학습한다. 체크포인트는 500 epoch마다 저장된다.
-  - 어림 계산: epoch당 1024×32 = 32,768 env-step, 약 5,700 step/s면 epoch당 약 6초(업데이트 포함하면 더 걸림) → 시간당 약 500~600 epoch, 12시간이면 약 6,000 epoch(약 2억 env-step). **실측해서 바꾼다.**
-- [ ] 학습 중 tensorboard/wandb로 볼 것: `mean_rewards`, `episode_lengths`, `info/episode_progress_ratio_90`, `info/contact_progress`, `info/num_resets`.
-- [ ] 저장된 체크포인트(500, 1000, 2000, 3000, …)를 Step 3 평가로 돌려서 **학습 곡선**(성공/진행률/물체 오차 vs epoch, vs 시간)을 그린다.
-- [ ] 곡선이 평평해지는 지점 또는 감당 가능한 상한 중 작은 쪽으로 **학습 예산 T**(epoch 수)를 정한다. 이후 모든 실험은 같은 T.
-- [ ] 논문에 장면당 학습 시간/step 수가 나와 있으면 찾아서 우리 T와 비교해 적는다.
-- [ ] **12시간 안에 진행률이 거의 오르지 않으면:** 예비 장면으로 바꾸거나, 512 envs로 줄여 다른 장면과 동시에 돌리는 것을 검토한다(VRAM 6.5GB × 2가 12GB에 들어가는지 먼저 확인).
-
-### Step 5. Baseline 본 실험: 기본 설정 × 3 seed (T 시간 × 3)
-
-- [ ] seed 0(Step 4 것 재사용), 1, 2로 기본 설정을 T epoch 학습한다(`--seed`).
-- [ ] 각 seed의 최종 체크포인트로 평가:
-  - 결정적 평가 env 1개 (공식 프로토콜)
-  - 확률적 평가 env 32개 (보조)
-- [ ] 결과 표: seed별 공식 성공 / 과제 성공 / 진행률 / 물체 위치·회전 오차 / 손목 오차 / reset 조건 발생 수 / 넘어짐 / 발 미끄러짐 / 관절 한계 / 몸통 기울기 / 학습 시간 / VRAM. 그리고 평균±표준편차.
-
-### Step 6. 손목 축이 의미가 있는지 보여주는 최소 비교 (T 시간 × 2~3)
-
-baseline만으로는 "이 축을 바꾸면 뭔가 달라진다"는 근거가 없다. 가이드의 첫 실험과 최소 비교 중 일부를 seed 1개로 미리 돌린다.
-
-- [ ] **손목 제약 없음:** 손목 reset 조건을 끈 설정(3단계 임계값을 매우 크게). 손목 보상 가중치는 그대로 두어 "reset만" 바꾼 것으로 한정한다.
-- [ ] **stage 2 위치 임계값 2단계:** 0.07m → 0.14m(느슨), 0.035m(엄격). 시간이 부족하면 느슨한 쪽 하나만.
-- [ ] 평가는 **모두 같은 테스트 설정(기본 임계값)** 과 과제 성공 기준으로 한다(4장 규칙 1).
-- [ ] 설정마다 바뀐 값만 다른 yaml 파일로 만들고, 파일 이름에 변수와 값을 넣는다(예: `wrist_pos2_0.14.yaml`). 다른 값은 절대 건드리지 않는다.
-
-### Step 7. 실패 사례 수집 (반나절)
-
-- [ ] 실패한 에피소드를 viewer로 녹화한다(학습은 headless, 평가만 화면 켜고 env 1개).
-- [ ] 실패 원인별로 분류: (a) 손목이 잡기 영역을 벗어나 물체를 떨어뜨림, (b) 잡았지만 물체 궤적에서 벗어남, (c) 넘어짐/발 미끄러짐, (d) 손가락이 잡기를 못 만듦.
-- [ ] 발표용으로 1~2개를 고른다: 영상 + 그 시점의 손목 오차/물체 오차 그래프 + 어떤 termination이 걸렸는지.
-- [ ] 이 실패 사례를 근거로 3장 RQ1/RQ2 중 하나를 고르고 가설을 확정한다.
-
-### Step 8. 발표 자료로 정리 (1일)
-
-- [ ] 표 1: baseline 3 seed 결과(평균±표준편차) + 자원(학습 시간, VRAM, env-step/s).
-- [ ] 표 2: 최소 비교(기본 / 손목 reset 끔 / 임계값 변형), 같은 예산 T, 같은 평가 기준.
-- [ ] 그림 1: 학습 곡선(Step 4).
-- [ ] 그림 2: 실패 사례 영상 캡처와 시간축 오차 그래프.
-- [ ] 슬라이드 1장: 원본 대비 바뀐 것(2장 표). "논문 재현 아님, 축소 설정 baseline"이라고 명시.
-- [ ] 슬라이드 1장: 확정한 연구 질문, 반증 가능한 가설, 남은 주차 실험 계획(변수, seed 수, 예산, ablation).
-- [ ] 재현용: 실행 명령, 설정 파일, 체크포인트 경로를 README에 적는다.
-
-### 시간 예산 (GPU 1장, 실험은 순서대로만 가능)
-
-| 단계 | GPU 시간 | 비고 |
+| 결과 (최종 체크포인트, det) | 해석 | T09 다음 단계 |
 |---|---|---|
-| Step 2 짧은 학습 + 평가 | 약 1~2h | |
-| Step 4 긴 학습(seed 0) | 약 10~12h | 하룻밤 |
-| Step 4 체크포인트 평가 | 약 1~2h | 평가 1회 시간은 Step 2에서 잰다 |
-| Step 5 seed 1, 2 | 2 × T | T를 8h로 잡으면 16h |
-| Step 6 비교 2~3개 | 2~3 × T | 16~24h |
-| **합계** | **약 45~55 GPU-시간** | T = 8h 가정. T가 짧으면 줄어든다 |
+| clip 하나 이상에서 과제 성공 또는 들어올림 성공 ≥ 0.5 | 12GB/5070은 이 과제에 근본 장애가 아니다. WristMimic 0%의 주원인은 방법(엄격한 종료, 항상 frame 0 시작) | SkillMimic-V2 위에서 손목 항목 연구 (9절) |
+| 세 clip 모두 < 0.5, 마지막 1000 epoch 동안 보상 +1% 이상 또는 과제 진행률 +0.05 이상 | 예산 부족. 메모리 문제는 아니다 (2048 env가 들어감) | 같은 run을 이어서 더 학습 (`EPOCHS=6000 bash run_cup.sh`, 체크포인트가 그대로 이어짐) |
+| 세 clip 모두 < 0.5, 곡선 평평 | 이 GPU 설정에서 이 종류의 과제가 막힌다 | 물리 버퍼 점검, 과제 범위 재검토 |
 
-**중간발표 최소선** (시간이 부족할 때): 기본 설정 seed 2개 이상 + 학습 곡선 + 손목 reset 끔 1개 + 실패 사례 1개. 이것만 있어도 체크리스트의 "같은 조건의 정량 평가", "관찰한 실패", "가설"을 채울 수 있다.
-**권장선:** 위 Step 5, 6 전부(seed 3개, 비교 3개).
+"보상 +1% / 진행률 +0.05"는 PROTOCOL의 "곡선이 계속 오름"을 숫자로 정한 것이다 (2026-10-10, 결과 전).
 
-GPU가 하나라 학습이 도는 동안 할 일: Step 3 코드, 실패 영상 정리, 논문 읽기(WristMimic, InterMimic), 슬라이드.
+## 9. Baseline 이후: T09 연구 질문과의 연결 (초안)
 
-## 6. 위험과 대응
+T09는 "손목 항목만 바꾸고 잡기 성공과 전신 안정성을 잰다"가 범위다. SkillMimic-V2에는 손목 전용 항목이 없다.
+손목은 관절 회전 보상(모든 관절 평균)과 상대 위치 보상에 섞여 있고, 위치 보상의 key body(머리, 무릎, 팔꿈치, 발목, 손가락 끝)에는 손목이 없다.
+그래서 baseline 결과를 본 뒤 **WristMimic의 손목 항목을 SkillMimic-V2에 하나씩 넣는 것**을 실험 변수로 삼는다.
+
+| 변수 | 내용 | 기본값 (baseline) |
+|---|---|---|
+| 손목 reset window | 접촉 구간(잡기~들기)에서 손목이 참조에서 임계값(위치, 회전)보다 벗어나면 episode 종료. WristMimic 값 7 cm / 0.2 rad에서 시작 | 없음 (넘어질 때만 종료) |
+| 손목 보상 가중치 | 손목 위치/회전 추적 항을 따로 두고 가중치를 바꿈 | 없음 (관절 회전 평균에 섞임) |
+| 접촉 window 시점 | 위 window의 시작/끝 frame을 앞뒤로 옮김 | - |
+
+- 안내서의 최소 비교와의 대응: **손목 제약 없음** = SkillMimic-V2 기본 (이 baseline), **WristMimic 기본 손목 설정** = 위 window를 WristMimic 값으로, **제안 손목 설정** = 결과를 보고 정함.
+- 가설 후보 H1: 주전자 clip에 WristMimic의 손목 reset window를 넣으면 들어올림 성공률이 baseline보다 0.25 이상 떨어진다
+  (= 엄격한 종료 조건이 T09 0%의 원인이라는 설명의 직접 검증). 차이가 0.25 미만이면 기각.
+- 가설 후보 H2: 손목 보상 가중치를 높이면 손목 오차는 줄지만 넘어짐과 몸통 기울기가 늘어난다. 안정성 지표가 나빠지지 않으면 기각.
+- 필요한 추가 작업: 평가기에 손목 추적 오차, 발 미끄러짐, 몸통 기울기, 관절 한계 도달 비율을 기록으로만 추가 (동작 불변).
+- 이 대응은 **baseline 결과와 담당 교수 확인 뒤에 확정**한다. 지금 확정하지 않는다.
+
+## 10. 실행 계획 (사용자가 터미널에서 직접, GPU 작업은 한 번에 하나)
+
+```bash
+cd ~/code/3dv-project/repos/skillmimic-v2
+bash run_cup.sh       # 약 9시간 + 평가 10분
+bash run_book.sh      # 약 9시간 + 평가 10분
+bash run_kettle.sh    # 약 10시간 + 평가 10분
+bash write_results.sh # -> ~/code/3dv-project/BASELINE_SKILLMIMIC.md (GPU 안 씀, 언제든 다시 실행 가능)
+```
+
+| 순서 | 할 일 | 시간 | 확인할 것 |
+|---|---|---|---|
+| 0 | 파이프라인 점검 (끝남, 2026-10-10) | 15분 | 끊고 다시 실행했을 때 epoch, optimizer, ATS 상태가 이어지는가 |
+| 1 | 컵 | 약 9시간 | 1000 epoch(약 3시간)에서 TensorBoard 보상 곡선. 평평하면 8절 판정표 3행을 의심 |
+| 2 | 책 | 약 9시간 | |
+| 3 | 주전자 | 약 10시간 | T09와의 직접 비교 |
+| 4 | `write_results.sh`, 실패 영상 녹화 (viewer, env 1개) | 수 분 | 판정, 실패 frame vs 참조 들기 시작 frame |
+| 5 | 9절 변수 확정, 교수 확인 | - | |
+
+- **끊기면 같은 명령을 다시 실행한다.** 학습은 마지막 체크포인트(최대 10 epoch 전)부터, 평가는 남은 것만 한다.
+- 중간에 체크포인트를 평가하고 싶으면 Ctrl-C로 멈추고 `bash experiments/scripts/eval_run.sh <run> curve 1000` 후 다시 `run_cup.sh`. 학습은 그대로 이어진다.
+- 디스크: 체크포인트 run당 약 13 GB, 세 run 약 39 GB (여유 818 GB).
+
+## 11. 위험과 대응
 
 | 위험 | 대응 |
 |---|---|
-| 장면 하나 학습이 하루 이상 걸림 | Step 4에서 가장 먼저 확인. 예비 장면(짧고 한 손) 또는 512 envs 2개 동시 실행 |
-| 1024 envs라 논문만큼 학습이 안 됨 | 결과에 명시. 같은 조건끼리만 비교하므로 손목 변수의 효과 비교는 유효 |
-| 평가가 결정적이라 성공률이 0/1뿐 | 진행률, 오차 같은 연속 지표 + seed 3개 + 확률적 평가로 보완 |
-| 손목 임계값이 채점 기준에도 들어 있음 | 같은 테스트 설정 고정 + 손목과 무관한 "과제 성공" 따로 보고 |
-| 직접 빌드한 PyTorch 재현 | 빌드 스크립트, patch, wheel 경로 패치 방법을 README에 정리 |
-| 공개 체크포인트 없음 | 모든 수치는 우리 학습 결과. 논문 숫자와 섞어 쓰지 않는다 |
+| baseline 변경을 과제 범위 밖으로 볼 수 있음 | SkillMimic-V2는 안내서에서 WristMimic의 비교 대상. 손목 항목을 실험 변수로 유지 (9절). 첫 결과와 함께 교수 확인 |
+| 3000 epoch로는 부족 (논문의 20%) | 판정표 2행. 체크포인트가 완전히 이어지므로 같은 run을 늘려 학습 |
+| 2048 env에서 메모리 부족 | 실측 최대 10.8 GB (여유 1~2.5 GB). 학습 중 GPU를 쓰는 다른 프로그램을 끈다. 그래도 안 되면 `NUM_ENVS=1536` (보고서에 명시) |
+| 결과가 0.5 근처에서 애매함 | seed 1, 2 추가. 8 env 해상도(0.125) 안의 차이는 "차이 없음" |
+| History encoder가 원본과 다름 | 학습 설정을 업스트림 스크립트와 같게 했고 로그를 남김 (`experiments/logs/hist_encoder.log`). 결과 해석 때 명시 |
+| GPU 비결정성 | 결정적 평가도 8 env 반복 (6절) |
 
-## 7. 참고
+## 12. 참고
 
+- SkillMimic-V2: Learning Robust and Generalizable Interaction Skills from Sparse and Noisy Demonstrations, Yu et al., SIGGRAPH 2025 (arXiv 2505.02094)
+- SkillMimic: Learning Basketball Interaction Skills from Demonstrations, Wang et al., CVPR 2025 (arXiv 2408.15270)
 - WristMimic: Full-Body Humanoid Control with Wrist-Guided Manipulation, Yu et al., ECCV 2026 (arXiv 2607.06438)
-- InterMimic: Towards Universal Whole-Body Control for Physics-Based Human-Object Interactions, Xu et al., CVPR 2025 (arXiv 2502.20390)
-- DexMachina: Functional Retargeting for Bimanual Dexterous Manipulation, Mandi et al., arXiv 2025 (arXiv 2505.24853)
-- ParaHome 데이터셋 (저장소 `InterAct/Parahome/`)
+- ParaHome: Parameterizing Everyday Home Activities Towards 3D Generative Modeling of Human-Object Interactions, Kim et al., 2024
+- 이 프로젝트: `BASELINE_T09.md` (WristMimic 0%), `BASELINE_T09_VARIETY.md` (이번 선택의 배경), `repos/skillmimic-v2/experiments/docs/{PROTOCOL,CODE_NOTES}.md`

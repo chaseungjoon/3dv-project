@@ -1,3 +1,0 @@
-run,clip,method,num_envs,seed,epochs_done,samples,fps_total,s_per_epoch,wall_h,peak_gpu_mib,last_reward
-drink_cup_ours_n2048_s0,drink_cup,ours,2048,0,31,2031616,6131,10.69,0.16,11168.0,7.62
-drink_cup_sm_n2048_s0,drink_cup,sm,2048,0,21,1376256,10133,6.47,0.04,10926.0,8.12

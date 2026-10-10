@@ -54,8 +54,9 @@ params:
     score_to_win: 20000
     max_epochs: 20000 #100000
     save_best_after: 50
-    save_frequency: 250  # [3dv] was 50; with save_intermediate this keeps a numbered checkpoint every 250 epochs (learning curve)
+    save_frequency: 10  # [3dv] was 50; with save_intermediate every save also keeps a numbered checkpoint (never overwritten)
     save_intermediate: True
+    resume_full_state: True  # [3dv] --resume_from restores epoch, optimizer, normalizers, ATS state, RNG (skillmimic_agent.py)
     print_stats: True
     grad_norm: 1.0
     entropy_coef: 0.0

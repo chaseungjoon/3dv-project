@@ -37,6 +37,7 @@ from isaacgym.torch_utils import *
 import time
 from datetime import datetime
 import numpy as np
+import random
 from torch import optim
 import torch 
 from torch import nn
@@ -69,14 +70,34 @@ class SkillMimicAgent(common_agent.CommonAgent):
         if self._normalize_input:
             self._input_mean_std = RunningMeanStd(self._amp_observation_space.shape).to(self.ppo_device)
         self.resume_from = config['resume_from']
+        self._resume_full_state = config.get('resume_full_state', False)  # [3dv] experiments/configs/train/parahome.yaml
         self.done_indices = []
 
         return
 
     def train(self):
         if self.resume_from != 'None':
-            self.restore(self.resume_from)
+            if self._resume_full_state:
+                self.restore_full_state(self.resume_from)
+            else:
+                self.restore(self.resume_from)
         super().train()
+
+    def restore_full_state(self, fn):
+        # [3dv] continue a run exactly: weights + normalizers, epoch, optimizer, frame, task ATS state, RNG.
+        # restore() below only loads weights and input normalizers, so a resumed run restarted at epoch 0
+        # with a fresh optimizer and overwrote the numbered checkpoints of the first segment.
+        checkpoint = torch_ext.load_checkpoint(fn)
+        self.set_full_state_weights(checkpoint)
+        rng = checkpoint.get('rng_state')
+        if rng is not None:
+            torch.set_rng_state(rng['torch'])
+            torch.cuda.set_rng_state_all(rng['cuda'])
+            np.random.set_state(rng['numpy'])
+            random.setstate(rng['python'])
+        self._resumed_full_state = True
+        print(f"=> resumed full training state: epoch {self.epoch_num}, frame {self.frame}, "
+              f"env_state {'restored' if checkpoint.get('env_state') is not None else 'none'}")
 
     def init_tensors(self):
         super().init_tensors()

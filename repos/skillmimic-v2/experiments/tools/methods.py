@@ -3,8 +3,8 @@
     python experiments/tools/methods.py train_args <clip> <method>   # prints run.py flags for training
     python experiments/tools/methods.py list                         # clips and methods
 
-Methods follow Table 2 of the paper (arXiv 2505.02094). The README has no ParaHome commands, so the
-mapping below was read from the code (experiments/docs/CODE_NOTES.md 2).
+The baseline is SkillMimic-V2 ("SM + Ours" in Table 2 of arXiv 2505.02094) on three ParaHome clips. The README
+has no ParaHome commands, so the mapping below was read from the code (experiments/docs/CODE_NOTES.md 2).
 """
 import os
 import sys
@@ -28,23 +28,9 @@ METHODS = {
         common=["--hist_length", "60", "--history_embedding_size", "3", "--hist_ckpt", HIST_CKPT],
         train=["--reweight", "--reweight_alpha", "1.0", "--state_init_random_prob", "0.1", "--enable_buffernode"],
     ),
-    # SM: SkillMimic (v1) baseline. Random reference state init only.
-    "sm": dict(
-        task="SkillMimicParahome",
-        asset="mjcf/mocap_parahome_boxhand.xml",
-        common=[],
-        train=[],
-    ),
-    # SM + T: SM conditioned on the reference phase t/len (repeated 6x in the observation).
-    "sm_t": dict(
-        task="SkillMimicParahomePhase",
-        asset="mjcf/mocap_parahome_boxhand_refobj.xml",        # obs +6 (phase)
-        common=[],
-        train=[],
-    ),
 }
 
-TRAIN_CFG = os.environ.get("SMV2_TRAIN_CFG", "experiments/configs/train/parahome.yaml")  # pipeline check: save every 10
+TRAIN_CFG = os.environ.get("SMV2_TRAIN_CFG", "experiments/configs/train/parahome.yaml")
 EPISODE_LENGTH = 60   # paper Table 8: T = 60
 
 

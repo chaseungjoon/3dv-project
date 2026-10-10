@@ -29,8 +29,11 @@
 import copy
 from datetime import datetime
 from gym import spaces
+import glob
 import numpy as np
 import os
+import random
+import re
 import time
 import yaml
 
@@ -111,11 +114,14 @@ class CommonAgent(a2c_continuous.A2CAgent):
 
     def train(self):
         self.init_tensors()
-        self.last_mean_rewards = -100500
+        resumed = getattr(self, '_resumed_full_state', False)  # [3dv] keep the restored frame counter
+        if not resumed:
+            self.last_mean_rewards = -100500
         start_time = time.time()
         total_time = 0
         rep_count = 0
-        self.frame = 0
+        if not resumed:
+            self.frame = 0
 
         self.obs = self.env_reset()
         # self.vec_env.env.task.gym.simulate(self.vec_env.env.task.sim) # test for 0th hoi reward (failed)(because of forward kinematics not applied to cal body pos in reset)
@@ -133,6 +139,8 @@ class CommonAgent(a2c_continuous.A2CAgent):
         # 用于存储最佳模型的列表，每个元素为 (reward, filepath)
         best_models = []
         best_reward = -float('inf')  # Initialize the best reward
+        if resumed:  # [3dv] continue the best-checkpoint bookkeeping from the files of earlier segments
+            best_models, best_reward = self._existing_best_models(model_output_file)
         
         while True:
             epoch_num = self.update_epoch()
@@ -216,6 +224,29 @@ class CommonAgent(a2c_continuous.A2CAgent):
                     
                 update_time = 0
         return
+
+    # [3dv] checkpoints for exact resume (experiments/scripts/train.sh): RNG state in the file, atomic write
+    def get_full_state_weights(self):
+        state = super().get_full_state_weights()
+        state['rng_state'] = dict(torch=torch.get_rng_state(), cuda=torch.cuda.get_rng_state_all(),
+                                  numpy=np.random.get_state(), python=random.getstate())
+        return state
+
+    def save(self, fn):
+        # write to a temp file and rename, so an interrupt never leaves a truncated .pth behind
+        state = self.get_full_state_weights()
+        print("=> saving checkpoint '{}'".format(fn + '.pth'))
+        torch.save(state, fn + '.pth.tmp')
+        os.replace(fn + '.pth.tmp', fn + '.pth')
+
+    def _existing_best_models(self, model_output_file):
+        best = []
+        for p in glob.glob(glob.escape(model_output_file) + '_e*_r*.pth'):
+            m = re.search(r'_e\d+_r(-?[\d.]+)\.pth$', p)
+            if m:
+                best.append((float(m.group(1)), p[:-len('.pth')]))
+        best.sort(key=lambda x: x[0], reverse=True)
+        return best, (best[0][0] if best else -float('inf'))
 
     def set_full_state_weights(self, weights):
         self.set_weights(weights)

@@ -5,7 +5,7 @@ import math
 import torch
 from torch import Tensor
 from typing import Tuple, Dict
-import glob, os, random
+import copy, glob, os, random
 from isaacgym import gymtorch
 from isaacgym import gymapi
 from isaacgym.torch_utils import *
@@ -243,6 +243,28 @@ class SkillMimicParahome(HumanoidWholeBodyWithObjectParahome):
                 # reweight the motion time
                 self._motion_data._reweight_time_sampling_rate(self.motion_time_seqreward)
     #######################################################################
+
+    # [3dv] ATS state for exact training resume (skillmimic/run.py RLGPUEnv.get_env_state -> checkpoint)
+    def get_train_state(self):
+        md = self._motion_data
+        return dict(
+            progress_buf_total=int(self.progress_buf_total),
+            motion_time_seqreward={k: v.detach().cpu().clone() for k, v in self.motion_time_seqreward.items()},
+            average_rewards=copy.deepcopy(self.average_rewards),
+            time_sample_rate={k: torch.as_tensor(v).detach().cpu().clone() for k, v in md.time_sample_rate.items()},
+            motion_weights=copy.deepcopy(getattr(md, '_motion_weights', None)),
+        )
+
+    def set_train_state(self, state):
+        md = self._motion_data
+        self.progress_buf_total = state['progress_buf_total']
+        for k, v in state['motion_time_seqreward'].items():
+            self.motion_time_seqreward[k] = v.to(self.device)
+        self.average_rewards = copy.deepcopy(state['average_rewards'])
+        for k, v in state['time_sample_rate'].items():
+            md.time_sample_rate[k] = v.clone()
+        if state.get('motion_weights') is not None:
+            md._motion_weights = copy.deepcopy(state['motion_weights'])
 
     def _compute_reset(self):
         self.reset_buf[:], self._terminate_buf[:] = compute_humanoid_reset(self.reset_buf, self.progress_buf,

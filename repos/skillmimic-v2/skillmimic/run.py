@@ -164,6 +164,17 @@ class RLGPUEnv(vecenv.IVecEnv):
         else:
             return self.full_state["obs"]
 
+    # [3dv] the task's training state (ATS sampling weights, step counter) is saved in every checkpoint
+    # through rl_games' get_full_state_weights, so experiments/scripts/train.sh can resume exactly
+    def get_env_state(self):
+        task = getattr(self.env, 'task', None)
+        return task.get_train_state() if hasattr(task, 'get_train_state') else None
+
+    def set_env_state(self, env_state):
+        task = getattr(self.env, 'task', None)
+        if env_state is not None and hasattr(task, 'set_train_state'):
+            task.set_train_state(env_state)
+
     def get_number_of_agents(self):
         return self.env.get_number_of_agents()
 

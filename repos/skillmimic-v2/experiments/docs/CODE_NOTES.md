@@ -1,4 +1,4 @@
-# SkillMimic-V2 코드 노트 (2026-10-09)
+# SkillMimic-V2 코드 노트 (2026-10-09, 2026-10-10 이어 학습 수정 추가)
 
 업스트림: `github.com/Ingrid789/SkillMimic-V2@8e05ad7` (2025-07-24). README에는 BallPlay/Locomotion 명령만 있고
 **"Household Manipulation Policy" 절이 비어 있다** (ParaHome 모델도 미공개, TODO에 남아 있음). 그래서 ParaHome 학습 경로는
@@ -21,6 +21,10 @@
 |---|---|---|
 | `skillmimic/env/tasks/humanoid_object_task.py` | ParaHome 장면 pickle(`object_transformations.pkl`, 약 40 MB)을 env마다 다시 읽던 것을 경로별 1회로 캐시 | 없음 (읽기 전용). 2048 env 시작이 약 105초 빨라짐 |
 | `skillmimic/run.py` | 환경변수 `SMV2_RUN_NAME`이 있으면 run 폴더 이름에 타임스탬프를 붙이지 않음 (`full_experiment_name`) | 없음. `train.sh`의 자동 이어 학습용 |
+| `skillmimic/learning/skillmimic_agent.py` | config `resume_full_state: True`이면 `--resume_from`이 `restore_full_state()`를 부른다: 가중치, 입력/value/amp 정규화, epoch, optimizer, frame, task 학습 상태(`env_state`), 난수 상태(torch/cuda/numpy/python) 복원. 원본 `restore()`는 가중치와 입력 정규화만 읽어서, 이어 학습이 **epoch 0부터 다시 세고** optimizer와 value 정규화가 초기화되고 **앞 구간의 번호 체크포인트를 덮어썼다** (2026-10-09 점검: 20 epoch 뒤 이어서 30까지 → 실제로 31 epoch를 더 돌고 `_00000010`, `_00000020`을 새로 씀) | 이어 학습이 끊기지 않은 학습과 같아짐. 처음부터 하는 학습에는 영향 없음 |
+| `skillmimic/learning/common_agent.py` | `save()`: 임시 파일(`.pth.tmp`)에 쓰고 `os.replace` (끊겨도 깨진 체크포인트 없음). `get_full_state_weights()`: 난수 상태 추가. `train()`: 이어 학습이면 frame 카운터를 0으로 되돌리지 않고, 최고 보상 체크포인트 관리(상위 2개 유지)를 기존 파일에서 이어감 | 없음 |
+| `skillmimic/run.py` (`RLGPUEnv`) | `get_env_state`/`set_env_state`가 task의 `get_train_state`/`set_train_state`를 부른다 (rl_games가 체크포인트에 `env_state`로 넣음. 원본은 항상 `None`) | 없음 |
+| `skillmimic/env/tasks/skillmimic_parahome.py` | `get_train_state`/`set_train_state`: ATS 상태(`progress_buf_total`, frame별 보상 `motion_time_seqreward`, `time_sample_rate`, clip 가중치) | 없음 (이어 학습 때 ATS가 처음부터 다시 쌓이지 않음) |
 | `skillmimic/data/motions/ParaHome/s6, s10, s22` | 원본 ParaHome 시퀀스로의 symlink (`setup.sh`) | 업스트림 코드가 책상/식탁 위치를 `ParaHome/s10/object_transformations.pkl` frame 0에서 읽는데 저장소에 없다. 가구 위치는 s6과 s10에서 같다 (확인) |
 
 ### 1.3 우리가 추가한 설정 (업스트림 파일은 그대로 둠)
@@ -28,10 +32,13 @@
 | 파일 | 내용 |
 |---|---|
 | `experiments/configs/env/<clip>.yaml` | 업스트림 `parahome_sm/parahome_<clip>_hist60_noisyinit_simpara.yaml`의 복사본. 세 clip 모두 같은 물리/보상. `assetFileName`은 방법마다 `--asset_file_name`으로 덮어쓴다 |
-| `experiments/configs/train/parahome.yaml` | 업스트림 `parahome.yaml` + `save_frequency 50→250`, `save_intermediate: True` (250 epoch마다 번호 붙은 체크포인트 = 학습 곡선). 학습에는 영향 없음 |
+| `experiments/configs/train/parahome.yaml` | 업스트림 `parahome.yaml` + `save_frequency 50→10`, `save_intermediate: True` (10 epoch마다 번호 붙은 체크포인트, 지우지 않음), `resume_full_state: True`. 학습에는 영향 없음 |
+| `experiments/tools/ckpt.py` | 이어 학습할 체크포인트 고르기: `nn/`의 모든 체크포인트 중 epoch가 가장 크고 정상적으로 읽히는 것. 남은 `.pth.tmp` 삭제 |
 | `experiments/tools/train_hist_encoder.py` | 업스트림 `utils/state_prediction_parahome.py`는 import하면 하드코딩된 경로로 학습을 시작하고 체크포인트도 저장하지 않는다. 같은 dataset/model 클래스를 그대로 쓰고 CLI와 저장만 붙였다 |
 
 ## 2. 논문 방법 ↔ 코드 대응 (README에 없음, 코드에서 확인)
+
+baseline은 **SM + Ours**만 쓴다 (`experiments/tools/methods.py`). SM, SM + T 행은 논문 표 2를 읽을 때 참고용.
 
 | 논문 (Table 2) | task class | asset (관측 크기를 정함) | 학습 플래그 |
 |---|---|---|---|
@@ -57,11 +64,11 @@
 
 - torch 몫은 할당 2.3 GB / 예약 2.6 GB뿐이고 나머지(약 7.5 GB)는 PhysX GPU 버퍼 + CUDA context다. 메모리는 시작 직후 정해지고 학습 중 늘지 않았다.
 - 12GB 카드에서 여유는 1~2.5 GB다. 학습 중에는 GPU를 쓰는 다른 프로그램(브라우저 하드웨어 가속 등)을 끈다.
-- 1024 env (Phase 3): SM + Ours 약 5,300 samples/s, 약 6.2 s/epoch → 6000 epoch 약 10시간. SM 약 8,500 samples/s.
 - 평가 (det 8 env, 300 step): 체크포인트당 약 11초 + 환경 생성 약 40초.
 - 병목은 물리다 (프로파일: step당 PhysX 0.15 s, Python 루프 약 0.07 s). 2048 env에서 1024보다 샘플 처리량이 거의 늘지 않는다.
 - 논문 BallPlay 1.3B 샘플/24시간(4090) = 약 15,000 samples/s → 이 GPU는 약 2.4배 느리다. 논문 1.0B 샘플은 clip당 약 45시간이라
   예산을 T09와 같은 샘플 수(1.97억)로 잡았다 (PROTOCOL.md 1절).
+- 체크포인트 하나 43 MB. 10 epoch마다 모두 유지하면 3000 epoch run당 약 300개, 13 GB. 저장은 약 1초라 학습 속도에 영향 없음.
 - T09(WristMimic)는 2048 env에서 OOM이었지만 SkillMimic-V2는 2048 env가 들어간다 (손가락이 상자 형태, PhysX 버퍼 배수 10).
 
 ## 4. 원본 코드의 함정 (평가 해석에 중요)
