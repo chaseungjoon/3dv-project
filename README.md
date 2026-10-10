@@ -6,7 +6,7 @@
 | --- | --- |
 | `repos/t09-wristmimic/` | WristMimic (humanoid manipulation, Isaac Gym). Our experiments are in `experiments/` |
 | `repos/t10-crossformer/` | CrossFormer (cross-embodiment robot policy). Our experiments are in `experiments/` |
-| `repos/skillmimic-v2/` | **T09 baseline.** SkillMimic-V2 (Isaac Gym) on ParaHome Drink Cup / Place Book / Place Kettle: `run_cup.sh`, `run_book.sh`, `run_kettle.sh`, `write_results.sh` |
+| `repos/skillmimic-v2/` | **T09 baseline.** SkillMimic-V2 (Isaac Gym) on ParaHome Drink Cup / Place Book / Place Kettle: `run_all.sh` (cup → book → kettle, resumable) or `run_cup.sh` / `run_book.sh` / `run_kettle.sh`, then `write_results.sh` |
 | `repos/parahome/` | Full ParaHome dataset (7.7 GB) + clip audit, T09 viability check. Not needed by `skillmimic-v2` (it keeps its own copy of the 3 scenes it reads) |
 | `repos/humanoidmimicgen/` | HumanoidMimicGen (MuJoCo, G1) Push Button with Diffusion Policy. T09 viability check |
 | `isaacgym-env/` | Isaac Gym + PyTorch 2.4.1 built for RTX 50-series (sm_120) |

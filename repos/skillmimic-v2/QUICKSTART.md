@@ -5,6 +5,7 @@ T09 baseline: **SkillMimic-V2** (Yu et al., SIGGRAPH 2025, arXiv 2505.02094)를 
 
 | 스크립트 | clip | 내용 | 시간 |
 |---|---|---|---|
+| **`run_all.sh`** | 세 clip | 컵 → 책 → 주전자를 차례로 (아래 세 스크립트를 이어서). 다시 실행하면 끝난 clip은 건너뛰고 멈춘 곳부터 | 약 28시간 + 평가 30분 |
 | `run_cup.sh` | `drink_cup` | 식탁의 컵을 들어 입으로 가져가 마시기 (180 frame) | 약 9시간 + 평가 10분 |
 | `run_book.sh` | `place_book` | 책상의 책을 들어 옮겨 놓기 (150 frame) | 약 9시간 + 평가 10분 |
 | `run_kettle.sh` | `place_kettle` | 주전자를 들어 옮겨 놓기 (100 frame). T09와 같은 물체 | 약 10시간 + 평가 10분 |
@@ -23,9 +24,7 @@ bash experiments/scripts/pipeline_check.sh        # 약 15분. 끊고 다시 실
 
 ```bash
 cd ~/code/3dv-project/repos/skillmimic-v2
-bash run_cup.sh
-bash run_book.sh
-bash run_kettle.sh
+bash run_all.sh           # 컵 -> 책 -> 주전자. 또는 하나씩: bash run_cup.sh / run_book.sh / run_kettle.sh
 bash write_results.sh      # 세 run이 끝난 뒤. 중간에 실행해도 된다 (진행 상태를 적는다)
 ```
 
@@ -36,6 +35,8 @@ bash write_results.sh      # 세 run이 끝난 뒤. 중간에 실행해도 된�
 
 **같은 명령을 다시 실행하면 된다.** Ctrl-C, 터미널 종료, 정전 모두 같다.
 
+- `run_all.sh`: 시작할 때 세 clip의 상태를 보여 주고, 컵부터 확인해서 끝난 clip은 건너뛰고 멈춘 clip부터 이어서 한다. clip이 죽으면 (예: GPU 메모리 부족) 마지막 체크포인트부터 최대 2번 (`RETRIES`) 다시 하고, 그래도 안 되면 멈춘다. 다른 SkillMimic 작업이 돌고 있으면 끝날 때까지 기다렸다가 시작한다. 한 번에 하나만 돈다.
+
 - 학습: 마지막 체크포인트부터 **그대로** 이어서 한다. epoch 번호, optimizer(Adam) 상태, 입력/value 정규화 통계, ATS 샘플링 가중치, 난수 상태까지 복원된다.
   체크포인트는 10 epoch(약 2분)마다 저장되므로 잃는 것은 최대 10 epoch다.
 - 평가: 이미 평가한 체크포인트는 건너뛴다. 학습이 끝난 run이면 학습은 건너뛰고 남은 평가만 한다.
@@ -45,6 +46,7 @@ bash write_results.sh      # 세 run이 끝난 뒤. 중간에 실행해도 된�
 
 | 변수 | 기본 | 뜻 |
 |---|---|---|
+| `RETRIES` | 2 | `run_all.sh`: clip이 죽었을 때 이어서 다시 하는 횟수 |
 | `EPOCHS` | 3000 | 총 epoch. 끝난 run에 더 큰 값을 주면 거기서부터 더 학습한다 (`EPOCHS=6000 bash run_cup.sh`) |
 | `NUM_ENVS` | 2048 | 메모리 부족일 때만 1536 (run 이름이 바뀌고 보고서에 남는다) |
 | `SEED` | 0 | seed 추가 실험용 |
