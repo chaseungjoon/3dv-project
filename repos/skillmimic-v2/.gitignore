@@ -10,6 +10,7 @@
 /.venv/
 /experiments/runs/
 /experiments/logs/
+/experiments/data/
 /skillmimic/data/motions/ParaHome/s6
 /skillmimic/data/motions/ParaHome/s10
 /skillmimic/data/motions/ParaHome/s22

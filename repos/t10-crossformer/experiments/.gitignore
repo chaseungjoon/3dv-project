@@ -1,8 +1,0 @@
-# T10: 큰 파일과 재생성 가능한 것은 로컬에만 둔다 (setup.sh로 다시 받음). results/는 git에 포함.
-/data/
-/checkpoints/
-/runs/
-/third_party/
-/results/_check/
-# 저장소 루트 .gitignore가 *.png를 무시하지만 리포트 그림은 추적한다
-!*.png

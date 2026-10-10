@@ -8,7 +8,7 @@ PY="${PY:-$SMV2_REPO/.venv/bin/python}"
 RUNS_DIR="${RUNS_DIR:-experiments/runs}"
 RESULTS_DIR="${RESULTS_DIR:-experiments/results}"
 NUM_ENVS="${NUM_ENVS:-2048}"          # 논문과 같은 값. 12GB에서 약 9.8GB (PROTOCOL.md 1)
-PARAHOME_SEQ="${PARAHOME_SEQ:-$SMV2_REPO/../parahome/data/seq}"   # 원본 ParaHome (책상/식탁 위치를 읽는다)
+PARAHOME_SEQ="${PARAHOME_SEQ:-$SMV2_REPO/experiments/data/parahome_seq}"   # 원본 ParaHome s6/s10/s22 (책상/식탁 위치를 읽는다, setup.sh)
 export PYTHONUNBUFFERED=1
 # torch 캐시 단편화를 줄여 최대 VRAM 약 0.3 GB 절약 (2048 env: 11.1 -> 10.8 GB, 수치 결과에는 영향 없음)
 export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"

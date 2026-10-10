@@ -15,8 +15,7 @@ T09 baseline: **SkillMimic-V2** (Yu et al., SIGGRAPH 2025, arXiv 2505.02094)를 
 ## 1. 준비 (한 번만, 이 컴퓨터에서는 이미 완료)
 
 ```bash
-bash ../parahome/experiments/scripts/setup.sh     # 원본 ParaHome 데이터 (가구 위치를 여기서 읽는다)
-bash experiments/scripts/setup.sh                 # uv 환경, ParaHome 장면 링크, history encoder (약 6분)
+bash experiments/scripts/setup.sh                 # uv 환경, ParaHome 장면 s6/s10/s22 (가구 위치, experiments/data/), history encoder (약 6분)
 bash experiments/scripts/pipeline_check.sh        # 약 15분. 끊고 다시 실행했을 때 그대로 이어지는지까지 확인 (2026-10-10 통과)
 ```
 
@@ -93,7 +92,7 @@ bash experiments/scripts/eval_run.sh drink_cup_ours_n2048_s0 curve 250,500,750
 | 증상 | 원인 / 해결 |
 |---|---|
 | `CUDA out of memory`, `PxgCudaDeviceMemoryAllocator fail` | 2048 env는 clip에 따라 9.5~10.8 GB를 쓴다 (`CODE_NOTES.md` 3절). 브라우저 등 GPU를 쓰는 프로그램을 끄고 다시. 그래도 안 되면 `NUM_ENVS=1536` |
-| `history encoder 없음`, `ParaHome 원본 링크 없음` | `bash experiments/scripts/setup.sh` |
+| `history encoder 없음`, `ParaHome 원본 링크 없음` | `bash experiments/scripts/setup.sh` (장면이 없으면 ParaHome seq.zip을 받아 s6/s10/s22만 남긴다) |
 | `[ckpt] cannot load ...` | 깨진 체크포인트는 건너뛰고 그 전 것에서 이어간다. 정상 동작 |
 | `shape mismatch ... 1025 ... 1028` | asset과 task가 안 맞음. 직접 `run.py`를 부르지 말고 `train.sh`를 쓴다 (`CODE_NOTES.md` 2절) |
 | 시작 후 1~2분 멈춘 듯 보임 | 2048 env 생성 + VHACD. 정상 |

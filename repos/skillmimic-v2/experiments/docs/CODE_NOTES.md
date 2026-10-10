@@ -25,7 +25,7 @@
 | `skillmimic/learning/common_agent.py` | `save()`: 임시 파일(`.pth.tmp`)에 쓰고 `os.replace` (끊겨도 깨진 체크포인트 없음). `get_full_state_weights()`: 난수 상태 추가. `train()`: 이어 학습이면 frame 카운터를 0으로 되돌리지 않고, 최고 보상 체크포인트 관리(상위 2개 유지)를 기존 파일에서 이어감 | 없음 |
 | `skillmimic/run.py` (`RLGPUEnv`) | `get_env_state`/`set_env_state`가 task의 `get_train_state`/`set_train_state`를 부른다 (rl_games가 체크포인트에 `env_state`로 넣음. 원본은 항상 `None`) | 없음 |
 | `skillmimic/env/tasks/skillmimic_parahome.py` | `get_train_state`/`set_train_state`: ATS 상태(`progress_buf_total`, frame별 보상 `motion_time_seqreward`, `time_sample_rate`, clip 가중치) | 없음 (이어 학습 때 ATS가 처음부터 다시 쌓이지 않음) |
-| `skillmimic/data/motions/ParaHome/s6, s10, s22` | 원본 ParaHome 시퀀스로의 symlink (`setup.sh`) | 업스트림 코드가 책상/식탁 위치를 `ParaHome/s10/object_transformations.pkl` frame 0에서 읽는데 저장소에 없다. 가구 위치는 s6과 s10에서 같다 (확인) |
+| `skillmimic/data/motions/ParaHome/s6, s10, s22` | `experiments/data/parahome_seq/`(git 제외, 87 MB)의 원본 ParaHome 시퀀스로의 symlink (`setup.sh`, 없으면 seq.zip을 받아 세 장면만 남김). 2026-10-10까지는 `../parahome/data/seq`를 가리켰다 | 업스트림 코드가 책상/식탁 위치를 `ParaHome/s10/object_transformations.pkl` frame 0에서 읽는데 저장소에 없다. 가구 위치는 s6과 s10에서 같다 (확인) |
 
 ### 1.3 우리가 추가한 설정 (업스트림 파일은 그대로 둠)
 

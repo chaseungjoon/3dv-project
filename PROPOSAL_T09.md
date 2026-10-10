@@ -68,7 +68,7 @@ SkillMimic-V2는 **RLID**(Reinforcement Learning from Interaction Demonstration)
 | `place_book` | 책상의 책을 들어 옮겨 놓기 | 150 frame (5초) | book / desk | s6 | 100 / 82.4 / 0.86 | 0 |
 | `place_kettle` | 주전자를 들어 옮겨 놓기 | 100 frame (3.3초) | kettle / diningtable | s10 | 100 / 49.9 / 0.52 | 0 |
 
-clip은 저장소에 들어 있는 것을 그대로 쓴다. 가구 위치는 원본 ParaHome 시퀀스(`repos/parahome/data/seq/s6, s10, s22`)에서 읽는다.
+clip은 저장소에 들어 있는 것을 그대로 쓴다. 가구 위치는 원본 ParaHome 시퀀스 s6, s10, s22에서 읽는다 (`repos/skillmimic-v2/experiments/data/parahome_seq/`, `setup.sh`가 준비).
 
 ## 5. 실험 설정 (고정)
 
