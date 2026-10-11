@@ -5,7 +5,7 @@ RTX 5070 12GB에서 ParaHome clip 세 개(컵, 책, 주전자)에 학습하고, 
 규칙, 코드 변경, 컵 진단은 `SKILLMIMIC_NOTES.md`. 결과는 `BASELINE_SKILLMIMIC*.md` (자동 생성).
 
 **왜 SkillMimic-V2인가 (2026-10-10 팀 결정).** WristMimic(이전 T09 baseline)은 이 GPU에서 주전자를 쥐고 드는 순간을 넘지 못해 0%였다
-(`BASELINE_T09.md`). SkillMimic-V2는 과제 안내서에서 WristMimic의 비교 대상이고, 같은 ParaHome 데이터와 Isaac Gym을 쓰며,
+(`BASELINE_WRISTMIMIC.md`). SkillMimic-V2는 과제 안내서에서 WristMimic의 비교 대상이고, 같은 ParaHome 데이터와 Isaac Gym을 쓰며,
 논문에서 세 clip 모두 성공률 100%이고, 논문과 같은 2048 env가 12GB에 들어간다.
 
 ## 1. 현재 상태 (2026-10-11)

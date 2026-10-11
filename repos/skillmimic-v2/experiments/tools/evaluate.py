@@ -12,7 +12,7 @@ Output: experiments/results/eval/<mode>[_perturb]/<run_name>/<ckpt>.json (+ per-
 
 Metrics (per env, then averaged):
   task_success   T09-comparable: world object position within 10 cm of the reference at every clip
-                 frame AND no fall during the clip (same rule as T09 `task_success`, BASELINE_T09.md 0)
+                 frame AND no fall during the clip (same rule as T09 `task_success`, BASELINE_WRISTMIMIC.md)
   lift_success   the object was lifted to >= 50% of the reference lift while within 0.2 m of a wrist
   paper_success  upstream metric (skillmimic/metric/{place,drink}_metric.py) on this episode only:
                  Place: >60 frames with root z>0.5, wrist-object < thr, object z>0.9; Drink: >30 frames, z>1.2
