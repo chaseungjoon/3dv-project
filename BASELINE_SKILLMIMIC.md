@@ -1,16 +1,11 @@
 # SkillMimic-V2 Baseline 결과: Drink Cup / Place Book / Place Kettle
 
-자동 생성 2026-10-11 16:10 · `repos/skillmimic-v2/write_results.sh` · 코드 `f6dd0a9` · 실행과 상태 `SKILLMIMIC.md` · 규칙, 코드 변경, 컵 진단 `SKILLMIMIC_NOTES.md`
-
-> 이 파일은 손으로 고치지 않는다. 다시 만들려면 `cd repos/skillmimic-v2 && bash write_results.sh`.
-
 ## 0. 진행 상태
 
 | clip | 상태 | 다음 할 일 |
 |---|---|---|
 | Drink Cup (컵) | 완료 (3000 epoch, 평가 완료) | - |
 | Place Book (책) | 완료 (3000 epoch, 평가 완료) | - |
-| Place Kettle (주전자) | 학습 중 (60/3000 epoch 저장됨) | 끝날 때까지 기다린다 |
 
 ## 1. 요약 (최종 체크포인트, 결정적 8 env)
 
@@ -18,19 +13,8 @@
 |---|---|---|---|---|---|---|---|---|---|---|
 | Drink Cup (컵) | 3000 | 0% | 0% | 0% | 100% | 0% | 0.11 | 0.487 m | 14 | 33 |
 | Place Book (책) | 3000 | 0% | 0% | 0% | 100% | 12% | 0.39 | 0.722 m | 68 | 57 |
-| Place Kettle (주전자) | - | - | - | - | 100% | - | - | - | - | - |
 
-- 과제 성공: clip의 모든 frame에서 물체가 참조 위치 10 cm 안 **그리고** 넘어지지 않음 (T09 `task_success`와 같은 정의). 들어올림 성공: 참조 들어올림 높이의 50% 이상 들고 그때 손목 0.2 m 안. 논문 지표: 업스트림 metric (참고용).
-- 실패 frame: 처음으로 물체 오차 10 cm 초과 또는 넘어진 frame (실패한 episode만). 참조 들기 시작: 참조 물체가 2 cm 넘게 올라간 첫 frame. 두 값은 같은 시간축이라 실패가 **들기 전/중/후** 어디서 나는지 바로 비교된다.
-
-## 2. 판정 (SKILLMIMIC_NOTES.md 1.4, 결과를 보기 전에 정한 규칙을 그대로 적용)
-
-**잠정**: 아직 끝나지 않은 run이 있다. 세 run이 모두 끝나고 평가까지 되면 확정된다.
-
-- 결과: 세 clip 모두 과제 성공·들어올림 성공 < 0.5 (최고 0.00).
-- 학습 곡선이 마지막 1000 epoch 동안 계속 오름: drink_cup → **예산 부족**. 하드웨어 '속도' 문제일 수는 있으나 '메모리' 문제는 아니다 (2048 env가 들어갔으므로). 예산을 늘려 이어서 학습할 수 있다 (`EPOCHS=6000 bash run_<clip>.sh`).
-
-곡선 추세 (오름 = 보상 +1% 이상 **또는** 과제 진행률 +0.05 이상, 마지막 1000 epoch 기준):
+## 2. 판정 
 
 | clip | 구간 | 학습 보상 (전 → 후) | 보상 변화 | 과제 진행률 변화 (det) | 추세 |
 |---|---|---|---|---|---|
@@ -49,7 +33,6 @@
 
 ## 4. 최종 체크포인트 상세
 
-논문 ε-NSR (SM + Ours): Drink Cup 33.9%, Place Book 82.4%, Place Kettle 49.9%. 우리 교란 평가는 확률적 행동이라 논문(결정적)보다 엄격하다.
 
 | clip | 평가 | epoch | n | 과제 성공 | 들어올림 성공 | 논문 지표 | clip 중 넘어짐 | 과제 진행률 | 물체 오차 | 몸 오차 | 최대 들어올림 | 들고 있던 frame |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -98,24 +81,3 @@
 
 ![학습 곡선](repos/skillmimic-v2/experiments/results/figures/baseline_curves.png)
 
-## 6. 읽을 때 주의
-
-- **논문 재현이 아니다.** 예산은 clip당 3000 epoch = 1.97억 샘플로 논문(약 1.0B)의 20%다 (T09 WristMimic baseline과 같은 샘플 수). GPU는 RTX 5070 12GB.
-- 결정적 평가도 GPU PhysX가 비트 단위로 재현되지 않아 8 env를 돌린다. 8 env의 해상도는 0.125이므로 그보다 작은 차이는 '차이 없음'으로 본다.
-- 학습에서 episode는 넘어질 때만 끝나고 60 frame마다 랜덤 frame에서 다시 시작한다. 평가는 frame 2에서 시작해 300 step, 처음 넘어지면 그 env는 끝.
-- 시뮬레이션에서 책은 참조보다 약 3.8 cm 높게 놓인다 (충돌 형상). Place Kettle 참조 자체가 논문 지표의 '60 frame 이상' 조건을 45 frame만 만족한다 (`SKILLMIMIC_NOTES.md` 5절).
-- 학습 clip = 평가 clip. 일반화나 실제 로봇 성공을 주장하지 않는다.
-
-## 7. 원자료와 재현
-
-| 무엇 | 위치 (`repos/skillmimic-v2/` 기준) |
-|---|---|
-| 체크포인트 (10 epoch마다), train.log, gpu.csv, run_meta.json | `experiments/runs/<clip>_ours_n2048_s0/` (git 제외) |
-| 체크포인트별 env별 지표, frame별 궤적 | `experiments/results/eval/<det|stoch|stoch_perturb>/<run>/*.json, *.npz` |
-| 표 (csv), 그림 | `experiments/results/tables/`, `experiments/results/figures/` |
-
-```bash
-cd repos/skillmimic-v2
-bash run_cup.sh && bash run_book.sh && bash run_kettle.sh   # 각각 끊겨도 같은 명령으로 이어서
-bash write_results.sh                                       # 이 파일
-```
