@@ -28,13 +28,14 @@ METHODS = {
         common=["--hist_length", "60", "--history_embedding_size", "3", "--hist_ckpt", HIST_CKPT],
         train=["--reweight", "--reweight_alpha", "1.0", "--state_init_random_prob", "0.1", "--enable_buffernode"],
     ),
-    # SM + Ours in the fixed environment (SKILLMIMIC_NOTES.md 4): fine table/object collision hulls,
+    # SM + Ours in the fixed environment (SKILLMIMIC_NOTES.md 4): table/desk as a fitted box, hand-made object collision,
     # realistic object mass, history-encoder input layout fixed, + phase observation, + object early termination.
     # Same PPO, rewards, STF/ATS/HE/buffer-node flags as "ours". Only clips with a fix config.
     "fix": dict(
         task="SkillMimicParahomeLocalHistRISBuffernodePhase",
         asset="mjcf/mocap_parahome_boxhand_histphase.xml",     # obs +3 (history embedding) +6 (phase)
-        cfg={"drink_cup": "experiments/configs/env/drink_cup_fix.yaml"},
+        cfg={"drink_cup": "experiments/configs/env/drink_cup_fix.yaml",
+             "place_book": "experiments/configs/env/place_book_fix.yaml"},
         common=["--hist_length", "60", "--history_embedding_size", "3", "--hist_ckpt", HIST_CKPT],
         train=["--reweight", "--reweight_alpha", "1.0", "--state_init_random_prob", "0.1", "--enable_buffernode"],
     ),

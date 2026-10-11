@@ -15,8 +15,8 @@ WristMimic(T09)은 이 GPU에서 0%였다 (`BASELINE_WRISTMIMIC.md`). 원인이 
 | 항목 | 값 |
 |---|---|
 | clip | `drink_cup` (180 frame, ParaHome s6), `place_book` (150, s6), `place_kettle` (100, s10). 저장소에 들어 있는 그대로 |
-| 방법 | SM + Ours = STF + ATS + HE + buffer node (STG 없음, 논문 5.3절). 책·주전자 `ours`, 컵 `fix` (= 같은 방법 + 고친 환경, 4절). 정의는 `experiments/tools/methods.py` 한 곳 |
-| env 설정 | `experiments/configs/env/<clip>.yaml` = 업스트림 `parahome_<clip>_hist60_noisyinit_simpara.yaml` 그대로. 컵은 `drink_cup_fix.yaml` |
+| 방법 | SM + Ours = STF + ATS + HE + buffer node (STG 없음, 논문 5.3절). 1차는 모두 `ours`. 2차는 컵·책 `fix` (= 같은 방법 + 고친 환경, 4절), 주전자는 보류. 정의는 `experiments/tools/methods.py` 한 곳 |
+| env 설정 | `experiments/configs/env/<clip>.yaml` = 업스트림 `parahome_<clip>_hist60_noisyinit_simpara.yaml` 그대로. `fix`는 `<clip>_fix.yaml` |
 | env 수 | 2048 (논문과 같음) |
 | PPO | 논문 표 8 그대로: 65,536 샘플/update, minibatch 16,384, lr 2e-5, γ 0.99, GAE 0.95, clip 0.2, 행동 σ 0.055 고정, MLP 1024-512-512, episode 60 frame |
 | 보상 | 논문 표 10: 몸 위치 20, 회전 20, 물체 위치 1, 상대 위치 20, 접촉 항 끔. 곱 형태라 frame당 [0, 1] |
@@ -60,7 +60,7 @@ WristMimic(T09)은 이 GPU에서 0%였다 (`BASELINE_WRISTMIMIC.md`). 원인이 
 | 체크포인트 | 50 epoch, 최신만 | 10 epoch, 모두 유지 | 없음 |
 | 평가 | player 성공률 (넘어져 재시작한 뒤의 frame까지 합산) | 우리 평가기 (1.3절) | 측정 방식만 |
 | 속도 | 장면 pickle을 env마다 다시 읽고, reset마다 참조 history를 다시 계산 | 둘 다 캐시 (같은 값) | 없음 (시작 105초, reset 빨라짐) |
-| **컵 환경** | 4절의 버그 | method `fix` | **있음.** 두 run을 나란히 보고 |
+| **컵·책 환경** | 4절의 버그 | method `fix` | **있음.** 업스트림 환경 run과 나란히 보고 |
 
 ## 3. 논문 방법 ↔ 코드
 
@@ -69,12 +69,12 @@ WristMimic(T09)은 이 GPU에서 0%였다 (`BASELINE_WRISTMIMIC.md`). 원인이 
 | SM | `SkillMimicParahome` | `mocap_parahome_boxhand.xml` (obs 1022) | 없음 |
 | SM + T | `SkillMimicParahomePhase` | `..._refobj.xml` (+6 위상) | 없음 |
 | **SM + Ours** (`ours`) | `SkillMimicParahomeLocalHistRISBuffernode` | `..._hist.xml` (+3 history) | `--reweight --reweight_alpha 1.0` (ATS), `--state_init_random_prob 0.1` (STF), `--enable_buffernode`, `--hist_length 60 --history_embedding_size 3 --hist_ckpt ...` (HE) |
-| SM + Ours, 고친 환경 (`fix`) | `SkillMimicParahomeLocalHistRISBuffernodePhase` | `..._histphase.xml` (+3 +6) | `ours`와 같음, env `drink_cup_fix.yaml` |
+| SM + Ours, 고친 환경 (`fix`) | `SkillMimicParahomeLocalHistRISBuffernodePhase` | `..._histphase.xml` (+3 +6) | `ours`와 같음, env `<clip>_fix.yaml` |
 
 - 업스트림 책 yaml만 asset이 `_refobj.xml`이라 그대로 SM+Ours를 돌리면 `shape mismatch [N,1025] vs [N,1028]`. 그래서 방법마다 asset을 명시한다.
 - 코드의 ATS 가중치는 exp(−5·r̄) (논문 표 9는 λ=10). 코드 값을 쓴다.
 
-## 4. 컵 진단과 수정 (2026-10-11)
+## 4. 환경 진단과 수정: 컵 (2026-10-11), 책 (2026-10-12)
 
 첫 컵 run(업스트림 환경, 3000 epoch)은 0%였고 손이 컵 22 cm 안으로 거의 못 들어갔다. 정책 없이 시뮬레이션을 직접 점검했다
 (`experiments/probe/`, GPU 몇 분씩). 고친 것은 모두 method `fix`와 `drink_cup_fix.yaml`로만 켜지고 책·주전자에는 영향이 없다.
@@ -93,9 +93,24 @@ WristMimic(T09)은 이 GPU에서 0%였다 (`BASELINE_WRISTMIMIC.md`). 원인이 
 - 400 epoch 비교 (`experiments/probe/results/`, 컵 형상만 중간판): 업스트림은 손이 닿기 전에 컵을 19~33 cm 밀어냈다. 고친 환경은 컵이 0.2 cm 안에 그대로 있었고 몸 오차는 6~8 cm였다 (업스트림 9~36 cm). frame당 학습 보상은 0.43으로 업스트림 0.20의 2배다. 하지만 손을 컵으로 뻗지는 않았고 (손목-컵 25~27 cm, 참조 14 cm), 컵을 든 상태에서 시작해도 4~8 frame 안에 놓쳤다 (6번).
 - 고친 환경의 평가에서 넘어짐이 많다 (frame 71~81). 학습이 컵을 놓치면 끝나서 그 뒤 frame을 거의 겪지 않기 때문이다.
 
-**기대.** 1~5는 학습을 원천적으로 막던 문제라 고쳤다. 남은 벽은 6번이다. 3000 epoch 안에 정책이 잡기를 찾을지는 학습해 봐야 안다.
-250 epoch마다의 평가에서 들어올림 성공, 최대 들어올림, 들고 있던 frame이 먼저 움직일 것이다. 3000 epoch 뒤에도 들기가 없으면,
-다음 수단은 시연 손 자세를 컵 형상에 맞게 고치는 것이다.
+**결과 (2026-10-12, 결정적 8 env, frame 0 시작).** epoch 2000까지는 컵을 들지 못했다 (손목–컵 25 → 19 cm, 입에 댄 자세에서 시작하면 버티는 frame 7 → 22).
+**epoch 2200부터 컵을 집어 든다**: 들어올림 성공·논문 지표 88% (2200, 2400, 2500, 2710), 75% (2600~2700), 확률적 32 env 88% / 84%.
+컵을 1.55~1.61 m까지 들고 (시연 1.49 m) 80~99 frame 동안 손목 15 cm 안팎으로 유지한 뒤 내려놓는다. 즉 6번(시연 자세로는 안 잡힘)은
+정책이 스스로 잡기를 찾아 넘었다. 과제 성공(모든 frame 오차 ≤ 10 cm)은 0%: 내리는 타이밍이 늦고(frame 95~125 오차 약 40 cm), 4~15 cm 높이 든다.
+
+### 책 (`place_book_fix.yaml`, 2026-10-12)
+
+참조: 책상의 책(26.9 × 17.5 × 4.7 cm)을 두 손으로 집고(frame 40~60), frame 70부터 **왼손 하나로** 들고 1.6 m 걸어 책장 앞까지 (책은 끝까지 손에 있음).
+컵과 같은 점검을 했다 (`experiments/tools/make_book_collision.py`, 정책 없이 CPU/GPU 확인).
+
+| # | 문제 (업스트림) | 증거 | 수정 |
+|---|---|---|---|
+| 1 | 책상 충돌 형상이 거칠다 | 책이 참조보다 +3.6 cm 위에 놓인다 | 책상 윗면에 맞춘 상자 (1.214 × 0.723 m, yaw 74.8°, 윗면 = 참조 책 바닥 0.716 m). 책이 참조에서 **0.2 cm** 안에 정지 |
+| 2 | 책 **7.1 kg** (밀도 2500 × 자동 분해 부피), 한 손으로 80 frame 들고 걸어야 함 | 시뮬레이터 질량 측정 | 책의 방향 상자(OBB) 하나를 충돌 형상으로, **1.0 kg** (밀도 456) |
+| 3, 4, 5 | history 입력 배치 버그, 위상 없음, 물체를 놓쳐도 계속 | 컵과 같은 코드 | 컵과 같은 수정 (`histLayoutFix`, 위상 관측, `objTerminationDist 0.25`) |
+| - | (확인만) 시연 손가락이 책에 최대 0.9 cm 겹침, 책장은 장면에 없음 | 손가락 관절–상자 거리. 책이 끝까지 왼손에 있어 책장이 없어도 과제는 성립 | 그대로 (컵도 같은 정도로 겹쳤지만 학습됨) |
+
+검증: 2048 env 12 epoch 시험 학습에서 관측 1031, 최대 VRAM 9.8 GB, 약 5,900 samples/s (3000 epoch 약 9.3시간), 체크포인트 저장, 평가 3가지 동작.
 
 점검 도구 (학습 없음, 각각 몇 분):
 
@@ -115,7 +130,7 @@ WristMimic(T09)은 이 GPU에서 0%였다 (`BASELINE_WRISTMIMIC.md`). 원인이 
 | 4 | 주전자 참조 자체가 논문 지표의 "60 frame 넘게"를 45 frame만 만족 | 논문 지표는 참고용, 주 지표는 과제 성공 |
 | 5 | 보상은 k번째 step 후 상태를 참조 frame (시작 + k − 1)과 비교 (1 frame 늦음) | 평가도 같은 정렬 |
 | 6 | STF의 자세 거리 식이 참조를 제곱한다 (`norm(noisy - motion**2)`, 버그로 보임) | 방법의 일부라 그대로 |
-| 7 | 물체가 참조보다 높게 놓인다: 책 약 3.8 cm, 컵 4.2 cm (가구 충돌 형상) | 책은 그대로(10 cm 기준의 여유가 줄어듦), 컵은 고침 |
+| 7 | 물체가 참조보다 높게 놓인다: 책 약 3.8 cm, 컵 4.2 cm (가구 충돌 형상) | `ours`는 그대로, `fix`(컵, 책)는 고침 |
 | 8 | history 입력 배치 버그, 위상 정보 없음 (4절 3·4번) | `ours`는 그대로(논문 코드), `fix`만 고침 |
 
 ## 6. 측정값 (2048 env)
@@ -125,7 +140,8 @@ WristMimic(T09)은 이 GPU에서 0%였다 (`BASELINE_WRISTMIMIC.md`). 원인이 
 | 컵 `ours` | 11.4 GB (11.0에서 접촉이 늘며 커짐, epoch 624에 GPU 할당 실패로 한 번 죽음) | 6,070 samples/s | 9.1시간 |
 | 책 `ours` | 10.0 GB | 6,600 | 8.3시간 |
 | 주전자 `ours` | 9.8 GB (60 epoch) | 5,800 | 약 10시간 |
-| 컵 `fix` | 10.7 GB (30 epoch) | 5,400~5,700 | 약 10시간 |
+| 컵 `fix` | 10.8 GB | 5,700~6,000 | 약 9.5시간 |
+| 책 `fix` | 9.8 GB (12 epoch 시험) | 5,900 | 약 9.3시간 |
 
 - 메모리 대부분은 PhysX GPU 버퍼 (torch는 약 2.5 GB). 12GB에서 여유가 1~2 GB라 학습 중 GPU를 쓰는 다른 프로그램은 끈다.
 - 병목은 물리 (step당 PhysX 0.15 s, Python 0.07 s). 평가는 체크포인트당 약 11초 + 환경 생성 40초. 체크포인트 하나 43 MB.
@@ -139,11 +155,11 @@ WristMimic(T09)은 이 GPU에서 0%였다 (`BASELINE_WRISTMIMIC.md`). 원인이 
 | `skillmimic/env/tasks/humanoid_object_task.py` | 장면 pickle 캐시. env cfg 선택 옵션 `staticBoxes`, `staticVhacd`, `dynamicUrdf`, `dynamicVhacd`, `dynamicRestOffset` (없으면 업스트림 그대로) |
 | `skillmimic/env/tasks/skillmimic_parahome_localhist.py` | 참조 history 캐시, `histLayoutFix`, 새 task `...BuffernodePhase` (위상 + 물체 조기 종료) |
 | `skillmimic/env/tasks/humanoid_task.py`, `mjcf/mocap_parahome_boxhand_histphase.xml`, `skillmimic/utils/parse_task.py` | `fix`의 관측 크기, task 등록 |
-| `skillmimic/data/assets/obj/cup_fix.urdf`, `cup_fix/` | 컵 충돌 형상 (`make_cup_collision.py`가 만듦) |
+| `skillmimic/data/assets/obj/cup_fix.urdf`, `cup_fix/`, `book_fix.urdf`, `book_fix/` | 컵, 책 충돌 형상 (`make_cup_collision.py`, `make_book_collision.py`가 만듦) |
 | `skillmimic/data/motions/ParaHome/s6, s10, s22` | `experiments/data/parahome_seq/`로의 symlink (가구 위치를 읽음, `setup.sh`) |
-| `experiments/configs/` | clip별 env yaml (업스트림 복사본), `drink_cup_fix.yaml`, `train/parahome.yaml` (업스트림 + 10 epoch 저장, 전체 상태 이어 학습) |
-| `experiments/tools/` | `methods.py` (방법 정의 한 곳), `evaluate.py`, `write_results.py`, `ckpt.py` (이어 학습할 체크포인트), `train_hist_encoder.py`, `make_cup_collision.py` |
-| `experiments/scripts/` | `train.sh`, `eval_run.sh`, `run_baseline.sh` (`run_*.sh`가 부름), `setup.sh`, `pipeline_check.sh`, `_common.sh` (clip별 method) |
+| `experiments/configs/` | clip별 env yaml (업스트림 복사본), `drink_cup_fix.yaml`, `place_book_fix.yaml`, `train/parahome.yaml` (업스트림 + 10 epoch 저장, 전체 상태 이어 학습) |
+| `experiments/tools/` | `methods.py` (방법 정의 한 곳), `evaluate.py`, `write_results.py`, `ckpt.py` (이어 학습할 체크포인트), `train_hist_encoder.py`, `make_cup_collision.py`, `make_book_collision.py` |
+| `experiments/scripts/` | `train.sh`, `eval_run.sh`, `run_baseline.sh` (`run_*.sh`가 부름), `setup.sh`, `pipeline_check.sh`, `_common.sh` (clip별 method). 저장소 루트 `run_all.sh` = 컵 → 책 → 결과 문서 |
 | `experiments/probe/` | 정책 없는 환경 점검 도구, 진단 때의 평가 결과 |
 
 ## 8. 변경 기록
@@ -155,3 +171,5 @@ WristMimic(T09)은 이 GPU에서 0%였다 (`BASELINE_WRISTMIMIC.md`). 원인이 
 | 2026-10-10 | 판정의 "곡선이 오름"을 숫자로 (보상 +1% 또는 진행률 +0.05) | 자동 판정 | 아니오 |
 | 2026-10-11 | 컵을 고친 환경(`fix`)에서 새로 학습. 업스트림 환경 run은 비교용으로 유지. 평가와 판정 규칙은 그대로 | 4절 | **예** (첫 컵 run 0%를 본 뒤). 그래서 두 run을 나란히 보고 |
 | 2026-10-11 | 학습이 죽으면 자동으로 2번 이어 하기, `write_results.sh`는 새 번호 문서로 | 첫 컵 run의 GPU 할당 실패, 기존 결과 보존 | 운영 변경 |
+| 2026-10-12 | 책도 고친 환경(`fix`)으로 새로 학습: 책상 상자, 책 OBB 1.0 kg, 컵과 같은 3·4·5번 수정. 업스트림 환경 run은 비교용으로 유지. 평가와 판정 규칙은 그대로 | 4절 책 | **예** (1차 책 0%와 컵 `fix`의 들기 성공을 본 뒤). 그래서 업스트림 run과 나란히 보고 |
+| 2026-10-12 | `run_all.sh` = 컵(이어서) → 책 → `write_results.sh` (주전자 보류). clip이 끝내 실패해도 다음 clip과 결과 문서는 진행 | 무인 실행 | 운영 변경 |

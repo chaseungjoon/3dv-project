@@ -29,11 +29,12 @@ NUM_RE = re.compile(r"_(\d{8})\.pth$")
 CLIPS = OrderedDict([
     ("drink_cup", dict(name="Drink Cup (컵)", script="run_cup.sh", paper_sr=100.0, paper_ensr=33.9)),
     ("place_book", dict(name="Place Book (책)", script="run_book.sh", paper_sr=100.0, paper_ensr=82.4)),
-    ("place_kettle", dict(name="Place Kettle (주전자)", script="run_kettle.sh", paper_sr=100.0, paper_ensr=49.9)),
+    ("place_kettle", dict(name="Place Kettle (주전자)", script="run_kettle.sh", paper_sr=100.0, paper_ensr=49.9, hold=True)),
 ])
-# method per clip (same as experiments/scripts/_common.sh smv2_method). drink_cup runs in the fixed environment
-# (SKILLMIMIC_NOTES.md 4); its upstream-environment run (method ours) is kept and shown for comparison.
-METHOD = {"drink_cup": "fix"}
+# method per clip (same as experiments/scripts/_common.sh smv2_method). drink_cup and place_book run in the fixed
+# environment (SKILLMIMIC_NOTES.md 4); their upstream-environment runs (method ours) are kept and shown for comparison.
+# place_kettle (hold=True) is on hold: not part of the current round, shown as such.
+METHOD = {"drink_cup": "fix", "place_book": "fix"}
 def method_for(clip):
     return METHOD.get(clip, "ours")
 MODES = [("det", "결정적 8 env"), ("stoch", "확률적 32 env"), ("stoch_perturb", "확률적 + 물체 교란 32 env")]
@@ -141,6 +142,8 @@ def status(clip, m, ev):
         return "시작 안 함", f"`bash {script}`"
     target = m["target"]
     if m["saved_epoch"] < target:
+        if CLIPS[clip].get("hold"):
+            return f"보류 ({m['saved_epoch']}/{target} epoch에서 멈춤)", "컵, 책 결과를 보고 결정"
         if m["log_age_s"] is not None and m["log_age_s"] < ACTIVE_S:
             return f"학습 중 ({m['saved_epoch']}/{target} epoch 저장됨)", "끝날 때까지 기다린다"
         return f"중단됨 ({m['saved_epoch']}/{target} epoch 저장됨)", f"`bash {script}` (마지막 체크포인트부터 이어서)"
@@ -404,20 +407,25 @@ def main():
         L.append("")
 
     L += ["## 6. 읽을 때 주의", "",
-          "- **Drink Cup은 고친 환경(method `fix`)의 결과다.** 업스트림 환경에서는 컵이 reset마다 참조보다 4.2 cm 위에 생겨 튕기고, 컵 1.49 kg, "
-          "history encoder 입력 배치 버그, 위상 정보 없음 때문에 학습이 막혔다 (`SKILLMIMIC_NOTES.md` 4절). PPO, 보상, STF/ATS/HE/buffer node는 같고, "
-          "위상 관측(논문 SM+T와 같은 입력)과 학습 중 조기 종료(컵이 참조에서 0.25 m 이상 벗어나면)가 더해졌다. 평가 규칙은 그대로다.",
+          "- **Drink Cup과 Place Book은 고친 환경(method `fix`)의 결과다.** 업스트림 환경에서는 가구 충돌 형상이 거칠어 물체가 참조보다 "
+          "높게 놓이고(컵 4.2 cm, 튕김; 책 3.8 cm), 물체가 비현실적으로 무겁고(컵 1.49 kg, 책 7.1 kg), history encoder 입력 배치 버그와 "
+          "위상 정보 없음 때문에 학습이 막혔다 (`SKILLMIMIC_NOTES.md` 4절). PPO, 보상, STF/ATS/HE/buffer node는 같고, "
+          "위상 관측(논문 SM+T와 같은 입력)과 학습 중 조기 종료(물체가 참조에서 0.25 m 이상 벗어나면)가 더해졌다. 평가 규칙은 그대로다. "
+          "업스트림 환경 run은 5-1절에 나란히 둔다.",
+          "- **들어올림 성공과 논문 지표는 컵을 들었는지, 과제 성공은 모든 frame에서 물체 오차 ≤ 10 cm인지를 본다.** 들기는 되지만 타이밍이 "
+          "어긋나면(예: 늦게 내림) 과제 성공은 0이 된다. 구간별 오차는 frame별 궤적(npz)에 있다.",
+          "- Place Kettle은 보류 (업스트림 환경, epoch 60에서 멈춤).",
           "- **논문 재현이 아니다.** 예산은 clip당 3000 epoch = 1.97억 샘플로 논문(약 1.0B)의 20%다 (T09 WristMimic baseline과 같은 샘플 수). GPU는 RTX 5070 12GB.",
           "- 결정적 평가도 GPU PhysX가 비트 단위로 재현되지 않아 8 env를 돌린다. 8 env의 해상도는 0.125이므로 그보다 작은 차이는 '차이 없음'으로 본다.",
-          "- 학습에서 episode는 넘어질 때(Drink Cup은 컵이 0.25 m 넘게 벗어날 때도) 끝나고 60 frame마다 랜덤 frame에서 다시 시작한다. 평가는 frame 2에서 시작해 300 step, 처음 넘어지면 그 env는 끝.",
-          "- 시뮬레이션에서 책은 참조보다 약 3.8 cm 높게 놓인다 (충돌 형상). Place Kettle 참조 자체가 논문 지표의 '60 frame 이상' 조건을 45 frame만 만족한다 (`SKILLMIMIC_NOTES.md` 5절).",
+          "- 학습에서 episode는 넘어질 때(고친 환경은 물체가 0.25 m 넘게 벗어날 때도) 끝나고 60 frame마다 랜덤 frame에서 다시 시작한다. 평가는 frame 2에서 시작해 300 step, 처음 넘어지면 그 env는 끝.",
+          "- Place Kettle 참조 자체가 논문 지표의 '60 frame 이상' 조건을 45 frame만 만족한다 (`SKILLMIMIC_NOTES.md` 5절).",
           "- 학습 clip = 평가 clip. 일반화나 실제 로봇 성공을 주장하지 않는다.", "",
           "## 7. 원자료와 재현", "",
           "| 무엇 | 위치 (`repos/skillmimic-v2/` 기준) |", "|---|---|",
-          "| 체크포인트 (10 epoch마다), train.log, gpu.csv, run_meta.json | `experiments/runs/<run>/` (git 제외). run: `drink_cup_fix_n2048_s0`, `place_book_ours_n2048_s0`, `place_kettle_ours_n2048_s0` (+ 비교용 `drink_cup_ours_n2048_s0`) |",
+          "| 체크포인트 (10 epoch마다), train.log, gpu.csv, run_meta.json | `experiments/runs/<run>/` (git 제외). run: `drink_cup_fix_n2048_s0`, `place_book_fix_n2048_s0` (+ 비교용 업스트림 환경 `drink_cup_ours_n2048_s0`, `place_book_ours_n2048_s0`), 보류 `place_kettle_ours_n2048_s0` |",
           "| 체크포인트별 env별 지표, frame별 궤적 | `experiments/results/eval/<det|stoch|stoch_perturb>/<run>/*.json, *.npz` |",
           "| 표 (csv), 그림 | `experiments/results/tables/`, `experiments/results/figures/` |", "",
-          "```bash", "cd repos/skillmimic-v2", "bash run_cup.sh && bash run_book.sh && bash run_kettle.sh   # 각각 끊겨도 같은 명령으로 이어서",
+          "```bash", "cd repos/skillmimic-v2", "bash run_all.sh                                             # 컵 -> 책 -> 이 문서. 끊겨도 같은 명령으로 이어서",
           "bash write_results.sh                                       # 이 파일", "```", ""]
     with open(a.out, "w") as f:
         f.write("\n".join(L))
