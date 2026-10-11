@@ -1,6 +1,6 @@
 # 3DV Project
 
-## Docs (all SkillMimic docs live here, at the project root)
+## Docs
 
 | File | What it is |
 | --- | --- |
@@ -19,4 +19,3 @@
 | `repos/parahome/` | Full ParaHome dataset + clip audit. Not needed by `skillmimic-v2` |
 | `isaacgym-env/` | Isaac Gym + PyTorch 2.4.1 built for RTX 50-series (sm_120), see its `README.md` |
 
-Tested on Ubuntu 24.04 with an RTX 5070 (12 GB). Python envs are managed with `uv`. One GPU job at a time.
