@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 학습 1회.  사용법: bash experiments/scripts/train.sh <clip> <method> <epochs> [seed]
 #   clip   : place_book | drink_cup | place_kettle
-#   method : ours (SkillMimic-V2)
+#   method : ours (SkillMimic-V2, 업스트림 환경) | fix (같은 방법 + 고친 환경, drink_cup만. 프로젝트 루트 SKILLMIMIC_NOTES.md 4절)
 #   epochs : **총** epoch 수. 1 epoch = NUM_ENVS x 32 샘플 (2048 env이면 65,536)
 # 환경변수: NUM_ENVS (기본 2048), RUN_NAME (기본 <clip>_<method>_n<envs>_s<seed>)
 #

@@ -4,7 +4,7 @@
     python experiments/tools/methods.py list                         # clips and methods
 
 The baseline is SkillMimic-V2 ("SM + Ours" in Table 2 of arXiv 2505.02094) on three ParaHome clips. The README
-has no ParaHome commands, so the mapping below was read from the code (experiments/docs/CODE_NOTES.md 2).
+has no ParaHome commands, so the mapping below was read from the code (SKILLMIMIC_NOTES.md 3, project root).
 """
 import os
 import sys
@@ -28,6 +28,16 @@ METHODS = {
         common=["--hist_length", "60", "--history_embedding_size", "3", "--hist_ckpt", HIST_CKPT],
         train=["--reweight", "--reweight_alpha", "1.0", "--state_init_random_prob", "0.1", "--enable_buffernode"],
     ),
+    # SM + Ours in the fixed environment (SKILLMIMIC_NOTES.md 4): fine table/object collision hulls,
+    # realistic object mass, history-encoder input layout fixed, + phase observation, + object early termination.
+    # Same PPO, rewards, STF/ATS/HE/buffer-node flags as "ours". Only clips with a fix config.
+    "fix": dict(
+        task="SkillMimicParahomeLocalHistRISBuffernodePhase",
+        asset="mjcf/mocap_parahome_boxhand_histphase.xml",     # obs +3 (history embedding) +6 (phase)
+        cfg={"drink_cup": "experiments/configs/env/drink_cup_fix.yaml"},
+        common=["--hist_length", "60", "--history_embedding_size", "3", "--hist_ckpt", HIST_CKPT],
+        train=["--reweight", "--reweight_alpha", "1.0", "--state_init_random_prob", "0.1", "--enable_buffernode"],
+    ),
 }
 
 TRAIN_CFG = os.environ.get("SMV2_TRAIN_CFG", "experiments/configs/train/parahome.yaml")
@@ -36,7 +46,10 @@ EPISODE_LENGTH = 60   # paper Table 8: T = 60
 
 def base_args(clip, method):
     c, m = CLIPS[clip], METHODS[method]
-    return ["--task", m["task"], "--cfg_env", c["cfg"], "--cfg_train", TRAIN_CFG,
+    if "cfg" in m and clip not in m["cfg"]:
+        sys.exit(f"method {method} has no environment config for clip {clip}")
+    cfg = os.environ.get("SMV2_CFG_ENV") or m.get("cfg", {}).get(clip, c["cfg"])   # SMV2_CFG_ENV: probes
+    return ["--task", m["task"], "--cfg_env", cfg, "--cfg_train", TRAIN_CFG,
             "--asset_file_name", m["asset"],
             "--motion_file", f"skillmimic/data/motions/ParaHome/{clip}"] + m["common"]
 

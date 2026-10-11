@@ -3,9 +3,10 @@
     python experiments/tools/write_results.py            # what write_results.sh runs
 
 Reads experiments/runs/<run>/{run_meta.json, train.log, gpu.csv, nn/} and experiments/results/eval/<mode>/<run>/*.json,
-writes ../../BASELINE_SKILLMIMIC.md, experiments/results/figures/baseline_curves.png and
-experiments/results/tables/{runs,final,curve}.csv. Works on partial results: unfinished runs are reported with
-their status and the command that continues them. Rules and metric definitions: experiments/docs/PROTOCOL.md.
+writes a NEW results document every time, never overwriting an existing one: ../../BASELINE_SKILLMIMIC.md if it
+does not exist yet, otherwise BASELINE_SKILLMIMIC_2.md, _3.md, ... (next free number), with its own figure
+experiments/results/figures/baseline_curves[_N].png. experiments/results/tables/{runs,final,curve}.csv hold the latest. Works on partial results: unfinished runs are reported with
+their status and the command that continues them. Rules and metric definitions: SKILLMIMIC_NOTES.md 1 (project root).
 """
 import argparse
 import csv
@@ -30,6 +31,11 @@ CLIPS = OrderedDict([
     ("place_book", dict(name="Place Book (책)", script="run_book.sh", paper_sr=100.0, paper_ensr=82.4)),
     ("place_kettle", dict(name="Place Kettle (주전자)", script="run_kettle.sh", paper_sr=100.0, paper_ensr=49.9)),
 ])
+# method per clip (same as experiments/scripts/_common.sh smv2_method). drink_cup runs in the fixed environment
+# (SKILLMIMIC_NOTES.md 4); its upstream-environment run (method ours) is kept and shown for comparison.
+METHOD = {"drink_cup": "fix"}
+def method_for(clip):
+    return METHOD.get(clip, "ours")
 MODES = [("det", "결정적 8 env"), ("stoch", "확률적 32 env"), ("stoch_perturb", "확률적 + 물체 교란 32 env")]
 PAPER_SAMPLES = 1.0e9
 ACTIVE_S = 600  # train.log written within 10 min -> training is (probably) running
@@ -144,23 +150,41 @@ def status(clip, m, ev):
     return f"완료 ({m['saved_epoch']} epoch, 평가 완료)", "-"
 
 
+def next_out(root, stem="BASELINE_SKILLMIMIC"):
+    """First free name: <stem>.md, then <stem>_2.md, <stem>_3.md, ... (one past the highest existing number, so a
+    deleted middle file is not reused)."""
+    if not os.path.exists(os.path.join(root, f"{stem}.md")):
+        return os.path.join(root, f"{stem}.md"), ""
+    nums = [int(m.group(1)) for f in os.listdir(root) for m in [re.fullmatch(rf"{stem}_(\d+)\.md", f)] if m]
+    n = max(nums + [1]) + 1
+    return os.path.join(root, f"{stem}_{n}.md"), f"_{n}"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--runs_dir", default="experiments/runs")
     ap.add_argument("--eval_dir", default="experiments/results/eval")
-    ap.add_argument("--out", default=os.path.join(ROOT, "BASELINE_SKILLMIMIC.md"))
+    ap.add_argument("--out", default="", help="explicit output path (overwritten). Default: next free BASELINE_SKILLMIMIC[_N].md in the project root")
     ap.add_argument("--fig_dir", default="experiments/results/figures")
     ap.add_argument("--table_dir", default="experiments/results/tables")
     a = ap.parse_args()
     os.chdir(REPO)
+    suffix = ""
+    if not a.out:
+        a.out, suffix = next_out(ROOT)
     out_dir = os.path.dirname(os.path.abspath(a.out))
 
-    runs, evals = {}, {}
+    runs, evals, up_runs, up_evals = {}, {}, {}, {}
     for p in sorted(glob.glob(os.path.join(a.runs_dir, "*", "run_meta.json"))):
         m = load_run(os.path.dirname(p))
-        if m.get("clip") in CLIPS and m.get("method") == "ours":
+        if m.get("clip") not in CLIPS:
+            continue
+        if m.get("method") == method_for(m["clip"]):
             runs[m["clip"]] = m  # one run per clip (seed 0); a later name wins
             evals[m["clip"]] = load_evals(a.eval_dir, m["run_name"])
+        elif m.get("method") == "ours":  # upstream environment, superseded by the fixed one for this clip
+            up_runs[m["clip"]] = m
+            up_evals[m["clip"]] = load_evals(a.eval_dir, m["run_name"])
 
     # ---------------- per-clip summaries ----------------
     S = {}
@@ -228,13 +252,13 @@ def main():
                 if cr:
                     ax[i, 1].legend(fontsize=7)
             os.makedirs(a.fig_dir, exist_ok=True)
-            fig_path = os.path.join(a.fig_dir, "baseline_curves.png")
+            fig_path = os.path.join(a.fig_dir, f"baseline_curves{suffix}.png")  # one figure per document
             fig.tight_layout(); fig.savefig(fig_path, dpi=100); plt.close(fig)
             fig_rel = os.path.relpath(os.path.abspath(fig_path), out_dir)
         except Exception as e:  # the document must not fail on plotting
             print(f"[results] figure skipped: {e}")
 
-    # ---------------- decision (PROTOCOL.md 5, fixed before results) ----------------
+    # ---------------- decision (SKILLMIMIC_NOTES.md 1.4, fixed before results) ----------------
     complete = all(s["m"] and "det" in s["final"] and s["m"]["saved_epoch"] >= s["m"]["target"] for s in S.values())
     best, trend = 0.0, {}
     for clip, s in S.items():
@@ -255,8 +279,9 @@ def main():
     now = datetime.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M")
     L = ["# SkillMimic-V2 Baseline 결과: Drink Cup / Place Book / Place Kettle", "",
          f"자동 생성 {now} · `repos/skillmimic-v2/write_results.sh` · 코드 `{git_commit()}` · "
-         "계획 `PROPOSAL_T09.md` · 규칙과 지표 `repos/skillmimic-v2/experiments/docs/PROTOCOL.md`", "",
-         "> 이 파일은 손으로 고치지 않는다. 다시 만들려면 `cd repos/skillmimic-v2 && bash write_results.sh`.", "",
+         "실행과 상태 `SKILLMIMIC.md` · 규칙, 코드 변경, 컵 진단 `SKILLMIMIC_NOTES.md`", "",
+         "> 자동 생성 문서. `cd repos/skillmimic-v2 && bash write_results.sh`는 기존 문서를 덮어쓰지 않고 다음 번호의 새 문서 "
+         "(`BASELINE_SKILLMIMIC_2.md`, `_3.md`, ...)를 만든다.", "",
          "## 0. 진행 상태", "",
          "| clip | 상태 | 다음 할 일 |", "|---|---|---|"]
     for clip, s in S.items():
@@ -281,7 +306,7 @@ def main():
           "- 실패 frame: 처음으로 물체 오차 10 cm 초과 또는 넘어진 frame (실패한 episode만). 참조 들기 시작: 참조 물체가 2 cm 넘게 올라간 첫 frame. "
           "두 값은 같은 시간축이라 실패가 **들기 전/중/후** 어디서 나는지 바로 비교된다.", ""]
 
-    L += ["## 2. 판정 (PROTOCOL.md 5절, 결과를 보기 전에 정한 규칙을 그대로 적용)", ""]
+    L += ["## 2. 판정 (SKILLMIMIC_NOTES.md 1.4, 결과를 보기 전에 정한 규칙을 그대로 적용)", ""]
     if not complete:
         L.append("**잠정**: 아직 끝나지 않은 run이 있다. 세 run이 모두 끝나고 평가까지 되면 확정된다.")
         L.append("")
@@ -320,7 +345,7 @@ def main():
         L.append(f"| {CLIPS[clip]['name']} | {m['saved_epoch']} / {m['target']} | {smp / 1e6:.0f}M ({smp / PAPER_SAMPLES * 100:.0f}%) | "
                  f"{fmt(m['fps_total'], 0)} samples/s | {fmt(m['s_per_epoch'], 1)} | {fmt(m['wall_h'], 1)} h{' (추정)' if m['wall_est'] else ''} | "
                  f"{fmt(m['peak_gpu_mib'], 0)} MiB | {m['resumes']}회 | {m['n_ckpt']}개, {m['ckpt_gb']:.1f} GB |")
-    L += ["", f"설정: SkillMimic-V2 (SM + STF + ATS + HE + buffer node, STG 없음), 2048 env, seed 0, PPO는 논문 표 8과 같음. "
+    L += ["", f"설정: SkillMimic-V2 (SM + STF + ATS + HE + buffer node, STG 없음), 2048 env, seed 0, PPO는 논문 표 8과 같음. Drink Cup은 고친 환경 (6절). "
           "학습 시간에 '(추정)'이 붙으면 기록 없이 끝난 구간(강제 종료, 진행 중)이 있어 GPU 로그 길이로 셌다.", ""]
 
     L += ["## 4. 최종 체크포인트 상세", "",
@@ -360,15 +385,36 @@ def main():
     if fig_rel:
         L += ["![학습 곡선](" + fig_rel + ")", ""]
 
+    for clip in [c for c in CLIPS if c in up_runs]:
+        u, ue, s = up_runs[clip], up_evals[clip], S[clip]
+        L += [f"## 5-1. {CLIPS[clip]['name']}: 업스트림 환경 vs 고친 환경", "",
+              f"업스트림 환경 run `{u['run_name']}` ({u['saved_epoch']} epoch)과 고친 환경 run "
+              f"`{s['m']['run_name'] if s['m'] else '-'}`. 무엇을 왜 고쳤는지: `SKILLMIMIC_NOTES.md` 4절.", "",
+              "| epoch | 환경 | 과제 성공 | 들어올림 성공 | 논문 지표 | 과제 진행률 | 물체 오차 | 최대 들어올림 | 들고 있던 frame |",
+              "|---|---|---|---|---|---|---|---|---|"]
+        new = {r["meta"]["epoch"]: r for r in s["ev"]["det"]}
+        old = {r["meta"]["epoch"]: r for r in ue["det"]}
+        for e in sorted(set(new) | set(old)):
+            for label, r in (("업스트림", old.get(e)), ("고침", new.get(e))):
+                if r is None:
+                    continue
+                g = r["aggregate"]
+                L.append(f"| {e} | {label} | {fmt(g['task_success'])} | {fmt(g['lift_success'])} | {fmt(g['paper_success'])} | "
+                         f"{fmt(g['task_progress'])} | {fmt(g['obj_err_mean'], 3)} m | {fmt(g['lift_max'], 3)} m | {fmt(g['held_frames'], 0)} |")
+        L.append("")
+
     L += ["## 6. 읽을 때 주의", "",
+          "- **Drink Cup은 고친 환경(method `fix`)의 결과다.** 업스트림 환경에서는 컵이 reset마다 참조보다 4.2 cm 위에 생겨 튕기고, 컵 1.49 kg, "
+          "history encoder 입력 배치 버그, 위상 정보 없음 때문에 학습이 막혔다 (`SKILLMIMIC_NOTES.md` 4절). PPO, 보상, STF/ATS/HE/buffer node는 같고, "
+          "위상 관측(논문 SM+T와 같은 입력)과 학습 중 조기 종료(컵이 참조에서 0.25 m 이상 벗어나면)가 더해졌다. 평가 규칙은 그대로다.",
           "- **논문 재현이 아니다.** 예산은 clip당 3000 epoch = 1.97억 샘플로 논문(약 1.0B)의 20%다 (T09 WristMimic baseline과 같은 샘플 수). GPU는 RTX 5070 12GB.",
           "- 결정적 평가도 GPU PhysX가 비트 단위로 재현되지 않아 8 env를 돌린다. 8 env의 해상도는 0.125이므로 그보다 작은 차이는 '차이 없음'으로 본다.",
-          "- 학습에서 episode는 넘어질 때만 끝나고 60 frame마다 랜덤 frame에서 다시 시작한다. 평가는 frame 2에서 시작해 300 step, 처음 넘어지면 그 env는 끝.",
-          "- 시뮬레이션에서 책은 참조보다 약 3.8 cm 높게 놓인다 (충돌 형상). Place Kettle 참조 자체가 논문 지표의 '60 frame 이상' 조건을 45 frame만 만족한다 (CODE_NOTES.md 4절).",
+          "- 학습에서 episode는 넘어질 때(Drink Cup은 컵이 0.25 m 넘게 벗어날 때도) 끝나고 60 frame마다 랜덤 frame에서 다시 시작한다. 평가는 frame 2에서 시작해 300 step, 처음 넘어지면 그 env는 끝.",
+          "- 시뮬레이션에서 책은 참조보다 약 3.8 cm 높게 놓인다 (충돌 형상). Place Kettle 참조 자체가 논문 지표의 '60 frame 이상' 조건을 45 frame만 만족한다 (`SKILLMIMIC_NOTES.md` 5절).",
           "- 학습 clip = 평가 clip. 일반화나 실제 로봇 성공을 주장하지 않는다.", "",
           "## 7. 원자료와 재현", "",
           "| 무엇 | 위치 (`repos/skillmimic-v2/` 기준) |", "|---|---|",
-          "| 체크포인트 (10 epoch마다), train.log, gpu.csv, run_meta.json | `experiments/runs/<clip>_ours_n2048_s0/` (git 제외) |",
+          "| 체크포인트 (10 epoch마다), train.log, gpu.csv, run_meta.json | `experiments/runs/<run>/` (git 제외). run: `drink_cup_fix_n2048_s0`, `place_book_ours_n2048_s0`, `place_kettle_ours_n2048_s0` (+ 비교용 `drink_cup_ours_n2048_s0`) |",
           "| 체크포인트별 env별 지표, frame별 궤적 | `experiments/results/eval/<det|stoch|stoch_perturb>/<run>/*.json, *.npz` |",
           "| 표 (csv), 그림 | `experiments/results/tables/`, `experiments/results/figures/` |", "",
           "```bash", "cd repos/skillmimic-v2", "bash run_cup.sh && bash run_book.sh && bash run_kettle.sh   # 각각 끊겨도 같은 명령으로 이어서",

@@ -39,7 +39,7 @@ from env.tasks.skillmimic_parahome import SkillMimicParahomeRIS
 from env.tasks.skillmimic_parahome import SkillMimicParahomeDomRand
 from env.tasks.skillmimic_parahome_localhist import SkillMimicParahomeLocalHist
 from env.tasks.skillmimic_parahome_localhist import SkillMimicParahomeLocalHistRIS
-from env.tasks.skillmimic_parahome_localhist import SkillMimicParahomeLocalHistRISBuffernode
+from env.tasks.skillmimic_parahome_localhist import SkillMimicParahomeLocalHistRISBuffernode, SkillMimicParahomeLocalHistRISBuffernodePhase
 from env.tasks.skillmimic_parahome_multiobj import SkillMimicParahomeMultiobj, SkillMimicParahomePhaseMultiobj
 
 from env.tasks.hrl_virtual import HRLVirtual

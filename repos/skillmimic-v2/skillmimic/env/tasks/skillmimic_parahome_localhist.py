@@ -9,7 +9,7 @@ from torch import Tensor
 from utils import torch_utils
 from utils.history_encoder import HistoryEncoder
 
-from env.tasks.skillmimic_parahome import SkillMimicParahome
+from env.tasks.skillmimic_parahome import SkillMimicParahome, compute_humanoid_reset
 
 
 class SkillMimicParahomeLocalHist(SkillMimicParahome): 
@@ -47,6 +47,7 @@ class SkillMimicParahomeLocalHist(SkillMimicParahome):
             task_obs = self.compute_task_obs(env_ids)
             obs = torch.cat([obs, task_obs], dim = -1)
         
+        from_reset = env_ids is not None  # [3dv] _reset_envs passes env_ids, post_physics_step passes None
         if (env_ids is None):
             env_ids = torch.arange(self.num_envs)
 
@@ -59,6 +60,7 @@ class SkillMimicParahomeLocalHist(SkillMimicParahome):
         ######### Modified by Runyi #########
         hist_vector = self.get_hist(env_ids, ts)
         obs = torch.cat([obs, hist_vector], dim=-1)
+        obs = self._extra_obs(obs, env_ids, ts)
 
         self.obs_buf[env_ids] = obs
 
@@ -75,11 +77,46 @@ class SkillMimicParahomeLocalHist(SkillMimicParahome):
                     print(f"NaN observation in Env: {nan_envs.tolist()}, Dimension {dim}")
 
         # [0, 1, 2, a, b, c, d] -> [1, 2, a, b, c, d, currect_obs]
-        current_obs = torch.cat([humanoid_obs[..., :211],  self._dof_pos[env_ids], obj_obs[..., :3]], dim=-1) # (envs, 394)
+        if self.cfg['env'].get('histLayoutFix', False):
+            current_obs = self._hist_row_fixed(env_ids, humanoid_obs, obj_obs, from_reset)
+        else:
+            current_obs = torch.cat([humanoid_obs[..., :211],  self._dof_pos[env_ids], obj_obs[..., :3]], dim=-1) # (envs, 394)
         self._hist_obs_batch[env_ids] = torch.cat([self._hist_obs_batch[env_ids, 1:], current_obs.unsqueeze(1)], dim=1)
         #####################################
         
         return
+
+    def _extra_obs(self, obs, env_ids, ts):
+        return obs
+
+    def _ref_hist_rows(self, motion_id):
+        """History-encoder rows of a whole reference clip. [3dv] cached: upstream recomputed them for every env
+        on every reset (same values)."""
+        cache = self.__dict__.setdefault('_ref_hist_cache', {})
+        if motion_id not in cache:
+            ref_data = self._motion_data.hoi_data_dict[motion_id]
+            humanoid_obs = get_humanoid_obs(ref_data['root_pos'], ref_data['root_rot_3d'], ref_data['body_pos'])
+            obj_obs = get_obj_obs(ref_data['root_pos'], ref_data['root_rot_3d'], ref_data['obj_pos'])
+            cache[motion_id] = torch.cat([humanoid_obs, ref_data['dof_pos'].view(-1, 60*3), obj_obs], dim=-1)
+        return cache[motion_id]
+
+    def _hist_row_fixed(self, env_ids, humanoid_obs, obj_obs, from_reset):
+        """[3dv] One history row in the layout the encoder is trained on and that after_reset_actors fills
+        (get_humanoid_obs on the 71 reference bodies). The simulator has 61 bodies, so the upstream row put
+        body-rotation features into dims 181:211, where the reference has the heading-local position of the
+        10 zero-padded bodies (= world origin). SKILLMIMIC_NOTES.md 4."""
+        root_pos = self._rigid_body_pos[env_ids, 0, :]
+        root_rot = self._rigid_body_rot[env_ids, 0, :]
+        heading_rot = torch_utils.calc_heading_quat_inv(root_rot)
+        pad = quat_rotate(heading_rot, -root_pos).repeat(1, 10)
+        row = torch.cat([humanoid_obs[..., :181], pad, self._dof_pos[env_ids], obj_obs[..., :3]], dim=-1)
+        if from_reset:
+            # called from reset: the rigid-body tensors still hold the previous episode until the next simulate,
+            # so use the reference row of the start frame instead of a stale simulator row
+            md = self._motion_data
+            for ind, env_id in enumerate(env_ids.tolist() if torch.is_tensor(env_ids) else env_ids):
+                row[ind] = self._ref_hist_rows(int(md.envid2motid[env_id]))[int(md.envid2sframe[env_id])]
+        return row
 
     def after_reset_actors(self, env_ids):
         super().after_reset_actors(env_ids)
@@ -91,10 +128,7 @@ class SkillMimicParahomeLocalHist(SkillMimicParahome):
         self._hist_obs_batch[env_ids] = torch.zeros([env_ids.shape[0], self.history_length, self.ref_hoi_data_size], device=self.device, dtype=torch.float)
         for ind in range(env_ids.shape[0]):
             env_id = env_ids[ind]
-            ref_data = self._motion_data.hoi_data_dict[int(self.motion_ids[ind])]
-            humanoid_obs = get_humanoid_obs(ref_data['root_pos'], ref_data['root_rot_3d'], ref_data['body_pos'])
-            obj_obs = get_obj_obs(ref_data['root_pos'], ref_data['root_rot_3d'], ref_data['obj_pos'])
-            ref_data_obs = torch.cat([humanoid_obs, ref_data['dof_pos'].view(-1, 60*3), obj_obs], dim=-1)
+            ref_data_obs = self._ref_hist_rows(int(self.motion_ids[ind]))
             start_frame = self.motion_times[ind] - self.history_length
             end_frame = self.motion_times[ind]
             if start_frame >= 0:
@@ -252,6 +286,52 @@ class SkillMimicParahomeLocalHistRISBuffernode(SkillMimicParahomeLocalHistRIS):
                 self.rew_buf[buffer_env_id] = self.rew_buf[indices].mean().item()
                 
         self.buffer_steps = torch.where(self.buffer_steps > 0, self.buffer_steps - 1, self.buffer_steps)
+        return
+
+
+class SkillMimicParahomeLocalHistRISBuffernodePhase(SkillMimicParahomeLocalHistRISBuffernode):
+    """[3dv] SM + Ours (STF, ATS, HE, buffer node) with two additions for single-clip training (SKILLMIMIC_NOTES.md 4):
+    - phase observation (reference frame / clip length, x6), exactly as upstream SkillMimicParahomePhase (SM+T).
+      The policy observes no reference target, so time must come from the history embedding alone, and the
+      embedding loses the phase once the history is filled with simulated frames (SKILLMIMIC_NOTES.md 4).
+    - early termination in training when the object is farther than env cfg objTerminationDist (m) from its
+      reference (0 = off). Upstream only terminates on falls, so a knocked-over object still yields 60 frames
+      of body-imitation reward. Evaluation (--test) keeps fall-only termination.
+    Asset: mocap_parahome_boxhand_histphase.xml (obs size +3 hist +6 phase)."""
+
+    def __init__(self, cfg, sim_params, physics_engine, device_type, device_id, headless):
+        super().__init__(cfg=cfg,
+                         sim_params=sim_params,
+                         physics_engine=physics_engine,
+                         device_type=device_type,
+                         device_id=device_id,
+                         headless=headless)
+        self.obj_term_dist = float(cfg['env'].get('objTerminationDist', 0.0))
+
+    def _extra_obs(self, obs, env_ids, ts):
+        md = self._motion_data
+        motion_length = md.motion_lengths[md.envid2motid[env_ids]]
+        phase = ((ts + md.envid2sframe[env_ids]) / motion_length).unsqueeze(-1).repeat(1, 6)
+        return torch.cat([obs, phase.to(obs.dtype)], dim=-1)
+
+    def _compute_reset(self):
+        self.reset_buf[:], self._terminate_buf[:] = compute_humanoid_reset(self.reset_buf, self.progress_buf,
+                                                   self._contact_forces,
+                                                   self._rigid_body_pos, self.max_episode_length,
+                                                   self._enable_early_termination, self._termination_heights,
+                                                   self._curr_ref_obs, self._curr_obs, self._motion_data.envid2episode_lengths,
+                                                   self.isTest, self.cfg["env"]["episodeLength"],
+                                                   self.cfg["env"]["NR"],
+                                                   )
+        if self.obj_term_dist > 0 and not self.isTest:
+            o = 6 + 2 * self._dof_obs_size   # object position in the hoi observation (compute_humanoid_reward)
+            obj_err = (self._curr_obs[:, o:o+3] - self._curr_ref_obs[:, o:o+3]).norm(dim=-1)
+            # progress_buf > 1: the first reward after a reset still sees the previous episode's object
+            failed = (obj_err > self.obj_term_dist) & (self.progress_buf > 1)
+            self._terminate_buf[:] = torch.where(failed, torch.ones_like(self._terminate_buf), self._terminate_buf)
+            self.reset_buf[:] = torch.where(failed, torch.ones_like(self.reset_buf), self.reset_buf)
+        reset_env_ids = torch.nonzero(self.reset_buf == 1).squeeze()
+        self._reweight_motion(reset_env_ids)
         return
 
 

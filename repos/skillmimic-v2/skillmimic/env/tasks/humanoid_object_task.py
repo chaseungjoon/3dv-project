@@ -387,7 +387,18 @@ class HumanoidWholeBodyWithObjectParahome(HumanoidWholeBodyWithObject): #metric
         super()._create_envs(num_envs, spacing, num_per_row)
         return
     
+    def _static_box(self, obj_name):
+        """[3dv] env cfg staticBoxes: {<static obj>: {size: [x, y, z], center: [x, y], top: z, yawDeg: deg}} replaces
+        that object's collision mesh by one box (SKILLMIMIC_NOTES.md 4): the upstream 10k-voxel table hull lifts the
+        cup 4 cm, and a fine decomposition runs PhysX out of GPU memory at 2048 envs."""
+        return (self.cfg['env'].get('staticBoxes') or {}).get(obj_name)
+
     def _set_static_objects(self, asset_root, obj_name, max_convex_hulls=None):
+        box = self._static_box(obj_name)
+        if box is not None:
+            opts = gymapi.AssetOptions(); opts.fix_base_link = True
+            setattr(self, f'_{obj_name}_proj_asset', self.gym.create_box(self.sim, *[float(v) for v in box['size']], opts))
+            return
         if '_plane' in obj_name :
             table_asset_options = gymapi.AssetOptions()
             table_asset_options.fix_base_link = True  # 固定桌子，使其不会移动
@@ -407,6 +418,13 @@ class HumanoidWholeBodyWithObjectParahome(HumanoidWholeBodyWithObject): #metric
                 static_asset_options.vhacd_params.resolution = 10000
                 static_asset_options.vhacd_params.max_convex_hulls = max_convex_hulls
                 static_asset_options.vhacd_params.max_num_vertices_per_ch = 32 if obj_name not in ["sink", "bookshelf"] else 320
+                # [3dv] optional finer decomposition (env cfg staticVhacd: {resolution, maxHulls, maxVerts}).
+                # The upstream 10k-voxel table hull sits ~1.5 cm above the mesh top (SKILLMIMIC_NOTES.md 4).
+                sv = self.cfg['env'].get('staticVhacd')
+                if sv:
+                    static_asset_options.vhacd_params.resolution = int(sv['resolution'])
+                    static_asset_options.vhacd_params.max_convex_hulls = int(sv['maxHulls'])
+                    static_asset_options.vhacd_params.max_num_vertices_per_ch = int(sv['maxVerts'])
             static_asset_options.fix_base_link = True
             setattr(self, f'_{obj_name}_proj_asset', self.gym.load_asset(self.sim, asset_root, static_asset_file, static_asset_options))
 
@@ -422,6 +440,17 @@ class HumanoidWholeBodyWithObjectParahome(HumanoidWholeBodyWithObject): #metric
         dynamic_asset_options.vhacd_params.resolution = 10000 if obj_name not in ['kettle', 'chair']  else 1000000
         dynamic_asset_options.vhacd_params.max_convex_hulls = 10 if obj_name not in ['kettle', 'chair'] else 40
         dynamic_asset_options.vhacd_params.max_num_vertices_per_ch = 32
+        # [3dv] manipulated object (SKILLMIMIC_NOTES.md 4): env cfg dynamicUrdf replaces <obj>.urdf (e.g. a hand-made
+        # convex decomposition that keeps the cup handle open), dynamicVhacd {enabled: False} uses its collision
+        # meshes as given (each one convex), or {resolution, maxHulls, maxVerts} tunes the automatic decomposition
+        dynamic_asset_file = self.cfg['env'].get('dynamicUrdf', dynamic_asset_file)
+        dv = self.cfg['env'].get('dynamicVhacd')
+        if dv and not dv.get('enabled', True):
+            dynamic_asset_options.vhacd_enabled = False
+        elif dv:
+            dynamic_asset_options.vhacd_params.resolution = int(dv['resolution'])
+            dynamic_asset_options.vhacd_params.max_convex_hulls = int(dv['maxHulls'])
+            dynamic_asset_options.vhacd_params.max_num_vertices_per_ch = int(dv['maxVerts'])
         setattr(self, f'_{obj_name}_proj_asset', self.gym.load_asset(self.sim, asset_root, dynamic_asset_file, dynamic_asset_options))
         if obj_name == 'chair':
             shape_props = self.gym.get_asset_rigid_shape_properties(self._chair_proj_asset)
@@ -453,6 +482,12 @@ class HumanoidWholeBodyWithObjectParahome(HumanoidWholeBodyWithObject): #metric
         self.target_handle = self.gym.create_actor(env_ptr, getattr(self, f'_{dynamic_obj}_proj_asset'), default_pose, "target", col_group, col_filter, segmentation_id)
         for obj in self.cfg['env']['in_scene_obj_static']: 
             desk_pose = gymapi.Transform()
+            box = self._static_box(obj)
+            if box is not None:
+                desk_pose.p = gymapi.Vec3(float(box['center'][0]), float(box['center'][1]), float(box['top']) - 0.5 * float(box['size'][2]))
+                desk_pose.r = gymapi.Quat.from_axis_angle(gymapi.Vec3(0, 0, 1), np.radians(float(box['yawDeg'])))
+                _ = self.gym.create_actor(env_ptr, getattr(self, f'_{obj}_proj_asset'), desk_pose, "target", col_group, col_filter, segmentation_id)
+                continue
             if obj == 'book_no_collision':
                 object_transformations = _load_obj_tf('skillmimic/data/motions/ParaHome/s6/object_transformations.pkl')
                 desk_pose.p.x = object_transformations[2460]['book_base'][0,3]
@@ -516,8 +551,11 @@ class HumanoidWholeBodyWithObjectParahome(HumanoidWholeBodyWithObject): #metric
 
         ball_props =  self.gym.get_actor_rigid_shape_properties(env_ptr, self.target_handle)
         # Modify the properties
+        rest_offset = self.cfg['env'].get('dynamicRestOffset')  # [3dv] tolerate mocap hand-object overlap, SKILLMIMIC_NOTES.md 4
         for b in ball_props:
             b.restitution = self.ball_restitution 
+            if rest_offset is not None:
+                b.rest_offset = float(rest_offset)
         self.gym.set_actor_rigid_shape_properties(env_ptr, self.target_handle, ball_props)  
         # set ball color
         if self.cfg["headless"] == False:

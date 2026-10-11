@@ -1,5 +1,9 @@
 # ParaHome (Drink Cup / Place Book with the T09 method): 빠른 시작
 
+> **상태 (2026-10-11).** 팀은 T09 baseline을 SkillMimic-V2로 정했다 (`../../SKILLMIMIC.md`). 아래 2번(WristMimic을 컵/책에)은
+> 돌리지 않았고 계획도 없다. 이 저장소는 원본 데이터셋과 clip audit(`experiments/results/audit/`)으로만 남는다.
+> `../skillmimic-v2`는 이 저장소 없이 동작한다.
+
 **ParaHome** (Kim et al., CVPR 2025, `snuvclab/ParaHome@535dada`)은 T09 장면(주전자)의 원본 데이터셋이다.
 이 저장소에서 하는 일은 두 가지다.
 
@@ -13,7 +17,7 @@
 | `book_s11` | 책상의 책을 두 손으로 들고 걸어가 책장에 놓기 (150 frame) | |
 | `cup_s89`, `book_s149` | 두 번째 사례 (선택) | |
 
-Push Button은 ParaHome에 없다 → `../humanoidmimicgen/QUICKSTART.md`.
+Push Button은 ParaHome에 없다 (HumanoidMimicGen 저장소로 보려 했으나 그 저장소는 지웠다).
 WristMimic 코드와 Isaac Gym 환경은 `../t09-wristmimic`의 것을 그대로 쓴다 (따로 설치할 것 없음). 결과는 이 저장소 `experiments/` 아래에 쌓인다.
 
 > **모든 명령은 `~/code/3dv-project/repos/parahome` 에서 실행한다.** GPU 작업은 한 번에 하나만.

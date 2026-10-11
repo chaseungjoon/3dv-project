@@ -1,6 +1,6 @@
 # SkillMimic-V2 Baseline 결과: Drink Cup / Place Book / Place Kettle
 
-자동 생성 2026-10-11 16:10 · `repos/skillmimic-v2/write_results.sh` · 코드 `f6dd0a9` · 계획 `PROPOSAL_T09.md` · 규칙과 지표 `repos/skillmimic-v2/experiments/docs/PROTOCOL.md`
+자동 생성 2026-10-11 16:10 · `repos/skillmimic-v2/write_results.sh` · 코드 `f6dd0a9` · 실행과 상태 `SKILLMIMIC.md` · 규칙, 코드 변경, 컵 진단 `SKILLMIMIC_NOTES.md`
 
 > 이 파일은 손으로 고치지 않는다. 다시 만들려면 `cd repos/skillmimic-v2 && bash write_results.sh`.
 
@@ -23,7 +23,7 @@
 - 과제 성공: clip의 모든 frame에서 물체가 참조 위치 10 cm 안 **그리고** 넘어지지 않음 (T09 `task_success`와 같은 정의). 들어올림 성공: 참조 들어올림 높이의 50% 이상 들고 그때 손목 0.2 m 안. 논문 지표: 업스트림 metric (참고용).
 - 실패 frame: 처음으로 물체 오차 10 cm 초과 또는 넘어진 frame (실패한 episode만). 참조 들기 시작: 참조 물체가 2 cm 넘게 올라간 첫 frame. 두 값은 같은 시간축이라 실패가 **들기 전/중/후** 어디서 나는지 바로 비교된다.
 
-## 2. 판정 (PROTOCOL.md 5절, 결과를 보기 전에 정한 규칙을 그대로 적용)
+## 2. 판정 (SKILLMIMIC_NOTES.md 1.4, 결과를 보기 전에 정한 규칙을 그대로 적용)
 
 **잠정**: 아직 끝나지 않은 run이 있다. 세 run이 모두 끝나고 평가까지 되면 확정된다.
 
@@ -103,7 +103,7 @@
 - **논문 재현이 아니다.** 예산은 clip당 3000 epoch = 1.97억 샘플로 논문(약 1.0B)의 20%다 (T09 WristMimic baseline과 같은 샘플 수). GPU는 RTX 5070 12GB.
 - 결정적 평가도 GPU PhysX가 비트 단위로 재현되지 않아 8 env를 돌린다. 8 env의 해상도는 0.125이므로 그보다 작은 차이는 '차이 없음'으로 본다.
 - 학습에서 episode는 넘어질 때만 끝나고 60 frame마다 랜덤 frame에서 다시 시작한다. 평가는 frame 2에서 시작해 300 step, 처음 넘어지면 그 env는 끝.
-- 시뮬레이션에서 책은 참조보다 약 3.8 cm 높게 놓인다 (충돌 형상). Place Kettle 참조 자체가 논문 지표의 '60 frame 이상' 조건을 45 frame만 만족한다 (CODE_NOTES.md 4절).
+- 시뮬레이션에서 책은 참조보다 약 3.8 cm 높게 놓인다 (충돌 형상). Place Kettle 참조 자체가 논문 지표의 '60 frame 이상' 조건을 45 frame만 만족한다 (`SKILLMIMIC_NOTES.md` 5절).
 - 학습 clip = 평가 clip. 일반화나 실제 로봇 성공을 주장하지 않는다.
 
 ## 7. 원자료와 재현

@@ -154,6 +154,11 @@ class HumanoidWholeBody(BaseTask):
             self._num_actions = (60)*3
             obj_obs_size = 15
             self._num_obs = 1 + (61) * (3 + 6 + 3 + 3) - 3 + 10*3 + 21 + 6 # reference object info
+        elif ("mocap_parahome_boxhand_histphase" in asset_file):  # [3dv] hist vector + phase (SKILLMIMIC_NOTES.md 4)
+            self._dof_obs_size = (60)*3
+            self._num_actions = (60)*3
+            obj_obs_size = 15
+            self._num_obs = 1 + (61) * (3 + 6 + 3 + 3) - 3 + 10*3 + 3 + 6 # hist vector + phase x6
         elif ("mocap_parahome_boxhand_hist" in asset_file):
             self._dof_obs_size = (60)*3
             self._num_actions = (60)*3

@@ -1,3 +1,5 @@
+> **3DV project:** what we run here and how (T09 baseline on ParaHome cup / book / kettle) is in [`SKILLMIMIC.md`](../../SKILLMIMIC.md) at the project root (details: `SKILLMIMIC_NOTES.md`). Below is the upstream README.
+
 <div align="center">
 <h2><font color="#3c9ff7"> SkillMimic-V2</font>: Learning Robust and Generalizable Interaction Skills from Sparse and Noisy Demonstrations</h2>
 

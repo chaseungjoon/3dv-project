@@ -1,4 +1,4 @@
-"""Evaluate SkillMimic-V2 ParaHome checkpoints (experiments/docs/PROTOCOL.md 4).
+"""Evaluate SkillMimic-V2 ParaHome checkpoints (project root SKILLMIMIC_NOTES.md 1.3).
 
 Builds the environment once per (clip, method) and scores many checkpoints in one process.
 One episode = start at reference frame 2 (as the upstream test commands, --state_init 2), run

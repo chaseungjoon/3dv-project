@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SkillMimic-V2 baseline 세 clip을 순서대로: 컵 -> 책 -> 주전자. clip마다 학습 3000 epoch -> 평가.
-#   bash run_all.sh          # 약 28시간 + 평가 30분. tmux 안에서 권장
+#   bash run_all.sh          # 남은 clip당 약 10시간 + 평가 10분. tmux 안에서 권장. 컵은 고친 환경(fix), 나머지는 ours (_common.sh smv2_method)
 #
 # 끊겨도 같은 명령을 다시 실행하면 된다. 컵부터 차례로 확인해서
 #   학습과 평가가 다 끝난 clip은 건너뛰고, 학습이 끊긴 clip은 마지막 체크포인트(10 epoch마다)부터 이어서,
@@ -23,7 +23,7 @@ exec 9> "$RUNS_DIR/.run_all.lock"
 flock -n 9 || { smv2_log "run_all.sh가 이미 돌고 있다. 끝나기를 기다리거나 그 프로세스를 멈춘 뒤 다시 실행"; exit 1; }
 
 # GPU를 같이 쓰면 둘 다 메모리 부족으로 죽는다 (12GB). 이 저장소의 다른 학습/평가가 끝날 때까지 기다린다.
-others() { pgrep -f -- "$SMV2_REPO/.venv/bin/python|run_baseline.sh|run_after.sh" | grep -v -x "$$"; }
+others() { pgrep -f -- "$SMV2_REPO/.venv/bin/python|run_baseline.sh" | grep -v -x "$$"; }
 if [[ -n "$(others)" ]]; then
   smv2_log "다른 SkillMimic 작업이 돌고 있다 (PID $(others | tr '\n' ' ')). 끝나면 시작한다 (1분마다 확인)"
   while [[ -n "$(others)" ]]; do sleep 60; done
@@ -31,7 +31,7 @@ if [[ -n "$(others)" ]]; then
 fi
 
 status() {  # clip 하나의 진행 상태 한 줄
-  local run="${1}_ours_n${NUM_ENVS}_s${SEED}" ep n
+  local run="${1}_$(smv2_method "$1")_n${NUM_ENVS}_s${SEED}" ep n
   ep=$("$PY" experiments/tools/ckpt.py latest "$RUNS_DIR/$run" 2>/dev/null | cut -f2)
   n=$(find "$RESULTS_DIR/eval/det" "$RESULTS_DIR/eval/stoch" "$RESULTS_DIR/eval/stoch_perturb" -path "*/$run/*_$(printf %08d "$EPOCHS").json" 2>/dev/null | wc -l)
   if [[ -z "$ep" ]]; then echo "시작 안 함"
@@ -50,7 +50,7 @@ for c in $CLIPS; do
     (( code == 0 )) && break
     if (( code == 130 )); then smv2_log "중단 (Ctrl-C). 다시 실행하면 $c부터 이어서 한다."; exit 130; fi
     if (( try == RETRIES )); then
-      smv2_log "$c: $((RETRIES + 1))번 시도했지만 끝나지 않았다 (exit $code). 로그: $RUNS_DIR/${c}_ours_n${NUM_ENVS}_s${SEED}/train.log"
+      smv2_log "$c: $((RETRIES + 1))번 시도했지만 끝나지 않았다 (exit $code). 로그: $RUNS_DIR/${c}_$(smv2_method "$c")_n${NUM_ENVS}_s${SEED}/train.log"
       smv2_log "원인을 고친 뒤 bash run_all.sh 를 다시 실행하면 $c부터 이어서 한다."
       exit "$code"
     fi

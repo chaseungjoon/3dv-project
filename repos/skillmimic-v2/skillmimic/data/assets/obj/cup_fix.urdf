@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<!-- cup with an open handle loop for collision (experiments/tools/make_cup_collision.py); load with vhacd off -->
+<robot name="cup_fix.urdf">
+  <link name="baseLink">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="cup.obj" scale="1. 1. 1."/></geometry>
+      <material name="red"><color rgba="1 0.4 0.4 1"/></material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="cup_fix/body.obj" scale="1. 1. 1."/></geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="cup_fix/handle_top.obj" scale="1. 1. 1."/></geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="cup_fix/handle_bottom.obj" scale="1. 1. 1."/></geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="cup_fix/handle_outer_up.obj" scale="1. 1. 1."/></geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry><mesh filename="cup_fix/handle_outer_lo.obj" scale="1. 1. 1."/></geometry>
+    </collision>
+  </link>
+</robot>
