@@ -8,18 +8,34 @@ RTX 5070 12GB에서 ParaHome clip 세 개(컵, 책, 주전자)에 학습하고, 
 (`BASELINE_WRISTMIMIC.md`). SkillMimic-V2는 과제 안내서에서 WristMimic의 비교 대상이고, 같은 ParaHome 데이터와 Isaac Gym을 쓰며,
 논문에서 세 clip 모두 성공률 100%이고, 논문과 같은 2048 env가 12GB에 들어간다.
 
-## 1. 현재 상태 (2026-10-12)
+## 1. 현재 상태 (2026-10-12, 최종)
 
-| clip | 내용 | run | 상태 |
-|---|---|---|---|
-| 컵 `drink_cup` | 식탁의 컵을 한 손으로 들어 입으로 (180 frame) | `drink_cup_ours_n2048_s0` (업스트림 환경) | 끝남, **0%**. 손이 닿기 전에 컵이 쓰러짐 |
-| | | `drink_cup_fix_n2048_s0` (**고친 환경**) | 2713 epoch에서 평가: **들어올림 성공 88%, 논문 지표 88%** (epoch 2200부터 컵을 집어 듦), 과제 성공 0% (내리는 타이밍이 늦음). 3000까지 `run_all.sh` |
-| 책 `place_book` | 책상의 책을 두 손으로 집어 왼손으로 들고 1.6 m 옮기기 (150 frame) | `place_book_ours_n2048_s0` (업스트림 환경) | 끝남, **0%**. 보상이 epoch 600부터 평평 |
-| | | `place_book_fix_n2048_s0` (**고친 환경**) | `run_all.sh`에서 컵 다음에 처음부터 |
-| 주전자 `place_kettle` | 주전자를 들어 옮기기 (100 frame), T09와 같은 물체 | `place_kettle_ours_n2048_s0` | epoch 60에서 멈춤, 보류 |
+결과 문서: 1차(업스트림 환경) `BASELINE_SKILLMIMIC.md`, **2차(고친 환경) `BASELINE_SKILLMIMIC_2.md`**. 해석과 다음 연구 주제는 `PROPOSAL.md`.
 
-업스트림 환경 자체에 버그가 있었다: 가구 충돌 형상이 거칠어 물체가 높게 놓임(컵은 reset마다 튕겨 나감), 물체가 너무 무거움(컵 1.49 kg, 책 7.1 kg),
-history 입력 버그, 위상 정보 없음. 고친 환경(`fix`)에서 컵은 들기를 배웠고, 책도 같은 방식으로 고쳤다: `SKILLMIMIC_NOTES.md` 4절. 주전자는 보류.
+| clip | 내용 | run | 상태 | 들어올림 성공 | 과제 성공 |
+|---|---|---|---|---|---|
+| 컵 `drink_cup` | 식탁의 컵을 한 손으로 들어 입으로 가져갔다가 내려놓기 (180 frame) | `drink_cup_ours_n2048_s0` (업스트림 환경) | 끝남 | 0% (최대 8 cm) | 0% |
+| | | `drink_cup_fix_n2048_s0` (**고친 환경**) | 끝남 (3000 epoch) | **75%** (최고 88%: epoch 2200, 2400, 2500, 2710) | 0% |
+| 책 `place_book` | 책상의 책을 두 손으로 집어 왼손으로 들고 1.6 m 옮기기 (150 frame) | `place_book_ours_n2048_s0` (업스트림 환경) | 끝남 | 0% (최대 4 cm) | 0% |
+| | | `place_book_fix_n2048_s0` (**고친 환경**) | 끝남 (3000 epoch) | **38%** (최고 100%: epoch 1000) | 0% |
+| 주전자 `place_kettle` | 주전자를 들어 옮기기 (100 frame), T09와 같은 물체 | `place_kettle_ours_n2048_s0` | epoch 60에서 멈춤, 보류 | - | - |
+
+수치는 결정적 8 env, frame 2 시작이다. 고친 환경 run의 특징은 다음과 같다.
+
+| | 컵 `fix` | 책 `fix` |
+|---|---|---|
+| 들기가 생긴 시점 | epoch 2200에 갑자기 (2100까지 0%) | epoch 750 |
+| 과제 성공 0%의 이유 | 내려놓기가 늦다 (frame 95~125 물체 오차 41~57 cm). 들기 구간부터 시연 궤적과 약 20 cm 어긋남 | 잡기와 안정성이 맞바뀐다. 옮기던 epoch 1000~1500은 88~100%가 넘어졌다. 3000은 넘어짐 12%지만 책을 시연(145 cm)의 33 cm만 옮긴다 |
+| 확률적 32 env / + 물체 교란 | 59% / 3% | 28% / 19% |
+| 마지막 체크포인트가 최선인가 | 아니다 (2500, 2710이 88%) | 아니다 (1000이 100%) |
+| 최대 VRAM, 학습 시간 | 11.5 GB, 9.1 h | 9.3 GB, 8.1 h |
+
+업스트림 환경에는 버그가 있었다.
+- 가구 충돌 형상이 거칠어 물체가 높게 놓인다. 컵은 reset마다 튕겨 나간다.
+- 물체가 너무 무겁다 (컵 1.49 kg, 책 7.1 kg).
+- history 입력 버그가 있고, 위상 정보가 없다.
+
+고친 환경(`fix`)에서는 두 물체 모두 들기를 배웠다: `SKILLMIMIC_NOTES.md` 4절. 같은 GPU와 같은 학습량이다. 주전자는 보류다.
 
 ## 2. 실행
 
@@ -27,7 +43,7 @@ history 입력 버그, 위상 정보 없음. 고친 환경(`fix`)에서 컵은 �
 
 ```bash
 cd ~/code/3dv-project/repos/skillmimic-v2
-bash run_all.sh          # 2차 전체: 컵 이어서 -> 평가 -> 책 처음부터 -> 평가 -> 결과 문서 (BASELINE_SKILLMIMIC_2.md). 약 12시간
+bash run_all.sh          # 2차 전체: 컵 -> 평가 -> 책 -> 평가 -> 결과 문서 (2026-10-12 끝남, BASELINE_SKILLMIMIC_2.md). 다시 실행하면 끝난 것은 건너뛰고 새 번호 문서만 만든다
 bash run_cup.sh          # 컵만 (고친 환경): 학습 3000 epoch -> 평가
 bash run_book.sh         # 책만 (고친 환경): 학습 3000 epoch -> 평가. 약 10시간
 bash run_kettle.sh       # 주전자 (업스트림 환경, 보류), epoch 60부터 이어서
@@ -74,7 +90,7 @@ bash write_results.sh                                       # 진행 상태 문�
 
 | 무엇 | 위치 |
 |---|---|
-| 결과 문서 | 프로젝트 루트 `BASELINE_SKILLMIMIC.md`(1차: 컵·책 업스트림 환경), `_2.md`(2차: 컵·책 고친 환경, `run_all.sh`가 씀), ... |
+| 결과 문서 | 프로젝트 루트 `BASELINE_SKILLMIMIC.md`(1차: 컵·책 업스트림 환경), `BASELINE_SKILLMIMIC_2.md`(2차: 컵·책 고친 환경, 최종), 이후 `_3.md`, ... |
 | 체크포인트, `train.log`, `gpu.csv`, `run_meta.json`(끊긴 구간 기록), TensorBoard | `experiments/runs/<run>/` (git 제외, 체크포인트 10 epoch마다 모두 유지, run당 약 13 GB) |
 | 체크포인트별 평가 (env별 지표, frame별 궤적) | `experiments/results/eval/<det\|stoch\|stoch_perturb>/<run>/` |
 | 표, 그림 | `experiments/results/tables/*.csv` (최신), `experiments/results/figures/baseline_curves[_N].png` |
@@ -98,7 +114,7 @@ bash experiments/scripts/eval_run.sh <run> curve 250,500,750         # 학습 �
 
 | 증상 | 원인 / 해결 |
 |---|---|
-| `CUDA out of memory`, `PxgCudaDeviceMemoryAllocator fail` | 2048 env는 시작 때 9.5~10.8 GB, 접촉이 늘면 11.4 GB까지. 자동으로 2번 이어 한다. 계속 죽으면 브라우저 등 GPU 쓰는 프로그램을 끄고, 그래도 안 되면 `NUM_ENVS=1536` |
+| `CUDA out of memory`, `PxgCudaDeviceMemoryAllocator fail` | 2048 env는 시작 때 9.3~10.8 GB, 접촉이 늘면 11.5 GB까지. 자동으로 2번 이어 한다. 계속 죽으면 브라우저 등 GPU 쓰는 프로그램을 끄고, 그래도 안 되면 `NUM_ENVS=1536` |
 | `history encoder 없음`, `ParaHome 원본 링크 없음` | `bash experiments/scripts/setup.sh` |
 | `[ckpt] cannot load ...` | 깨진 체크포인트는 건너뛰고 그 전 것에서 이어간다. 정상 |
 | `shape mismatch ... 1025 ... 1028` | asset과 task가 안 맞음. `run.py`를 직접 부르지 말고 `train.sh`를 쓴다 |
