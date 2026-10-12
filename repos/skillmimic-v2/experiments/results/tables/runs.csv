@@ -1,4 +1,4 @@
 clip,run,status,saved_epoch,target,samples,fps_total,s_per_epoch,wall_h,peak_gpu_mib,resumes,checkpoints,checkpoint_gb
-drink_cup,drink_cup_fix_n2048_s0,학습 중 (1510/3000 epoch 저장됨),1510,3000,98959360,5919,11.07,4.70,11548.0,1,154,7.00
-place_book,place_book_ours_n2048_s0,"완료 (3000 epoch, 평가 완료)",3000,3000,196608000,6600,9.93,8.29,9968.0,0,304,13.77
-place_kettle,place_kettle_ours_n2048_s0,중단됨 (60/3000 epoch 저장됨),60,3000,3932160,5808,11.28,0.20,9831.0,0,9,0.41
+drink_cup,drink_cup_fix_n2048_s0,"완료 (3000 epoch, 평가 완료)",3000,3000,196608000,6070,10.80,9.10,11548.0,4,304,13.81
+place_book,place_book_fix_n2048_s0,"완료 (3000 epoch, 평가 완료)",3000,3000,196608000,6756,9.70,8.10,9275.0,0,304,13.81
+place_kettle,place_kettle_ours_n2048_s0,보류 (60/3000 epoch에서 멈춤),60,3000,3932160,5808,11.28,0.20,9831.0,0,9,0.41
