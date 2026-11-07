@@ -1,0 +1,8 @@
+id,task,variants,train_seeds,epochs_per_run,samples_per_run,runs,eval_seeds,eval_envs,gpu_hours_estimate,status
+EXP01,place_book,existing_fix,existing,0,0,0,existing,existing,unknown_eval,CPU_ANALYSIS_AVAILABLE
+EXP02,place_book,baseline+progress,0,20,1310720,2,101+102+103,32,0.108_plus_overhead,NOT_RUN_GPU
+EXP03,place_book,baseline+progress,0,3000,196608000,2,101+102+103,32,16.2_plus_eval,NOT_RUN
+EXP04,place_book,weights_TBD,0,3000,196608000,TBD,11+12+13,32,8.1_per_added_run,PLANNED
+EXP05,place_book,baseline+progress,0+1+2,3000,196608000,6,101+102+103,32,48.6_total,PLANNED
+EXP06,place_book,fixed_policy_perturb,existing,0,0,0,201+202+203,32,TBD,PLANNED
+EXP06_CUP,drink_cup,new_goal_required,TBD,TBD,TBD,TBD,TBD,32,TBD,NOT_IMPLEMENTED
