@@ -16,6 +16,7 @@
 | Path | What it is |
 | --- | --- |
 | `repos/skillmimic-v2/` | SkillMimic-V2 + our scripts (`run_cup.sh`, `run_book.sh`, `run_kettle.sh`, `run_all.sh`, `write_results.sh`, `experiments/`) |
+| `repos/skillmimic-v2/experiments/reward_hacking/` | Reward-hacking tests (`test_0.sh` ... `test_7.sh`, `run_tests.sh`), see its `README.md` |
 | `repos/t09-wristmimic/` | WristMimic (earlier T09 baseline), its own docs in `experiments/` |
 | `repos/parahome/` | Full ParaHome dataset + clip audit. Not needed by `skillmimic-v2` |
 | `isaacgym-env/` | Isaac Gym + PyTorch 2.4.1 built for RTX 50-series (sm_120), see its `README.md` |

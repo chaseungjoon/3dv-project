@@ -40,6 +40,10 @@ METHODS = {
         train=["--reweight", "--reweight_alpha", "1.0", "--state_init_random_prob", "0.1", "--enable_buffernode"],
     ),
 }
+# [3dv] reward-hacking test 7 (experiments/reward_hacking/test_7.sh objw): "fix" with the object-position reward
+# weight 1 -> 20. Same observations and asset, so its checkpoints are evaluated exactly like "fix".
+METHODS["fix_objw"] = dict(METHODS["fix"], cfg={"drink_cup": "experiments/configs/env/drink_cup_fix_objw.yaml",
+                                                "place_book": "experiments/configs/env/place_book_fix_objw.yaml"})
 
 TRAIN_CFG = os.environ.get("SMV2_TRAIN_CFG", "experiments/configs/train/parahome.yaml")
 EPISODE_LENGTH = 60   # paper Table 8: T = 60
