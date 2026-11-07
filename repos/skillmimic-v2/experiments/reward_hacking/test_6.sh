@@ -2,7 +2,8 @@
 # Test 6: watch the policies. Needs a screen (Isaac Gym viewer window), about 10 s of motion per checkpoint.
 #   bash experiments/reward_hacking/test_6.sh                     # book 1000 2000 3000, then cup 2100 2200 3000
 #   bash experiments/reward_hacking/test_6.sh place_book 1000 2000 # one clip, chosen epochs
-# Each checkpoint plays once from frame 2 (1 env, deterministic). Close nothing: the next checkpoint starts by itself.
+#   START=30 bash experiments/reward_hacking/test_6.sh place_book 2000   # start mid-clip (as in test 4)
+# Each checkpoint plays once from frame 2, or from START (1 env, deterministic). Close nothing: the next checkpoint starts by itself.
 # Write what you see into experiments/results/reward_hacking/t6_observations.md (template created below);
 # that file is what the analysis reads. What to look for is listed in the template.
 source "$(dirname "${BASH_SOURCE[0]}")/_rh.sh"
@@ -33,13 +34,18 @@ For each checkpoint, one or two lines per question. "Don't know" is a fine answe
 ## drink_cup epoch 2200 (lift 88%)
 
 ## drink_cup epoch 3000 (lift 75%)
+
+## place_book epoch 2000 from frame 30 (START=30; test 4: lifts 100% from here, 0% from frame 2)
+
+## drink_cup epoch 2000 from frame 30 (START=30; test 4: lifts 100% from here, 0% from frame 2)
 MD
   smv2_log "created $NOTES (fill it in while watching)"
 fi
+START="${START:-2}"
 view() {  # view <run> <epochs comma list>
-  smv2_log "--- viewer: $1 epochs $2 ---"
+  smv2_log "--- viewer: $1 epochs $2, start frame $START ---"
   "$PY" experiments/tools/evaluate.py --run_dir "$RUNS_DIR/$1" --epochs "$2" --mode det --viewer \
-    --out_dir "$RH_EVAL" --tag viewer --force 2>&1 | grep --line-buffered -E '^\[eval|Error|Traceback'
+    --start_frame "$START" --out_dir "$RH_EVAL" --tag "viewer_start$START" --force 2>&1 | grep --line-buffered -E '^\[eval|Error|Traceback'
 }
 if [[ $# -ge 2 ]]; then
   run="${1}_fix_n2048_s0"; shift
