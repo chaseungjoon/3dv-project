@@ -31,3 +31,6 @@ __pycache__/
 
 # Course handouts
 *.pdf
+
+# Reward-hacking test rollouts: per-step arrays (~94 MB), regenerable by rerunning the tests; summaries are kept
+repos/skillmimic-v2/experiments/results/reward_hacking/eval/**/*.npz
