@@ -42,6 +42,8 @@ from env.tasks.skillmimic_parahome_localhist import SkillMimicParahomeLocalHistR
 from env.tasks.skillmimic_parahome_localhist import SkillMimicParahomeLocalHistRISBuffernode, SkillMimicParahomeLocalHistRISBuffernodePhase
 from env.tasks.skillmimic_parahome_multiobj import SkillMimicParahomeMultiobj, SkillMimicParahomePhaseMultiobj
 
+from env.tasks.skillmimic_parahome_progress import SkillMimicParahomeProgress
+
 from env.tasks.hrl_virtual import HRLVirtual
 
 from env.tasks.skillmimic1 import SkillMimic1BallPlay

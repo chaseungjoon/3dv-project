@@ -41,6 +41,10 @@ METHODS = {
     ),
 }
 
+# Opt-in experiment: same fix settings, new reward task. Weight=0 is the control.
+METHODS["fix_progress"] = dict(METHODS["fix"], task="SkillMimicParahomeProgress",
+                               cfg={"place_book": "experiments/configs/env/place_book_fix.yaml"})
+
 TRAIN_CFG = os.environ.get("SMV2_TRAIN_CFG", "experiments/configs/train/parahome.yaml")
 EPISODE_LENGTH = 60   # paper Table 8: T = 60
 
