@@ -1,0 +1,55 @@
+{
+  "version": "avoidance_v2",
+  "task": "place_book",
+  "epochs": [
+    750,
+    1000,
+    1500,
+    2000,
+    2500,
+    2750,
+    3000
+  ],
+  "primary_pair": [
+    1000,
+    3000
+  ],
+  "eval_seeds": [
+    101,
+    102,
+    103
+  ],
+  "num_envs": 32,
+  "start_frame": 2,
+  "expected_clip_frames": 150,
+  "gamma": 0.99,
+  "train_episode_length": 60,
+  "wrist_near_m": 0.2,
+  "lift_success_ref_fraction": 0.5,
+  "tracking_error_m": 0.1,
+  "initial_atol": 0.0,
+  "reward_atol": 1e-06,
+  "repeat_probe": true,
+  "repeat_position_atol_m": 0.0001,
+  "repeat_reward_atol": 1e-05,
+  "branch_extra_epochs": 500,
+  "branch_seeds": [
+    0,
+    1,
+    2
+  ],
+  "progress_weight": 1.0,
+  "progress_clip": 0.05,
+  "note": "Exploratory pilot. Reach thresholds and prefix timings must be validated against prespecified videos before confirmatory use; no automatic avoidance verdict.",
+  "partial_lift_m": 0.05,
+  "reach_window_steps": 6,
+  "reach_closing_m": 0.02,
+  "reach_wrist_motion_m": 0.015,
+  "reach_hold_steps": 3,
+  "capability_prefix_steps": [
+    0,
+    30,
+    60
+  ],
+  "threshold_status": "PILOT_UNCALIBRATED"
+}

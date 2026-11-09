@@ -34,7 +34,7 @@ def sha(path):
 
 def write_json(path, data):
     tmp = path.with_suffix(path.suffix + '.tmp')
-    tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n')
+    tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False, allow_nan=False) + '\n')
     tmp.replace(path)
 
 

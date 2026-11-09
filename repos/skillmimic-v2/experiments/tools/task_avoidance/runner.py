@@ -17,7 +17,7 @@ spec=importlib.util.spec_from_file_location('progress_runner',HERE.parent/'progr
 P=importlib.util.module_from_spec(spec);spec.loader.exec_module(P)
 from core import load_protocol, protocol_hash
 ROOT=P.ROOT
-DEFAULT=ROOT/'experiments/configs/task_avoidance/protocol.json'
+DEFAULT=ROOT/'experiments/configs/task_avoidance/protocol_v2.json'
 OUT=ROOT/'experiments/runs/task_avoidance'
 
 
@@ -64,6 +64,8 @@ def plan_evaluation(a,p):
 
 def evaluation(a):
     guards(a.label);p=load_protocol(a.protocol);policies=plan_evaluation(a,p)
+    if getattr(a,'pair',None) and (len(set(a.pair))!=2 or not set(a.pair)<={x['label'] for x in policies}):
+        raise ValueError('--pair must name two different supplied policies')
     out=OUT/('eval_'+a.label)
     commands=[]
     for seed in p['eval_seeds']:
@@ -75,14 +77,20 @@ def evaluation(a):
             if i:cmd+=['--reference-initial',str(reference)]
             commands.append(dict(job=job,policy=policy['label'],seed=seed,command=cmd,repeat=False))
         if p['repeat_probe'] and seed==p['eval_seeds'][0]:
-            job=f'{policies[0]["label"]}_s{seed}_repeat'
-            cmd=[P.python_path(),str(HERE/'evaluate_worker.py'),'--checkpoint',policies[0]['checkpoint'],'--checkpoint-sha',policies[0]['sha256'],
-                 '--protocol',str(out/'protocol.json'),'--output',str(out/job),'--seed',str(seed),
-                 '--reference-initial',str(reference)]
-            commands.append(dict(job=job,policy=policies[0]['label'],seed=seed,command=cmd,repeat=True))
+            for policy in policies:
+                job=f'{policy["label"]}_s{seed}_repeat'
+                cmd=[P.python_path(),str(HERE/'evaluate_worker.py'),'--checkpoint',policy['checkpoint'],'--checkpoint-sha',policy['sha256'],
+                     '--protocol',str(out/'protocol.json'),'--output',str(out/job),'--seed',str(seed),
+                     '--reference-initial',str(reference)]
+                commands.append(dict(job=job,policy=policy['label'],seed=seed,command=cmd,repeat=True))
     for job in commands:print(shlex.join(job['command']))
     if a.dry_run:
         print('DRY RUN: protocol copy and workers would be created only during execution');return 0
+    pair_args=['--left',a.pair[0],'--right',a.pair[1]] if getattr(a,'pair',None) else []
+    return execute_bundle(out,p,policies,commands,'analyze.py',pair_args)
+
+
+def execute_bundle(out,p,policies,commands,analysis_script,analysis_args=(),kind='evaluation'):
     P.preflight()
     out.parent.mkdir(parents=True,exist_ok=True)
     P.RUNS.mkdir(parents=True,exist_ok=True)
@@ -90,7 +98,7 @@ def evaluation(a):
         out.mkdir() # fail if it already exists
         P.write_json(out/'protocol.json',p)
         m=dict(status='RUNNING',started_at=now(),protocol_hash=protocol_hash(p),policies=policies,
-               jobs=commands,files=P.manifest_files(),commit=P.capture(['git','rev-parse','HEAD']),
+               kind=kind,jobs=commands,files=P.manifest_files(),commit=P.capture(['git','rev-parse','HEAD']),
                worktree=P.capture(['git','status','--short']),
                gpu=P.capture(['nvidia-smi','--query-gpu=name,driver_version,memory.total','--format=csv']),
                packages=P.capture([P.python_path(),'-m','pip','freeze']))
@@ -98,16 +106,66 @@ def evaluation(a):
         code=1
         try:
             for job in commands:
+                code=1  # each launch can raise before assigning its return code
+                job['status']='RUNNING'
                 job['started_at']=now()
                 code=P.execute_child(job['command'],out/(job['job']+'.log'),gpu_env())
-                job.update(exit_code=code,ended_at=now())
+                job.update(exit_code=code,ended_at=now(),status='COMPLETED' if code==0 else 'FAILED')
                 P.write_json(out/'manifest.json',m)
                 if code:return code
-            code=P.execute_child([sys.executable,str(HERE/'analyze.py'),'--input',str(out)],out/'analysis.log',os.environ.copy())
+            code=1
+            code=P.execute_child([sys.executable,str(HERE/analysis_script),'--input',str(out)]+list(analysis_args),out/'analysis.log',os.environ.copy())
             return code
+        except BaseException as error:
+            code=130 if isinstance(error,KeyboardInterrupt) else 1
+            m['error']=type(error).__name__+': '+str(error)
+            if 'job' in locals() and job.get('status')=='RUNNING':job.update(status='FAILED',error=m['error'])
+            raise
         finally:
             m.update(status='COMPLETED' if code==0 else 'INCONCLUSIVE' if code==3 else 'FAILED',exit_code=code,ended_at=now())
             P.write_json(out/'manifest.json',m)
+
+
+def capability(a):
+    guards(a.label);p=load_protocol(a.protocol)
+    if p['version']!='avoidance_v2':raise ValueError('Capability probe requires v2 protocol')
+    if not p['repeat_probe']:raise ValueError('Capability probe requires candidate repeats')
+    source=Path(a.source).expanduser().resolve();candidate=Path(a.candidate).expanduser().resolve()
+    for path in [source,candidate]:
+        if not path.is_file():raise ValueError('Missing checkpoint: '+str(path))
+    policies=[dict(label='donor',checkpoint=str(source),sha256=P.sha(source),epoch=epoch(source)),
+              dict(label='candidate',checkpoint=str(candidate),sha256=P.sha(candidate),epoch=epoch(candidate))]
+    out=OUT/('capability_'+a.label);commands=[]
+    for step in p['capability_prefix_steps']:
+        for seed in p['eval_seeds']:
+            reference=out/f'prefix{step}_direct_s{seed}'/'initial.npz'
+            cases=[('direct',policies[0],True,False),('reload',policies[0],False,False),('candidate',policies[1],False,False)]
+            if p['repeat_probe'] and seed==p['eval_seeds'][0]:cases.append(('candidate_repeat',policies[1],False,True))
+            for label,policy,no_switch,repeat in cases:
+                job=f'prefix{step}_{label}_s{seed}'
+                cmd=[P.python_path(),str(HERE/'evaluate_worker.py'),'--checkpoint',policy['checkpoint'],'--checkpoint-sha',policy['sha256'],
+                     '--prefix-checkpoint',str(source),'--prefix-sha',policies[0]['sha256'],'--prefix-steps',str(step),
+                     '--protocol',str(out/'protocol.json'),'--output',str(out/job),'--seed',str(seed)]
+                if label!='direct':cmd+=['--reference-initial',str(reference)]
+                if no_switch:cmd+=['--control-no-switch']
+                commands.append(dict(job=job,policy=policy['label'],case=label,seed=seed,prefix_steps=step,command=cmd,repeat=repeat))
+    for job in commands:print(shlex.join(job['command']))
+    if a.dry_run:return 0
+    return execute_bundle(out,p,policies,commands,'analyze_capability.py',kind='capability')
+
+
+def verify(a):
+    guards(a.label);p=load_protocol(a.protocol)
+    p['num_envs']=4  # explicit verification fixture, not a training/evaluation result
+    source=Path(a.checkpoint).expanduser().resolve()
+    if not source.is_file():raise ValueError('Checkpoint missing')
+    policy=dict(label='checks',checkpoint=str(source),sha256=P.sha(source),epoch=epoch(source))
+    out=OUT/('verify_'+a.label)
+    cmd=[P.python_path(),str(HERE/'gpu_checks.py'),'--checkpoint',str(source),'--checkpoint-sha',policy['sha256'],
+         '--protocol',str(out/'protocol.json'),'--output',str(out/'checks')]
+    print(shlex.join(cmd))
+    if a.dry_run:return 0
+    return execute_bundle(out,p,[policy],[dict(job='checks',command=cmd)],'verify_summary.py',kind='gpu_verification')
 
 
 def branch(a):
@@ -149,9 +207,32 @@ def branch(a):
                     if not a.resume or not mp.exists():raise ValueError('Run exists; explicit matching --resume required')
                     m=json.loads(mp.read_text())
                     if m['fingerprint']!=fp:raise ValueError('Branch fingerprint changed')
-                    if m['status']=='COMPLETED':continue
                     checkpoints=P.numbered(run)
                     if not checkpoints:raise ValueError('No branch checkpoint; restart with a new label')
+                    latest=epoch(checkpoints[-1]);target=source_epoch+extra
+                    if latest>target:raise ValueError('Checkpoint exceeds target; refusing misleading completion')
+                    if latest==target:
+                        # Crash after saving the target must NEVER start one more epoch.
+                        audit=[P.python_path(),str(HERE/'checkpoints.py'),'--source',str(source),
+                               '--source-sha',source_sha,'--checkpoint',str(checkpoints[-1]),
+                               '--source-epoch',str(source_epoch),'--target-epoch',str(target),
+                               '--output',str(run/'completion.json')]
+                        m['status']='VERIFYING';P.write_json(mp,m);code=1
+                        try:
+                            code=P.execute_child(audit,run/'checkpoint_audit.log',gpu_env())
+                            if code==0:
+                                completion=json.loads((run/'completion.json').read_text())
+                                if completion['status']!='PASS' or completion['final_epoch']!=target:raise ValueError('Invalid completion audit')
+                                m['checkpoint_frames']=completion
+                        except BaseException as error:
+                            code=1;m['error']=type(error).__name__+': '+str(error);raise
+                        finally:
+                            m.update(status='COMPLETED' if code==0 else 'FAILED',last_saved_epoch=latest,
+                                     extra_saved_samples=extra*2048*32,completion_audit_exit_code=code)
+                            P.write_json(mp,m)
+                        if code:return code
+                        continue
+                    if m['status']=='COMPLETED':raise ValueError('Completion record contradicts checkpoint epoch')
                     cmd.insert(cmd.index('--'),'--resume')
                     cmd[cmd.index('--resume_from')+1]=str(checkpoints[-1])
                 else:
@@ -170,7 +251,16 @@ def branch(a):
                 env=gpu_env();env.update(SMV2_RUN_NAME=run.name,SMV2_PROGRESS_WEIGHT=str(weight),
                     SMV2_PROGRESS_CLIP=str(p['progress_clip']),SMV2_PROGRESS_LOG=str(run/'reward_components.jsonl'))
                 code=1
-                try:code=P.execute_child(cmd,run/'train.log',env)
+                try:
+                    code=P.execute_child(cmd,run/'train.log',env)
+                    if code==0:
+                        completion=json.loads((run/'completion.json').read_text())
+                        if completion.get('status')!='PASS' or completion.get('final_epoch')!=source_epoch+extra:
+                            raise ValueError('Training ended without verified completion')
+                except BaseException as error:
+                    code=130 if isinstance(error,KeyboardInterrupt) else 1
+                    m['error']=type(error).__name__+': '+str(error)
+                    raise
                 finally:
                     ckpts=P.numbered(run);last=epoch(ckpts[-1]) if ckpts else source_epoch
                     if (run/'completion.json').exists():m['checkpoint_frames']=json.loads((run/'completion.json').read_text())
@@ -188,14 +278,17 @@ def main(argv=None):
     e=sub.add_parser('evaluate');g=e.add_mutually_exclusive_group(required=True)
     g.add_argument('--run');g.add_argument('--checkpoints',nargs='+')
     e.add_argument('--policy-labels',default='')
+    e.add_argument('--pair',nargs=2,metavar=('LEFT','RIGHT'))
+    v=sub.add_parser('verify');v.add_argument('--checkpoint',required=True)
+    c=sub.add_parser('capability');c.add_argument('--source',required=True);c.add_argument('--candidate',required=True)
     b=sub.add_parser('branch');b.add_argument('--source',required=True)
     b.add_argument('--stage',choices=['smoke','main'],default='smoke');b.add_argument('--extra-epochs',type=int)
     b.add_argument('--seeds',default='');b.add_argument('--execute',action='store_true');b.add_argument('--resume',action='store_true')
-    for q in [e,b]:
+    for q in [e,b,c,v]:
         q.add_argument('--protocol',type=Path,default=DEFAULT)
         q.add_argument('--label',required=True);q.add_argument('--dry-run',action='store_true')
     a=ap.parse_args(argv)
-    return evaluation(a) if a.action=='evaluate' else branch(a)
+    return {'evaluate':evaluation,'branch':branch,'capability':capability,'verify':verify}[a.action](a)
 
 
 if __name__=='__main__':

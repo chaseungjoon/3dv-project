@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import random
 import sys
+from checkpoints import audit_files
 
 ROOT=Path(__file__).resolve().parents[3]
 
@@ -35,6 +36,9 @@ def main():
         if any(k not in checkpoint or checkpoint[k] is None for k in required):
             raise ValueError('Full checkpoint state missing; refusing partial-state branch')
         if not a.resume and int(checkpoint['epoch'])!=a.source_epoch:raise ValueError('Unexpected source epoch')
+        target=int(run_args[run_args.index('--max_epochs')+1])+1
+        if int(checkpoint['epoch'])>=target:
+            raise ValueError('Already at/past target: audit checkpoint instead of training')
         original(self,filename)
         # New branch replicate starts from SAME optimizer/normalizer/ATS, but paired NEW RNG stream.
         # An interrupted branch resume retains its saved RNG instead.
@@ -54,13 +58,7 @@ def main():
         folder=Path(run_args[run_args.index('--output_path')+1])/run_args[run_args.index('--experiment')+1]
         files=list((folder/'nn').glob(f'*_{target:08d}.pth'))
         if len(files)!=1:raise ValueError('Expected final numbered checkpoint missing/ambiguous')
-        end=torch_ext.load_checkpoint(str(files[0]));start=torch_ext.load_checkpoint(a.source)
-        result=dict(source_epoch=int(start['epoch']),final_epoch=int(end['epoch']),
-                    source_frame=int(start['frame']),final_frame=int(end['frame']),
-                    extra_frames=int(end['frame'])-int(start['frame']))
-        if result['extra_frames']!=(target-a.source_epoch)*2048*32:
-            raise ValueError('Unexpected frame delta: '+str(result))
-        (folder/'completion.json').write_text(json.dumps(result,indent=2)+'\n')
+        audit_files(a.source,str(files[0]),a.source_epoch,target,folder/'completion.json',a.source_sha)
     finally:SkillMimicAgent.restore_full_state=original
 
 

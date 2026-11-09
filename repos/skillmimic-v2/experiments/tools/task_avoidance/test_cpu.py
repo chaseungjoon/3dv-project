@@ -18,7 +18,7 @@ runner=importlib.util.module_from_spec(spec);spec.loader.exec_module(runner)
 
 
 def synthetic():
-    p=load_protocol(runner.DEFAULT);p.update(expected_clip_frames=6,start_frame=2,num_envs=2)
+    p=load_protocol(runner.ROOT/'experiments/configs/task_avoidance/protocol.json');p.update(expected_clip_frames=6,start_frame=2,num_envs=2)
     T,N=4,2
     z=dict(reward=np.ones((T,N)),done=np.array([[0,0],[1,0],[0,0],[0,1]],bool),
            train_stop=np.array([[0,0],[0,1],[0,0],[0,0]],bool),fall=np.array([[0,0],[1,0],[0,0],[0,0]],bool),
@@ -111,7 +111,7 @@ class RunnerTests(unittest.TestCase):
             out=io.StringIO()
             with contextlib.redirect_stdout(out):
                 self.assertEqual(runner.main(['evaluate','--checkpoints',*cks,'--label','test','--dry-run']),0)
-            self.assertEqual(out.getvalue().count('evaluate_worker.py'),7)
+            self.assertEqual(out.getvalue().count('evaluate_worker.py'),8)
             self.assertIn('--reference-initial',out.getvalue())
     def test_failure_stops_fresh_evaluation_jobs(self):
         with tempfile.TemporaryDirectory() as td:
