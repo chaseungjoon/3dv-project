@@ -262,9 +262,11 @@ def main():
                    aggregate=agg, episodes=eps)
         path = out_path(meta, ckpt)
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w") as f:
-            json.dump(res, f, indent=1)
+        # npz first, json last via rename: an existing .json (the "already evaluated" marker) is always complete
         np.savez_compressed(path[:-5] + ".npz", **S)
+        with open(path + ".tmp", "w") as f:
+            json.dump(res, f, indent=1)
+        os.replace(path + ".tmp", path)
         print(f"[eval {k + 1}/{len(jobs)}] {meta['run_name']} epoch={epoch} | task_success={agg['task_success']:.2f} "
               f"lift_success={agg['lift_success']:.2f} paper_success={agg['paper_success']:.2f} "
               f"obj_err={agg['obj_err_mean']:.3f}m fell_in_clip={agg['fell_in_clip']:.2f} "

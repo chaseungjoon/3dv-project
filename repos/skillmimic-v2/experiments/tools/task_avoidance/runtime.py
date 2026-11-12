@@ -56,7 +56,7 @@ def snapshot(task,obs,offset=0,eligible=None,origin_target=None):
     initial.update(local_actor_state=actor,policy_input=cpu(obs['obs']),start_frames=cpu(md.envid2sframe),
                    motion_ids=cpu(md.envid2motid),clip_steps=cpu(md.motion_lengths[md.envid2motid]-md.envid2sframe)-offset,
                    goal=cpu(ref['obj_pos'][-1]),reference_lift=np.asarray(float((ref['obj_pos'][:,2]-ref['obj_pos'][0,2]).max())),
-                   segment_start_step=np.asarray(offset),eligible=np.ones(n,bool) if eligible is None else np.asarray(eligible,bool),
+                   segment_start_step=np.asarray(offset),eligible=np.ones(n,bool) if eligible is None else np.array(eligible,bool,copy=True),
                    wrist_d=cpu((task._rigid_body_pos[:,[10,33],:]-task._target_states[:,None,:3]).norm(dim=-1).min(-1).values))
     initial['origin_target']=initial['target'].copy() if origin_target is None else origin_target.copy()
     initial.update({'reward_weight_'+key:cpu(value) for key,value in md.reward_weights.items()})

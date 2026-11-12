@@ -85,7 +85,8 @@ def main():
                  effective_env_cfg=task.cfg,factor_names=FACTOR_NAMES,episodes=rows,
                  initial_pairing='PASS' if a.reference_initial else 'REFERENCE',diagnostic_reward_match='PASS',
                  return_scope='finite observed conditional rollout; train_window is rule-censored prefix, no critic bootstrap')
-    (out/'result.json').write_text(json.dumps(payload,indent=2,allow_nan=False)+'\n')
+    # task.cfg holds the argparse Namespace under 'args'; record non-JSON values as text.
+    (out/'result.json').write_text(json.dumps(payload,indent=2,allow_nan=False,default=str)+'\n')
 
 
 if __name__=='__main__':main()
