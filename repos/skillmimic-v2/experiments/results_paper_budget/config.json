@@ -1,0 +1,103 @@
+{
+ "clip": "place_book",
+ "num_envs": 2048,
+ "epochs": 15260,
+ "order": [
+  {
+   "method": "ours",
+   "seed": 0,
+   "cond": "PAPER"
+  },
+  {
+   "method": "fix",
+   "seed": 0,
+   "cond": "FIX"
+  },
+  {
+   "method": "fix",
+   "seed": 1,
+   "cond": "FIX"
+  },
+  {
+   "method": "ours",
+   "seed": 1,
+   "cond": "PAPER"
+  },
+  {
+   "method": "ours",
+   "seed": 2,
+   "cond": "PAPER"
+  },
+  {
+   "method": "fix",
+   "seed": 2,
+   "cond": "FIX"
+  }
+ ],
+ "scope": "plan",
+ "scope_runs": [
+  "ours:0",
+  "fix:0",
+  "fix:1",
+  "ours:1",
+  "ours:2",
+  "fix:2"
+ ],
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "eval_seeds": [
+  101,
+  102,
+  103
+ ],
+ "curve_epochs": [
+  500,
+  750,
+  1000,
+  1500,
+  2000,
+  2500,
+  3000,
+  3500,
+  4000,
+  4500,
+  5000,
+  5500,
+  6000,
+  6500,
+  7000,
+  7500,
+  8000,
+  8500,
+  9000,
+  9500,
+  10000,
+  10500,
+  11000,
+  11500,
+  12000,
+  12500,
+  13000,
+  13500,
+  14000,
+  14500,
+  15000,
+  15260
+ ],
+ "summary_dir": "experiments/results_paper_budget",
+ "conditions": {
+  "PAPER": {
+   "method": "ours",
+   "runs_dir": "experiments/runs_paper_public",
+   "results_dir": "experiments/results_paper_public"
+  },
+  "FIX": {
+   "method": "fix",
+   "runs_dir": "experiments/runs_paper_fix",
+   "results_dir": "experiments/results_paper_fix"
+  }
+ }
+}

@@ -1,0 +1,7 @@
+condition,method,seed,run,epoch,target,done,samples,wall_h,segments,failed_segments,unfinished_segments,peak_gpu_mem_mib,evals
+PAPER,ours,0,place_book_ours_n2048_s0,15260,15260,1,1000079360,40.83,8,7,0,11372.0,40
+FIX,fix,0,place_book_fix_n2048_s0,15260,15260,1,1000079360,40.57,5,4,0,10301.0,40
+FIX,fix,1,place_book_fix_n2048_s1,2390,15260,0,156631040,6.86,1,1,0,10543.0,0
+PAPER,ours,1,place_book_ours_n2048_s1,0,15260,0,0,0.0,0,0,0,,0
+PAPER,ours,2,place_book_ours_n2048_s2,0,15260,0,0,0.0,0,0,0,,0
+FIX,fix,2,place_book_fix_n2048_s2,0,15260,0,0,0.0,0,0,0,,0
