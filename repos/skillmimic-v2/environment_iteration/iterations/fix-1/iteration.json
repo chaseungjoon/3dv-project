@@ -1,0 +1,25 @@
+{
+ "name": "fix-1",
+ "parent": null,
+ "summary": "FIX from the full-budget study: desk box, 1.0 kg book OBB collision, history-encoder layout fix, phase obs, object early termination (0.25 m)",
+ "created": "2026-11-17",
+ "clip": "place_book",
+ "task": "SkillMimicParahomeLocalHistRISBuffernodePhase",
+ "asset": "mjcf/mocap_parahome_boxhand_histphase.xml",
+ "cfg_env": "environment_iteration/iterations/fix-1/env.yaml",
+ "cfg_train": "experiments/configs/train/parahome.yaml",
+ "motion_file": "skillmimic/data/motions/ParaHome/place_book",
+ "common_args": ["--hist_length", "60", "--history_embedding_size", "3",
+                 "--hist_ckpt", "experiments/checkpoints/hist_encoder/parahome_hist60.ckpt"],
+ "train_args": ["--episode_length", "60", "--reweight", "--reweight_alpha", "1.0",
+                "--state_init_random_prob", "0.1", "--enable_buffernode"],
+ "extra_paths": [],
+ "imported": {
+  "from_run": "experiments/runs_paper_fix/place_book_fix_n2048_s0",
+  "trained_epochs": 15260,
+  "trained_with": "experiments/scripts/paper_budget/run_full.sh (method fix), git 44135d8, 2026-11-14..16",
+  "why_epoch_3000_is_valid": "lr_schedule is constant (experiments/configs/train/parahome.yaml), so the epoch-3000 checkpoint of this run is the state a 3000-epoch run reaches; nothing in training reads max_epochs except the stop condition",
+  "env_cfg_sha256": "27b3a706f9350f1cf01f27347f8820002186148dc1e6b2208b7e49d187211717",
+  "env_cfg_original": "experiments/configs/env/place_book_fix.yaml"
+ }
+}

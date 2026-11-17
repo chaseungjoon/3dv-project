@@ -1,0 +1,448 @@
+{
+ "meta": {
+  "iteration": "fix-1",
+  "clip": "place_book",
+  "mode": "det",
+  "num_envs": 8,
+  "horizon": 300,
+  "start_frame": 2,
+  "clip_frames": 150,
+  "n_clip": 148,
+  "obj_z0": 0.7435374855995178,
+  "ref_lift": 0.4530256390571594,
+  "hold_thr": 0.2,
+  "paper_z": 0.9,
+  "paper_need": 60,
+  "state_init_random_prob": 0.0,
+  "checkpoint": "environment_iteration/iterations/fix-1/runs/fix-1_s0/nn/place_book_fix_n2048_s0_00000500.pth",
+  "epoch": 500,
+  "frame": 32768000,
+  "cell": "curve",
+  "seed": 0,
+  "perturb": false,
+  "ref_phases": {
+   "static": [
+    0,
+    53
+   ],
+   "lift": [
+    53,
+    79
+   ],
+   "carry": [
+    79,
+    147
+   ],
+   "placed": [
+    147,
+    148
+   ]
+  },
+  "protocol_version": 1,
+  "git": "47ea095",
+  "evaluated_at": "2026-11-17T22:24:22"
+ },
+ "aggregate": {
+  "fell": 1.0,
+  "fall_frame": 198.75,
+  "fell_in_clip": 0.0,
+  "task_success": 0.0,
+  "task_progress": 0.4391891891891892,
+  "obj_err_mean": 0.6617377325892448,
+  "obj_err_max": 1.7681684643030167,
+  "obj_err_end": 1.7681684643030167,
+  "body_err_mean": 0.49240583181381226,
+  "lift_max": 0.012862063944339752,
+  "lift_success": 0.0,
+  "held_frames": 0.0,
+  "held_frames_clip": 0.0,
+  "paper_frames": 0.0,
+  "paper_success": 0.0,
+  "paper_success_clip": 0.0,
+  "first_bad": 65.0,
+  "env": 3.5,
+  "start_ref_frame": 3.0,
+  "n_episodes": 8,
+  "modes": {
+   "success": 0,
+   "fall": 0,
+   "no_reach": 0,
+   "no_lift": 8,
+   "knock": 0,
+   "drop": 0,
+   "lag": 0,
+   "lead": 0,
+   "off_path": 0
+  }
+ },
+ "episodes": [
+  {
+   "fell": 1,
+   "fall_frame": 199,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.6591386198997498,
+   "obj_err_max": 1.7604552507400513,
+   "obj_err_end": 1.7604552507400513,
+   "body_err_mean": 0.4923841655254364,
+   "lift_max": -0.00019663572311401367,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 1 cm, lowest corner rose -0 cm, tilted 2 deg",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "tip_frame": null,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     199,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 0,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 1,
+   "fall_frame": 200,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.6573508977890015,
+   "obj_err_max": 1.755802869796753,
+   "obj_err_end": 1.755802869796753,
+   "body_err_mean": 0.49217188358306885,
+   "lift_max": 0.025985896587371826,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 1 cm, lowest corner rose -0 cm, tilted 1 deg",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "tip_frame": null,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     200,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 1,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 1,
+   "fall_frame": 198,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.6602441668510437,
+   "obj_err_max": 1.7631779909133911,
+   "obj_err_end": 1.7631779909133911,
+   "body_err_mean": 0.49360641837120056,
+   "lift_max": 0.012006700038909912,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 2 cm, lowest corner rose -0 cm, tilted 1 deg",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "tip_frame": null,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     198,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 2,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 1,
+   "fall_frame": 195,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.6837552785873413,
+   "obj_err_max": 1.8335446119308472,
+   "obj_err_end": 1.8335446119308472,
+   "body_err_mean": 0.49214181303977966,
+   "lift_max": 0.006551980972290039,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 1 cm, lowest corner rose -0 cm, tilted 1 deg",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "tip_frame": null,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     195,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 3,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 1,
+   "fall_frame": 199,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.6586681604385376,
+   "obj_err_max": 1.758702278137207,
+   "obj_err_end": 1.758702278137207,
+   "body_err_mean": 0.4921974539756775,
+   "lift_max": 0.01829320192337036,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 1 cm, lowest corner rose -0 cm, tilted 1 deg",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "tip_frame": null,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     199,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 4,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 1,
+   "fall_frame": 201,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.6558289527893066,
+   "obj_err_max": 1.7512147426605225,
+   "obj_err_end": 1.7512147426605225,
+   "body_err_mean": 0.49258217215538025,
+   "lift_max": 0.03105771541595459,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 1 cm, lowest corner rose -0 cm, tilted 1 deg",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "tip_frame": null,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     201,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 5,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 1,
+   "fall_frame": 199,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.6588571667671204,
+   "obj_err_max": 1.759903907775879,
+   "obj_err_end": 1.759903907775879,
+   "body_err_mean": 0.4920559823513031,
+   "lift_max": 0.009075701236724854,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 1 cm, lowest corner rose -0 cm, tilted 1 deg",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "tip_frame": null,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     199,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 6,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 1,
+   "fall_frame": 199,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.6600586175918579,
+   "obj_err_max": 1.7625460624694824,
+   "obj_err_end": 1.7625460624694824,
+   "body_err_mean": 0.49210676550865173,
+   "lift_max": 0.00012195110321044922,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 2 cm, lowest corner rose -0 cm, tilted 1 deg",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "tip_frame": null,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     199,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 7,
+   "start_ref_frame": 3
+  }
+ ]
+}

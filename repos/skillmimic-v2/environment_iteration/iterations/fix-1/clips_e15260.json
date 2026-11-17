@@ -1,0 +1,13 @@
+{
+ "epoch": 15260,
+ "note": "Reference only (not the loop budget): fix-1 trained to the paper budget. It lifts on time (99% lift) but breaks at frame ~72 (off path), rot_off at ~77, drops the book at ~87 while staying upright; its body covers only ~half of the reference's ~1.1 m sideways walk. Analysis: iterations/fix-1/analysis/e15260/REPORT.md",
+ "rollouts": [{"cell": "stoch", "seed": 101, "num_envs": 8, "horizon": 150}],
+ "clips": [
+  {"id": "6_e15260_lift_rotate", "cell": "stoch", "seed": 101,
+   "select": {"all": true}, "anchor": "frame", "start": 55, "end": 90, "max_episodes": 2,
+   "why": "Lift is on time; compare the book's rotation with the green wireframe (reference turns the book ~180 deg by frame 90). Does the grip allow that rotation?"},
+  {"id": "7_e15260_carry_drop", "cell": "stoch", "seed": 101,
+   "select": {"event": "drop"}, "anchor": "drop", "pre": 15, "post": 15, "max_episodes": 3,
+   "why": "96% drop at median frame 87 without falling. Watch: hands following the reference arms while the body does not walk (arms pulled apart?), or the book twisting out."}
+ ]
+}

@@ -1,0 +1,75 @@
+{
+ "version": 1,
+ "note": "The fixed rules of the environment-iteration loop (LOOP.md 3). Every iteration is trained and evaluated with exactly these numbers. Do not edit between iterations; a change needs a new version and a re-evaluation of every iteration (AGENTS.md 4).",
+ "clip": "place_book",
+ "train": {
+  "num_envs": 2048,
+  "epochs": 3000,
+  "seed": 0,
+  "retries": 2,
+  "keep_newest": 3,
+  "prune_every_s": 300
+ },
+ "eval": {
+  "start_frame": 2,
+  "horizon": 300,
+  "task_eps_m": 0.1,
+  "state_init_random_prob": 0.0,
+  "state_init_random_prob_note": "env.yaml sets 0.1 for training (STF noisy init); upstream also applies it in --test, so ~7% of experiments/tools/evaluate.py episodes started from a noisy, re-sampled state (e.g. reference frame 94) and could never succeed. The loop evaluates clean frame-2 starts only.",
+  "curve": {
+   "mode": "det",
+   "num_envs": 8,
+   "seed": 0,
+   "epochs": [
+    250,
+    500,
+    750,
+    1000,
+    1250,
+    1500,
+    1750,
+    2000,
+    2250,
+    2500,
+    2750,
+    3000
+   ]
+  },
+  "final": [
+   {
+    "cell": "stoch",
+    "mode": "stoch",
+    "num_envs": 32,
+    "seeds": [
+     101,
+     102,
+     103
+    ],
+    "perturb": false
+   },
+   {
+    "cell": "stoch_perturb",
+    "mode": "stoch",
+    "num_envs": 32,
+    "seeds": [
+     101,
+     102,
+     103
+    ],
+    "perturb": true
+   }
+  ]
+ },
+ "target": {
+  "metric": "task_success",
+  "cell": "stoch",
+  "threshold": 0.7,
+  "also_report": [
+   "paper_success",
+   "lift_success",
+   "task_progress",
+   "held_frames_clip",
+   "fell_in_clip"
+  ]
+ }
+}

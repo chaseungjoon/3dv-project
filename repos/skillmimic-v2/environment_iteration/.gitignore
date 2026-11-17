@@ -1,0 +1,12 @@
+# environment_iteration: large or regenerable outputs
+.check/
+.train.lock
+.train.lock.info
+*.tmp
+iterations/*/runs/
+iterations/*/logs/
+iterations/*/eval/**/*.npz
+video/*/*/full/
+video/*/*/clips/
+video/*/*/.frames/
+video/*/*/trace.npz

@@ -1,0 +1,25 @@
+{
+ "epoch": 3000,
+ "note": "fix-1 at the loop budget. Analysis: iterations/fix-1/analysis/e3000/REPORT.md. Frames t = 0..147 (reference frame = t + 3).",
+ "rollouts": [
+  {"cell": "stoch", "seed": 101, "num_envs": 8, "horizon": 150},
+  {"cell": "stoch_perturb", "seed": 101, "num_envs": 8, "horizon": 150}
+ ],
+ "clips": [
+  {"id": "1_grasp_lift", "cell": "stoch", "seed": 101,
+   "select": {"mode": ["lag", "off_path"]}, "anchor": "frame", "start": 45, "end": 80, "max_episodes": 3,
+   "why": "76% of episodes: the task breaks at frame 66-68 while the book is in hand but behind the reference. The reference pivots the book up on one edge and rotates it (41 deg at 60 -> ~90 deg at 72) while lifting 19 cm in 10 frames. Watch: where the hands grip (edges? under?), whether the pivot happens, whether the book slips in the fingers, whether the arms are simply too slow vs the green wireframe."},
+  {"id": "2_never_lifted", "cell": "stoch", "seed": 101,
+   "select": {"mode": ["no_lift", "knock"]}, "anchor": "first_bad", "pre": 15, "post": 10, "max_episodes": 2,
+   "why": "21%: the book is touched but never comes up (or slides / tips) at frame ~65. Watch: finger placement, pushing the book across the desk, one hand vs two hands."},
+  {"id": "3_collapse", "cell": "stoch", "seed": 101,
+   "select": {"event": "fall"}, "anchor": "fall", "pre": 25, "post": 5, "max_episodes": 3,
+   "why": "100% fall, median frame 103; the pelvis starts sinking at ~85, exactly when the reference starts walking sideways (~0.8 m/s, ~1.1 m in total). Watch: does it try to step? feet sliding? leaning on the desk? does the book pull it over?"},
+  {"id": "4_drop", "cell": "stoch", "seed": 101,
+   "select": {"event": "drop"}, "anchor": "drop", "pre": 12, "post": 10, "max_episodes": 2,
+   "why": "55% drop the book at median frame 98, 2 frames before the fall (median). Check whether the hands open first or the body collapse takes the book down."},
+  {"id": "5_perturbed_miss", "cell": "stoch_perturb", "seed": 101,
+   "select": {"mode": ["no_lift", "knock"]}, "anchor": "first_bad", "pre": 20, "post": 10, "max_episodes": 3,
+   "why": "Perturbed start (book rotated up to 45 deg, moved up to 10 cm): 61% never lift it. Watch: do the hands go to where the reference book is (green) instead of the real book (red)?"}
+ ]
+}
