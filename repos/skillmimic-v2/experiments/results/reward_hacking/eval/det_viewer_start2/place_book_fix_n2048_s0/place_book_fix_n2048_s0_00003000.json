@@ -1,0 +1,80 @@
+{
+ "meta": {
+  "run_dir": "experiments/runs/place_book_fix_n2048_s0",
+  "run_name": "place_book_fix_n2048_s0",
+  "clip": "place_book",
+  "method": "fix",
+  "epochs": 3000,
+  "seed": 0,
+  "num_envs": 1,
+  "samples_per_epoch": 65536,
+  "args": "--task SkillMimicParahomeLocalHistRISBuffernodePhase --cfg_env experiments/configs/env/place_book_fix.yaml --cfg_train experiments/configs/train/parahome.yaml --asset_file_name mjcf/mocap_parahome_boxhand_histphase.xml --motion_file skillmimic/data/motions/ParaHome/place_book --hist_length 60 --history_embedding_size 3 --hist_ckpt experiments/checkpoints/hist_encoder/parahome_hist60.ckpt --episode_length 60 --reweight --reweight_alpha 1.0 --state_init_random_prob 0.1 --enable_buffernode",
+  "git": "468f15c",
+  "gpu": "NVIDIA GeForce RTX 5070, 595.71.05",
+  "segments": [
+   {
+    "started_at": "2026-10-12T04:04:22+09:00",
+    "resume_from": "",
+    "resume_epoch": 0,
+    "target_epochs": 3000,
+    "finished_at": "2026-10-12T12:10:22+09:00",
+    "exit_code": 0,
+    "wall_s": 29160
+   }
+  ],
+  "wall_s_total": 29160,
+  "peak_gpu_mem_mib": 9275.0,
+  "checkpoints": 304,
+  "checkpoint": "experiments/runs/place_book_fix_n2048_s0/nn/place_book_fix_n2048_s0_00003000.pth",
+  "epoch": 3000,
+  "frame": 196608000,
+  "mode": "det",
+  "horizon": 300,
+  "start_frame": 2,
+  "perturb": false,
+  "clip_frames": 150,
+  "ref_lift": 0.4530256390571594,
+  "task_eps_m": 0.1,
+  "evaluated_at": "2026-11-07T21:22:14",
+  "eval_seconds": 14.7
+ },
+ "aggregate": {
+  "fell": 1.0,
+  "fall_frame": 265.0,
+  "fell_in_clip": 0.0,
+  "task_success": 0.0,
+  "task_progress": 0.4391891891891892,
+  "obj_err_mean": 0.7873507142066956,
+  "obj_err_max": 2.130394220352173,
+  "obj_err_end": 2.130394220352173,
+  "body_err_mean": 0.5284154415130615,
+  "lift_max": 0.19662678241729736,
+  "lift_success": 0.0,
+  "held_frames": 89.0,
+  "held_frames_clip": 56.0,
+  "paper_frames": 26.0,
+  "paper_success": 0.0,
+  "paper_success_clip": 0.0,
+  "n_episodes": 1
+ },
+ "episodes": [
+  {
+   "fell": 1,
+   "fall_frame": 265,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.7873507142066956,
+   "obj_err_max": 2.130394220352173,
+   "obj_err_end": 2.130394220352173,
+   "body_err_mean": 0.5284154415130615,
+   "lift_max": 0.19662678241729736,
+   "lift_success": 0,
+   "held_frames": 89,
+   "held_frames_clip": 56,
+   "paper_frames": 26,
+   "paper_success": 0,
+   "paper_success_clip": 0
+  }
+ ]
+}

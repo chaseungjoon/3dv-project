@@ -17,6 +17,16 @@ Metrics (per env, then averaged):
   paper_success  upstream metric (skillmimic/metric/{place,drink}_metric.py) on this episode only:
                  Place: >60 frames with root z>0.5, wrist-object < thr, object z>0.9; Drink: >30 frames, z>1.2
   ...plus object/body tracking errors, fall frame, held frames.
+
+--log_reward (reward-hacking tests, experiments/reward_hacking/README.md): also record the training reward and its
+factors (experiments/tools/rh_reward.py) on every step, into the .npz (rew, r_body, r_pos, r_rot, r_smooth, r_obj,
+r_ig, rew_buf) and as per-episode means in the .json:
+  rew_mean       mean per-frame reward over the alive clip frames of this (frame-`start_frame`) rollout
+  rew_sum        sum of the same frames (an episode return if the episode were the whole clip)
+  train_return   return under the training episode rules from this start: at most 60 steps, ended by a fall or by the
+                 object farther than 0.25 m from its reference (fix env objTerminationDist), last step included
+  train_len, train_mean   length of that window and its mean non-zero per-frame reward (= what ATS records)
+  <factor>_mean  mean of each factor over the alive clip frames
 """
 import argparse
 import datetime
@@ -56,6 +66,7 @@ def parse():
     p.add_argument("--tag", default="")
     p.add_argument("--force", action="store_true")
     p.add_argument("--viewer", action="store_true", help="1 env with the Isaac Gym viewer")
+    p.add_argument("--log_reward", action="store_true", help="record the training reward and its factors (see doc)")
     return p.parse_args()
 
 
@@ -151,6 +162,10 @@ def main():
     runner.config["player"] = dict(runner.config.get("player", {}), determenistic=(a.mode == "det"))
     player = runner.create_player()
     task = player.env.task
+    if a.log_reward:
+        import rh_reward
+        rew_parts = {}
+        rew_calls = rh_reward.install_logger(task, rew_parts)
     mdata = task._motion_data
     assert mdata.num_motions == 1, "one clip per policy"
     clip_len = int(mdata.motion_lengths[0])
@@ -195,6 +210,9 @@ def main():
         alive = torch.ones(num_envs, dtype=torch.bool, device=task.device)
         fall_t = torch.full((num_envs,), -1, dtype=torch.long, device=task.device)
         S = {k_: [] for k_ in ["obj", "ref_obj", "root", "wrist_d", "body_err", "alive"]}
+        if a.log_reward:
+            rew_calls["n"] = 0
+            S.update({k_: [] for k_ in rh_reward.PARTS + ["rew_buf"]})
         for t in range(a.horizon):
             if a.viewer:
                 p = task._humanoid_root_states[0, 0:3].cpu().numpy()
@@ -218,7 +236,13 @@ def main():
             for key_, v in zip(["obj", "ref_obj", "root", "wrist_d", "body_err"],
                                [obj, refo, task._humanoid_root_states[:, 0:3].clone(), wd, be]):
                 S[key_].append(v)
+            if a.log_reward:
+                for key_ in rh_reward.PARTS:
+                    S[key_].append(rew_parts[key_].clone())
+                S["rew_buf"].append(task.rew_buf.clone())
             alive = alive & ~fell_now & ~(done.bool() & (t < a.horizon - 1))
+        if a.log_reward and rew_calls["n"] < a.horizon:
+            sys.exit(f"[eval] --log_reward: reward hook was called {rew_calls['n']} times for {a.horizon} steps")
         S = {k_: torch.stack(v).cpu().numpy() for k_, v in S.items()}  # (T, envs, ...)
 
         eps = []
@@ -238,7 +262,22 @@ def main():
             held = al & near & (z - obj_z0 > 0.05)
             at_paper = al & (S["root"][:, e, 2] > 0.5) & near & (z > paper_z)
             lift_ok = bool((al & near & (z - obj_z0 >= 0.5 * ref_lift)).any())
-            eps.append(dict(
+            ep_rew = {}
+            if a.log_reward:
+                m_ = al[:nc]
+                for key_ in rh_reward.PARTS:
+                    ep_rew[key_ + "_mean"] = float(S[key_][:nc, e][m_].mean()) if m_.any() else None
+                ep_rew["rew_sum"] = float(S["rew"][:nc, e][m_].sum())
+                tr, tl, nz = 0.0, 0, []
+                for t_ in range(min(60, nc)):   # training episode rules (SkillMimicParahomeLocalHistRISBuffernodePhase)
+                    r_ = float(S["rew"][t_, e]); tr += r_; tl += 1
+                    if r_ != 0:
+                        nz.append(r_)
+                    if (not al[t_]) or (t_ >= 1 and err[t_] > 0.25):
+                        break
+                # train_mean: mean of the non-zero rewards, as ATS records it (record_motion_time_reward)
+                ep_rew.update(train_return=tr, train_len=tl, train_mean=float(np.mean(nz)) if nz else 0.0)
+            eps.append(dict(**ep_rew,
                 fell=int(fell), fall_frame=ft, fell_in_clip=int(fell_in_clip),
                 task_success=int((not fell_in_clip) and float(err.max()) <= TASK_EPS_M),
                 task_progress=first_bad / nc,

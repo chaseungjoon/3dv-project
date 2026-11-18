@@ -182,8 +182,8 @@ def main():
         m = load_run(os.path.dirname(p))
         if m.get("clip") not in CLIPS:
             continue
-        if m.get("method") == method_for(m["clip"]):
-            runs[m["clip"]] = m  # one run per clip (seed 0); a later name wins
+        if m.get("method") == method_for(m["clip"]) and int(m.get("seed", 0)) == 0:
+            runs[m["clip"]] = m  # one run per clip (seed 0; extra seeds, e.g. reward-hacking test 7, are not the baseline)
             evals[m["clip"]] = load_evals(a.eval_dir, m["run_name"])
         elif m.get("method") == "ours":  # upstream environment, superseded by the fixed one for this clip
             up_runs[m["clip"]] = m
