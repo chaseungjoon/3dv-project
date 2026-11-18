@@ -1,0 +1,15 @@
+{
+ "epoch": 2000,
+ "note": "fix-2 mid-training reference (learning curve e1000-e2500: book raised early and stood on its edge, 'lead' mode; lost again by e2750). Not a protocol result. Analysis: ITERATION.md section 5.",
+ "rollouts": [
+  {"cell": "stoch", "seed": 101, "num_envs": 8, "horizon": 180}
+ ],
+ "clips": [
+  {"id": "5_e2000_early_pivot", "cell": "stoch", "seed": 101,
+   "select": {"all": true}, "anchor": "frame", "start": 30, "end": 80, "max_episodes": 3,
+   "why": "Curve e1000-e2500 (det, 8 envs): the book centre rises 6-12 cm from frame ~40, i.e. before the reference starts lifting at ~53 ('lead'), and its tilt goes to ~90 deg: it is stood on its long edge on the desk (centre 0.80 m) instead of lifted (reference 1.20 m at frame 80). Watch: which hand(s) pivot it, where the fingers are, and why it is not lifted off the desk (fingers under / around the book? one hand pushing it up against the other?)."},
+  {"id": "6_e2000_drop", "cell": "stoch", "seed": 101,
+   "select": {"event": "drop"}, "anchor": "drop", "pre": 15, "post": 15, "max_episodes": 2,
+   "why": "e2000: 6/8 rollout episodes drop the book at frames 83-87 (as the reference starts the sideways walk); it hits the floor at 94-100 and the character falls at 103-120. Watch: does the hand open / the book rotate out of the pinch, or is the edge-standing book pushed off the desk when the body turns to walk?"}
+ ]
+}

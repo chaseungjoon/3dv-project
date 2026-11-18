@@ -18,7 +18,8 @@ import importlib
 
 # task class name -> module in this package
 REGISTRY = {
-    "SkillMimicParahomeIterContact": "contact",      # fix-2: objectShapeProps / handShapeProps env keys
+    "SkillMimicParahomeIterContact": "contact",      # (unused) fix-2 investigation: objectShapeProps / handShapeProps env keys
+    "SkillMimicParahomeIterContactOffset": "contact_offset",   # fix-3: handContactOffset / objectContactOffset
 }
 
 

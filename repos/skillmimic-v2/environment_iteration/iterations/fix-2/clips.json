@@ -1,12 +1,22 @@
 {
  "epoch": 3000,
+ "note": "fix-2 at the loop budget. Analysis: iterations/fix-2/analysis/e3000/REPORT.md, ITERATION.md section 5. Frames t = 0..147 (reference frame = t + 3).",
  "rollouts": [
-  {
-   "cell": "stoch",
-   "seed": 101,
-   "num_envs": 8,
-   "horizon": 180
-  }
+  {"cell": "stoch", "seed": 101, "num_envs": 8, "horizon": 180},
+  {"cell": "stoch_perturb", "seed": 101, "num_envs": 8, "horizon": 180}
  ],
- "clips": []
+ "clips": [
+  {"id": "1_no_lift_approach", "cell": "stoch", "seed": 101,
+   "select": {"mode": ["no_lift"]}, "anchor": "frame", "start": 40, "end": 80, "max_episodes": 3,
+   "why": "96% of episodes: the book never moves (median displacement 0 cm, height 0.74 m all clip) and the track breaks at frame 65 when the reference rises. Wrists come to ~17 cm of the book at frames 50-65, but the contact force on the book is ~4x lower than fix-1's. Watch: do the fingers touch the book at all, or do the hands hover / follow the green reference dots past the red book? Does the right hand leave at 62-65 as in the demo while the left hand never closes?"},
+  {"id": "2_empty_walk_collapse", "cell": "stoch", "seed": 101,
+   "select": {"event": "fall"}, "anchor": "fall", "pre": 30, "post": 5, "max_episodes": 3,
+   "why": "100% fall (median frame 130, 81% inside the clip) although the book stays on the desk; fix-1 fell at ~103 with the book. The pelvis stays up until ~115 and sinks during the sideways walk. Watch: is it a stepping / balance failure of the empty-handed walk (feet sliding, crossing legs, leaning toward where the reference book is)? This tells whether the walk fails independently of the book."},
+  {"id": "3_perturbed_miss", "cell": "stoch_perturb", "seed": 101,
+   "select": {"mode": ["no_lift", "knock"]}, "anchor": "first_bad", "pre": 20, "post": 10, "max_episodes": 2,
+   "why": "Perturbed start (book yaw +-45 deg, xy <= 10 cm): 95% no_lift, 2% knock. Same question as clip 1: do the hands go to the red book or to where the green reference book is?"},
+  {"id": "4_full_episode_overview", "cell": "stoch", "seed": 101,
+   "select": {"all": true}, "anchor": "frame", "start": 30, "end": 147, "max_episodes": 1,
+   "why": "One whole clip window for context: approach (30-53), the moment the reference lifts (53-79) and the carry walk (79-147) with the book left on the desk."}
+ ]
 }

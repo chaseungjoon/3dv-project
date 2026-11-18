@@ -176,10 +176,12 @@ def hold(env, variants, frame, steps, hand):
     return rows
 
 
-def replay(env, variants, f0, f1, detail=None):
+def replay(env, variants, f0, f1, detail=None, ki=None):
     """Perfect imitator: from reference frame f0 to f1, every step pin the root to the reference root of that frame
     and PD-drive all joints to that frame's reference pose (velocities set to the reference); the object simulates
-    freely from its frame-f0 reference pose. Prints, per variant, how long the object stays within 10 cm of its
+    freely from its frame-f0 reference pose. ki given (--ff KI): PD target = reference + (damping / stiffness) x
+    reference joint velocity + KI x accumulated tracking error, because plain PD to the reference lags the
+    reference by 2-6 cm at the fingers (asset stiffness 500 / damping 500 = 1 s time constant; fix-2 ITERATION.md 8). Prints, per variant, how long the object stays within 10 cm of its
     reference (the task-success rule) and its error at selected frames."""
     import numpy as np
     from isaacgym import gymtorch
@@ -209,12 +211,20 @@ def replay(env, variants, f0, f1, detail=None):
 
     def ang(a, b):
         return float(np.degrees(2 * np.arccos(min(1.0, abs(float((a * b).sum()))))))
+    import torch
+    dp = gym.get_actor_dof_properties(task.envs[0], task.humanoid_handles[0])
+    tau = torch.tensor(dp["damping"] / np.maximum(dp["stiffness"], 1e-6), device=task.device, dtype=torch.float)
+    acc = torch.zeros_like(task._dof_pos)
     err = []
     if detail:
         print("[replay-detail] env 0: ref frame | book z sim/ref | xy moved sim/ref (cm) | tilt from start sim/ref | "
               "rot err vs ref | contact force: book total, left hand, right hand (N)")
     for fr in range(f0 + 1, f1 + 1):
-        act = ((md["dof_pos"][fr] - task._pd_action_offset) / task._pd_action_scale).clamp(-1, 1).repeat(n, 1)
+        tgt = md["dof_pos"][fr].repeat(n, 1)
+        if ki is not None:
+            acc += md["dof_pos"][fr - 1] - task._dof_pos
+            tgt = tgt + tau * md["dof_pos_vel"][fr] + ki * acc
+        act = ((tgt - task._pd_action_offset) / task._pd_action_scale).clamp(-1, 1)
         task.pre_physics_step(act)
         set_root(fr)
         gym.simulate(sim); gym.fetch_results(sim, True); task._refresh_sim_tensors()
@@ -265,6 +275,8 @@ def main():
                    "iteration's dynamicUrdf (a scratch copy of env.yaml is used)")
     p.add_argument("--replay", default="", help="F0:F1 run the perfect-imitator replay over these reference frames "
                    "instead of the static holds")
+    p.add_argument("--ff", type=float, default=None, help="with --replay: velocity feed-forward + integral tracking "
+                   "with this integral gain (e.g. 0 or 0.5) instead of plain PD to the reference")
     p.add_argument("--detail", default="", help="with --replay: F0:F1 print a per-frame trace of env 0")
     p.add_argument("--checkpoint", default="", help="any checkpoint with this iteration's obs size (default: the "
                    "iteration's newest, else fix-1 epoch 3000)")
@@ -310,7 +322,7 @@ def main():
         print(f"[grip] humanoid asset: {a.asset}")
     if a.replay:
         f0, f1 = (int(x) for x in a.replay.split(":"))
-        return replay(env, variants, f0, f1, tuple(int(x) for x in a.detail.split(":")) if a.detail else None)
+        return replay(env, variants, f0, f1, tuple(int(x) for x in a.detail.split(":")) if a.detail else None, a.ff)
     for fr in [int(x) for x in a.frames.split(",")]:
         hold(env, variants, fr, a.steps, a.hand)
     print(f"[grip] SUMMARY over frames {a.frames}" + (f", asset {a.asset}" if a.asset else "") + ": "
