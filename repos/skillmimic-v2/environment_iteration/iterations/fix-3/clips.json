@@ -1,0 +1,14 @@
+{
+  "epoch": 3000,
+  "note": "Frames are control steps after reset. Evaluation episodes cannot be replayed exactly; these are fresh rollouts.",
+  "rollouts": [
+    {"cell": "stoch", "seed": 101, "num_envs": 8, "horizon": 180},
+    {"cell": "stoch_perturb", "seed": 101, "num_envs": 8, "horizon": 180}
+  ],
+  "clips": [
+    {"id": "1_lift_lag", "cell": "stoch", "seed": 101, "select": {"mode": ["lag"]}, "anchor": "first_bad", "pre": 20, "post": 22, "max_episodes": 3, "why": "Most clean episodes first break at frame 66, classified as lag. Watch how the hands contact the book, whether it pivots on the desk, and why it does not follow the rising green reference. The in-hand label is a geometric heuristic, not proof of a secure grip."},
+    {"id": "2_late_fall", "cell": "stoch", "seed": 101, "select": {"event": "fall"}, "anchor": "fall", "pre": 35, "post": 5, "max_episodes": 2, "why": "Falls occur later than in fix-2; inspect the empty-handed walk, balance and foot placement. Falls after frame 147 are outside the reference clip."},
+    {"id": "3_perturbed_pickup", "cell": "stoch_perturb", "seed": 101, "select": {"mode": ["lag", "no_lift", "knock"]}, "anchor": "first_bad", "pre": 20, "post": 15, "max_episodes": 3, "why": "With the book initially displaced or rotated, look at whether the hands reach the actual red book or follow the green reference, and whether contact pushes or lifts it."},
+    {"id": "4_full_overview", "cell": "stoch", "seed": 101, "select": {"all": true}, "anchor": "frame", "start": 30, "end": 147, "max_episodes": 1, "why": "See approach, attempted pickup and subsequent walk together; compare the small book movement with the reference trajectory."}
+  ]
+}

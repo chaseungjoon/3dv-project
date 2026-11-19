@@ -1,0 +1,31 @@
+{
+ "name": "fix-3",
+ "parent": "fix-2",
+ "summary": "hand and book contact offset 0.005->0.02 m (per shape; fix-2 solver otherwise): keeps the grasp discoverable, fix-2's holding",
+ "created": "2026-11-18",
+ "clip": "place_book",
+ "task": "SkillMimicParahomeIterContactOffset",
+ "asset": "mjcf/mocap_parahome_boxhand_histphase.xml",
+ "cfg_env": "environment_iteration/iterations/fix-3/env.yaml",
+ "cfg_train": "experiments/configs/train/parahome.yaml",
+ "motion_file": "skillmimic/data/motions/ParaHome/place_book",
+ "common_args": [
+  "--hist_length",
+  "60",
+  "--history_embedding_size",
+  "3",
+  "--hist_ckpt",
+  "experiments/checkpoints/hist_encoder/parahome_hist60.ckpt"
+ ],
+ "train_args": [
+  "--episode_length",
+  "60",
+  "--reweight",
+  "--reweight_alpha",
+  "1.0",
+  "--state_init_random_prob",
+  "0.1",
+  "--enable_buffernode"
+ ],
+ "extra_paths": []
+}
