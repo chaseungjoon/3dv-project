@@ -21,6 +21,7 @@ REGISTRY = {
     "SkillMimicParahomeIterContact": "contact",      # (unused) fix-2 investigation: objectShapeProps / handShapeProps env keys
     "SkillMimicParahomeIterContactOffset": "contact_offset",   # fix-3: handContactOffset / objectContactOffset
     "SkillMimicParahomeIterATS": "ats",                        # fix-4: atsSampler (ATS reaches the start-frame sampler)
+    "SkillMimicParahomeIterOwnStart": "own_start",             # fix-5: ownStart* (starts from the policy's own post-pickup states)
 }
 
 

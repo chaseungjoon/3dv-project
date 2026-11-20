@@ -110,6 +110,7 @@ Useful upstream facts: `skillmimic/env/tasks/skillmimic_parahome_localhist.py` (
 | the env builds and the change acts | a short probe: `src/rollout.py fix-n --epoch <e> --num_envs 8` on a parent checkpoint when obs/action sizes are unchanged, or a custom script in your scratch dir | minutes |
 | evaluation of a finished run | `bash environment_iteration/scripts/eval.sh fix-n` | ~6 min |
 | can the env physically do the demo? | `src/probes/grip.py fix-n --frames 90,110,130` (perfect imitator holds the object at reference frames; `--variants` at actor creation, `--set 'sim.substeps=4;...'`, `--asset`, `--motion`, `--book_urdf`), `--replay 30:147 [--detail 46:72]` (perfect imitator over the clip) | ~1 min per call |
+| feet / hands / book timeline of a policy | `src/probes/gait_grip.py fix-n --start 2,85 --seeds 101,102,103` (foot contact, lift-offs, steps, slip, travel along the walk, pelvis, release / slip / drop order; `--assist a --assist_from f`: upward book-load assist a*m*g, diagnostic only) | ~20 s per start |
 | videos | `bash environment_iteration/scripts/video.sh fix-n` | ~1-3 min |
 
 A parent checkpoint only loads into fix-n when the observation and action sizes are unchanged (an asset or

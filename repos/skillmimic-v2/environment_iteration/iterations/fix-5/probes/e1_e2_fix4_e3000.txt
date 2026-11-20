@@ -1,0 +1,108 @@
+# E1 / E2 probes on fix-4 e3000 (ENV_FIX_PLAN.md), 2026-11-20T12:12:50+09:00. Commands precede each block.
+## E1: frame-2 path vs reference starts (60-frame horizon from 70/85)
+$ environment_iteration/src/probes/gait_grip.py fix-4 --start 2,70,85 --seeds 101,102,103 --num_envs 32
+[gait] bodies {'jLeftAnkle': 59, 'jLeftBallFoot': 60, 'jRightAnkle': 55, 'jRightBallFoot': 56} num_bodies 61 per env 63 | book mass 1.001 kg com [-0.0095, -0.0008, 0.0] | g 9.81 | assist 0.0 from ref 75.0 ramp 10.0
+[gait] fix-4 e3000 start 2 assist 0 n=96 events (share of episodes, median ref frame): r_release 100% @ 70.0 | l_slip 100% @115.0 | pelvis_drop 100% @ 63.0 | first_lift   1% @130.0 | first_step   0% | progress   1% @148.0 | drop  96% @135.0
+[gait] fix-4 e3000 start 2 assist 0 window ref 85-145 (medians): n_lifts 0.000 | n_steps 0.000 | step_len_mean 0.000 | travel_along 0.139 | slip_frac 0.026 | slip_v_med 0.007 | load_l_std 0.134 | both_contact 1.000 | no_contact 0.000 | leg_err 0.387 | leg_tar_vel 0.206 | pelvis_z 0.681 | stance_w 0.508 | root_v 0.151 | book_err 0.530 | held_l 0.762 | reward 0.002
+[gait] fix-4 e3000 start 2 assist 0 order  90/96: pelvis_drop > r_release > l_slip > drop
+[gait] fix-4 e3000 start 2 assist 0 order   4/96: pelvis_drop > r_release > l_slip
+[gait] fix-4 e3000 start 2 assist 0 order   1/96: pelvis_drop > r_release > l_slip > drop > first_lift
+[gait] fix-4 e3000 start 2 assist 0 order   1/96: pelvis_drop > r_release > l_slip > drop > progress
+[gait] bodies {'jLeftAnkle': 59, 'jLeftBallFoot': 60, 'jRightAnkle': 55, 'jRightBallFoot': 56} num_bodies 61 per env 63 | book mass 1.001 kg com [-0.0095, -0.0008, 0.0] | g 9.81 | assist 0.0 from ref 75.0 ramp 10.0
+[gait] fix-4 e3000 start 70 assist 0 n=96 events (share of episodes, median ref frame): r_release 100% @ 71.0 | l_slip   2% @110.5 | pelvis_drop   8% @121.0 | first_lift  98% @ 86.0 | first_step  97% @ 91.0 | progress 100% @101.0 | drop   0%
+[gait] fix-4 e3000 start 70 assist 0 window ref 85-145 (medians): n_lifts 2.000 | n_steps 2.000 | step_len_mean 0.329 | travel_along 0.790 | slip_frac 0.414 | slip_v_med 0.026 | load_l_std 0.352 | both_contact 0.630 | no_contact 0.000 | leg_err 0.534 | leg_tar_vel 0.255 | pelvis_z 0.827 | stance_w 0.354 | root_v 0.537 | book_err 0.095 | held_l 1.000 | reward 0.673
+[gait] fix-4 e3000 start 70 assist 0 order  68/96: r_release > first_lift > first_step > progress
+[gait] fix-4 e3000 start 70 assist 0 order  18/96: r_release > progress > first_lift > first_step
+[gait] fix-4 e3000 start 70 assist 0 order   3/96: r_release > first_lift > first_step > progress > pelvis_drop
+[gait] fix-4 e3000 start 70 assist 0 order   2/96: r_release > progress > pelvis_drop
+[gait] bodies {'jLeftAnkle': 59, 'jLeftBallFoot': 60, 'jRightAnkle': 55, 'jRightBallFoot': 56} num_bodies 61 per env 63 | book mass 1.001 kg com [-0.0095, -0.0008, 0.0] | g 9.81 | assist 0.0 from ref 75.0 ramp 10.0
+[gait] fix-4 e3000 start 85 assist 0 n=96 events (share of episodes, median ref frame): r_release 100% @ 86.0 | l_slip  12% @124.0 | pelvis_drop   1% @134.0 | first_lift 100% @ 86.0 | first_step 100% @ 92.0 | progress 100% @101.0 | drop   5% @128.0
+[gait] fix-4 e3000 start 85 assist 0 window ref 85-145 (medians): n_lifts 3.000 | n_steps 3.000 | step_len_mean 0.303 | travel_along 0.779 | slip_frac 0.342 | slip_v_med 0.027 | load_l_std 0.362 | both_contact 0.617 | no_contact 0.017 | leg_err 0.469 | leg_tar_vel 0.256 | pelvis_z 0.832 | stance_w 0.362 | root_v 0.466 | book_err 0.070 | held_l 1.000 | reward 0.694
+[gait] fix-4 e3000 start 85 assist 0 order  81/96: first_lift > r_release > first_step > progress
+[gait] fix-4 e3000 start 85 assist 0 order   7/96: first_lift > r_release > first_step > progress > l_slip
+[gait] fix-4 e3000 start 85 assist 0 order   3/96: first_lift > r_release > first_step > progress > l_slip > drop
+[gait] fix-4 e3000 start 85 assist 0 order   3/96: first_lift > r_release > progress > first_step
+## E1b: reference starts before / during the lift, run to the clip end
+$ environment_iteration/src/probes/gait_grip.py fix-4 --start 20 --horizon 126 --seeds 101,102,103 --num_envs 32
+[gait] fix-4 e3000 start 20 assist 0 n=96 events (share of episodes, median ref frame): r_release 100% @ 72.0 | l_slip 100% @122.0 | pelvis_drop 100% @ 67.0 | first_lift  12% @ 89.0 | first_step  11% @ 92.0 | progress   0% | drop  54% @140.0
+[gait] fix-4 e3000 start 20 assist 0 window ref 85-145 (medians): n_lifts 0.000 | n_steps 0.000 | step_len_mean 0.000 | travel_along 0.063 | slip_frac 0.050 | slip_v_med 0.007 | load_l_std 0.157 | both_contact 0.967 | no_contact 0.000 | leg_err 0.395 | leg_tar_vel 0.207 | pelvis_z 0.684 | stance_w 0.509 | root_v 0.190 | book_err 0.568 | held_l 0.885 | reward 0.004
+[gait] fix-4 e3000 start 20 assist 0 order  46/96: pelvis_drop > r_release > l_slip > drop
+[gait] fix-4 e3000 start 20 assist 0 order  38/96: pelvis_drop > r_release > l_slip
+[gait] fix-4 e3000 start 20 assist 0 order   6/96: pelvis_drop > r_release > first_lift > first_step > l_slip > drop
+[gait] fix-4 e3000 start 20 assist 0 order   5/96: pelvis_drop > r_release > first_lift > first_step > l_slip
+$ environment_iteration/src/probes/gait_grip.py fix-4 --start 40 --horizon 106 --seeds 101,102,103 --num_envs 32
+[gait] fix-4 e3000 start 40 assist 0 n=96 events (share of episodes, median ref frame): r_release 100% @ 73.0 | l_slip 100% @117.0 | pelvis_drop 100% @ 70.0 | first_lift  23% @ 87.5 | first_step  23% @ 92.0 | progress   3% @146.0 | drop  27% @141.0
+[gait] fix-4 e3000 start 40 assist 0 window ref 85-145 (medians): n_lifts 0.000 | n_steps 0.000 | step_len_mean 0.000 | travel_along 0.237 | slip_frac 0.066 | slip_v_med 0.007 | load_l_std 0.188 | both_contact 0.967 | no_contact 0.000 | leg_err 0.375 | leg_tar_vel 0.209 | pelvis_z 0.670 | stance_w 0.647 | root_v 0.167 | book_err 0.303 | held_l 1.000 | reward 0.006
+[gait] fix-4 e3000 start 40 assist 0 order  50/96: pelvis_drop > r_release > l_slip
+[gait] fix-4 e3000 start 40 assist 0 order  20/96: pelvis_drop > r_release > l_slip > drop
+[gait] fix-4 e3000 start 40 assist 0 order  16/96: pelvis_drop > r_release > first_lift > first_step > l_slip
+[gait] fix-4 e3000 start 40 assist 0 order   6/96: pelvis_drop > r_release > first_lift > first_step > l_slip > drop
+$ environment_iteration/src/probes/gait_grip.py fix-4 --start 50 --horizon 96 --seeds 101,102,103 --num_envs 32
+[gait] fix-4 e3000 start 50 assist 0 n=96 events (share of episodes, median ref frame): r_release 100% @ 74.0 | l_slip  99% @117.0 | pelvis_drop 100% @ 73.0 | first_lift  67% @ 90.0 | first_step  67% @ 95.0 | progress   6% @145.0 | drop  31% @140.0
+[gait] fix-4 e3000 start 50 assist 0 window ref 85-145 (medians): n_lifts 1.000 | n_steps 1.000 | step_len_mean 0.184 | travel_along 0.269 | slip_frac 0.058 | slip_v_med 0.006 | load_l_std 0.202 | both_contact 0.918 | no_contact 0.000 | leg_err 0.393 | leg_tar_vel 0.213 | pelvis_z 0.638 | stance_w 0.736 | root_v 0.127 | book_err 0.232 | held_l 0.975 | reward 0.011
+[gait] fix-4 e3000 start 50 assist 0 order  42/96: pelvis_drop > r_release > first_lift > first_step > l_slip
+[gait] fix-4 e3000 start 50 assist 0 order  16/96: pelvis_drop > r_release > l_slip
+[gait] fix-4 e3000 start 50 assist 0 order  14/96: pelvis_drop > r_release > l_slip > drop
+[gait] fix-4 e3000 start 50 assist 0 order  10/96: pelvis_drop > r_release > first_lift > first_step > l_slip > drop
+$ environment_iteration/src/probes/gait_grip.py fix-4 --start 55 --horizon 91 --seeds 101,102,103 --num_envs 32
+[gait] fix-4 e3000 start 55 assist 0 n=96 events (share of episodes, median ref frame): r_release 100% @ 74.0 | l_slip  94% @115.0 | pelvis_drop 100% @ 74.0 | first_lift  74% @ 90.0 | first_step  74% @ 95.0 | progress  18% @143.0 | drop  44% @136.0
+[gait] fix-4 e3000 start 55 assist 0 window ref 85-145 (medians): n_lifts 1.000 | n_steps 1.000 | step_len_mean 0.221 | travel_along 0.280 | slip_frac 0.091 | slip_v_med 0.007 | load_l_std 0.204 | both_contact 0.918 | no_contact 0.000 | leg_err 0.393 | leg_tar_vel 0.215 | pelvis_z 0.631 | stance_w 0.768 | root_v 0.125 | book_err 0.197 | held_l 0.926 | reward 0.015
+[gait] fix-4 e3000 start 55 assist 0 order  23/96: pelvis_drop > r_release > first_lift > first_step > l_slip > drop
+[gait] fix-4 e3000 start 55 assist 0 order  17/96: pelvis_drop > r_release > first_lift > first_step > l_slip
+[gait] fix-4 e3000 start 55 assist 0 order  13/96: pelvis_drop > r_release > first_lift > first_step > l_slip > progress
+[gait] fix-4 e3000 start 55 assist 0 order  10/96: pelvis_drop > r_release > l_slip > drop
+$ environment_iteration/src/probes/gait_grip.py fix-4 --start 60 --horizon 86 --seeds 101,102,103 --num_envs 32
+[gait] fix-4 e3000 start 60 assist 0 n=96 events (share of episodes, median ref frame): r_release 100% @ 73.0 | l_slip 100% @113.5 | pelvis_drop 100% @ 77.0 | first_lift  67% @ 89.0 | first_step  67% @ 93.0 | progress  18% @144.0 | drop  53% @140.0
+[gait] fix-4 e3000 start 60 assist 0 window ref 85-145 (medians): n_lifts 1.000 | n_steps 1.000 | step_len_mean 0.201 | travel_along 0.282 | slip_frac 0.039 | slip_v_med 0.006 | load_l_std 0.196 | both_contact 0.934 | no_contact 0.000 | leg_err 0.406 | leg_tar_vel 0.214 | pelvis_z 0.621 | stance_w 0.808 | root_v 0.104 | book_err 0.182 | held_l 0.852 | reward 0.022
+[gait] fix-4 e3000 start 60 assist 0 order  26/96: r_release > pelvis_drop > first_lift > first_step > l_slip
+[gait] fix-4 e3000 start 60 assist 0 order  22/96: r_release > pelvis_drop > first_lift > first_step > l_slip > drop
+[gait] fix-4 e3000 start 60 assist 0 order  16/96: r_release > pelvis_drop > l_slip > drop
+[gait] fix-4 e3000 start 60 assist 0 order  15/96: r_release > pelvis_drop > l_slip
+$ environment_iteration/src/probes/gait_grip.py fix-4 --start 65 --horizon 81 --seeds 101,102,103 --num_envs 32
+[gait] fix-4 e3000 start 65 assist 0 n=96 events (share of episodes, median ref frame): r_release 100% @ 74.0 | l_slip 100% @103.0 | pelvis_drop 100% @ 81.0 | first_lift  96% @ 89.0 | first_step  96% @ 95.0 | progress  38% @143.5 | drop  14% @142.0
+[gait] fix-4 e3000 start 65 assist 0 window ref 85-145 (medians): n_lifts 1.000 | n_steps 1.000 | step_len_mean 0.255 | travel_along 0.296 | slip_frac 0.058 | slip_v_med 0.006 | load_l_std 0.220 | both_contact 0.885 | no_contact 0.000 | leg_err 0.413 | leg_tar_vel 0.215 | pelvis_z 0.631 | stance_w 0.803 | root_v 0.098 | book_err 0.156 | held_l 0.984 | reward 0.040
+[gait] fix-4 e3000 start 65 assist 0 order  50/96: r_release > pelvis_drop > first_lift > first_step > l_slip
+[gait] fix-4 e3000 start 65 assist 0 order  29/96: r_release > pelvis_drop > first_lift > first_step > l_slip > progress
+[gait] fix-4 e3000 start 65 assist 0 order   6/96: r_release > pelvis_drop > first_lift > first_step > l_slip > drop
+[gait] fix-4 e3000 start 65 assist 0 order   5/96: r_release > pelvis_drop > first_lift > first_step > l_slip > drop > progress
+## E2: book-load assist on the frame-2 path (alpha x m g upward at the book COM)
+$ environment_iteration/src/probes/gait_grip.py fix-4 --start 2 --assist 0,0.5,1.0 --assist_from 75 --seeds 101,102,103 --num_envs 32
+[gait] fix-4 e3000 start 2 assist 0 n=96 events (share of episodes, median ref frame): r_release 100% @ 70.0 | l_slip 100% @114.0 | pelvis_drop 100% @ 63.0 | first_lift   3% @ 88.0 | first_step   0% | progress   2% @147.0 | drop  95% @135.0
+[gait] fix-4 e3000 start 2 assist 0 window ref 85-145 (medians): n_lifts 0.000 | n_steps 0.000 | step_len_mean 0.000 | travel_along 0.140 | slip_frac 0.027 | slip_v_med 0.006 | load_l_std 0.133 | both_contact 1.000 | no_contact 0.000 | leg_err 0.389 | leg_tar_vel 0.206 | pelvis_z 0.681 | stance_w 0.512 | root_v 0.146 | book_err 0.525 | held_l 0.754 | reward 0.002
+[gait] fix-4 e3000 start 2 assist 0 order  87/96: pelvis_drop > r_release > l_slip > drop
+[gait] fix-4 e3000 start 2 assist 0 order   4/96: pelvis_drop > r_release > l_slip
+[gait] fix-4 e3000 start 2 assist 0 order   2/96: pelvis_drop > r_release > l_slip > drop > progress
+[gait] fix-4 e3000 start 2 assist 0 order   2/96: pelvis_drop > r_release > first_lift > l_slip > drop
+[gait] fix-4 e3000 start 2 assist 0.5 n=96 events (share of episodes, median ref frame): r_release 100% @ 70.0 | l_slip 100% @114.0 | pelvis_drop 100% @ 63.0 | first_lift   3% @ 83.0 | first_step   1% @ 87.0 | progress   0% | drop  78% @141.0
+[gait] fix-4 e3000 start 2 assist 0.5 window ref 85-145 (medians): n_lifts 0.000 | n_steps 0.000 | step_len_mean 0.000 | travel_along 0.139 | slip_frac 0.028 | slip_v_med 0.006 | load_l_std 0.134 | both_contact 1.000 | no_contact 0.000 | leg_err 0.386 | leg_tar_vel 0.206 | pelvis_z 0.681 | stance_w 0.510 | root_v 0.149 | book_err 0.505 | held_l 0.852 | reward 0.002
+[gait] fix-4 e3000 start 2 assist 0.5 order  72/96: pelvis_drop > r_release > l_slip > drop
+[gait] fix-4 e3000 start 2 assist 0.5 order  21/96: pelvis_drop > r_release > l_slip
+[gait] fix-4 e3000 start 2 assist 0.5 order   1/96: pelvis_drop > r_release > first_lift > first_step > l_slip > drop
+[gait] fix-4 e3000 start 2 assist 0.5 order   1/96: pelvis_drop > r_release > l_slip > drop > first_lift
+[gait] fix-4 e3000 start 2 assist 1 n=96 events (share of episodes, median ref frame): r_release 100% @ 70.0 | l_slip 100% @113.0 | pelvis_drop 100% @ 63.0 | first_lift   4% @ 89.5 | first_step   0% | progress   0% | drop  53% @142.0
+[gait] fix-4 e3000 start 2 assist 1 window ref 85-145 (medians): n_lifts 0.000 | n_steps 0.000 | step_len_mean 0.000 | travel_along 0.136 | slip_frac 0.028 | slip_v_med 0.006 | load_l_std 0.129 | both_contact 1.000 | no_contact 0.000 | leg_err 0.385 | leg_tar_vel 0.205 | pelvis_z 0.681 | stance_w 0.511 | root_v 0.141 | book_err 0.491 | held_l 0.869 | reward 0.002
+[gait] fix-4 e3000 start 2 assist 1 order  48/96: pelvis_drop > r_release > l_slip > drop
+[gait] fix-4 e3000 start 2 assist 1 order  44/96: pelvis_drop > r_release > l_slip
+[gait] fix-4 e3000 start 2 assist 1 order   2/96: pelvis_drop > r_release > first_lift > l_slip > drop
+[gait] fix-4 e3000 start 2 assist 1 order   1/96: pelvis_drop > r_release > l_slip > drop > first_lift
+$ environment_iteration/src/probes/gait_grip.py fix-4 --start 2 --assist 0,0.5,1.0 --assist_from 45 --seeds 101,102,103 --num_envs 32
+[gait] fix-4 e3000 start 2 assist 0 n=96 events (share of episodes, median ref frame): r_release 100% @ 70.0 | l_slip 100% @115.0 | pelvis_drop 100% @ 63.0 | first_lift   4% @ 82.5 | first_step   0% | progress   2% @147.5 | drop  98% @136.0
+[gait] fix-4 e3000 start 2 assist 0 window ref 85-145 (medians): n_lifts 0.000 | n_steps 0.000 | step_len_mean 0.000 | travel_along 0.138 | slip_frac 0.028 | slip_v_med 0.006 | load_l_std 0.139 | both_contact 1.000 | no_contact 0.000 | leg_err 0.388 | leg_tar_vel 0.206 | pelvis_z 0.681 | stance_w 0.512 | root_v 0.151 | book_err 0.513 | held_l 0.770 | reward 0.002
+[gait] fix-4 e3000 start 2 assist 0 order  88/96: pelvis_drop > r_release > l_slip > drop
+[gait] fix-4 e3000 start 2 assist 0 order   3/96: pelvis_drop > r_release > first_lift > l_slip > drop
+[gait] fix-4 e3000 start 2 assist 0 order   2/96: pelvis_drop > r_release > l_slip
+[gait] fix-4 e3000 start 2 assist 0 order   2/96: pelvis_drop > r_release > l_slip > drop > progress
+[gait] fix-4 e3000 start 2 assist 0.5 n=96 events (share of episodes, median ref frame): r_release  99% @ 70.0 | l_slip  99% @114.0 | pelvis_drop 100% @ 63.0 | first_lift   5% @ 85.0 | first_step   2% @ 86.0 | progress   4% @147.0 | drop  75% @140.0
+[gait] fix-4 e3000 start 2 assist 0.5 window ref 85-145 (medians): n_lifts 0.000 | n_steps 0.000 | step_len_mean 0.000 | travel_along 0.148 | slip_frac 0.027 | slip_v_med 0.006 | load_l_std 0.137 | both_contact 1.000 | no_contact 0.000 | leg_err 0.390 | leg_tar_vel 0.206 | pelvis_z 0.681 | stance_w 0.513 | root_v 0.154 | book_err 0.502 | held_l 0.844 | reward 0.002
+[gait] fix-4 e3000 start 2 assist 0.5 order  67/96: pelvis_drop > r_release > l_slip > drop
+[gait] fix-4 e3000 start 2 assist 0.5 order  21/96: pelvis_drop > r_release > l_slip
+[gait] fix-4 e3000 start 2 assist 0.5 order   2/96: pelvis_drop > r_release > l_slip > drop > progress
+[gait] fix-4 e3000 start 2 assist 0.5 order   1/96: pelvis_drop > r_release > first_lift > l_slip
+[gait] fix-4 e3000 start 2 assist 1 n=96 events (share of episodes, median ref frame): r_release 100% @ 70.0 | l_slip 100% @116.0 | pelvis_drop 100% @ 63.0 | first_lift   4% @108.0 | first_step   2% @ 89.0 | progress   5% @147.0 | drop  54% @141.0
+[gait] fix-4 e3000 start 2 assist 1 window ref 85-145 (medians): n_lifts 0.000 | n_steps 0.000 | step_len_mean 0.000 | travel_along 0.150 | slip_frac 0.028 | slip_v_med 0.006 | load_l_std 0.135 | both_contact 1.000 | no_contact 0.000 | leg_err 0.388 | leg_tar_vel 0.206 | pelvis_z 0.678 | stance_w 0.520 | root_v 0.147 | book_err 0.482 | held_l 0.852 | reward 0.002
+[gait] fix-4 e3000 start 2 assist 1 order  48/96: pelvis_drop > r_release > l_slip > drop
+[gait] fix-4 e3000 start 2 assist 1 order  42/96: pelvis_drop > r_release > l_slip
+[gait] fix-4 e3000 start 2 assist 1 order   2/96: pelvis_drop > r_release > first_lift > first_step > l_slip > progress
+[gait] fix-4 e3000 start 2 assist 1 order   1/96: pelvis_drop > r_release > l_slip > drop > first_lift
+## reference gait
+[gait] reference ref 85-145: root travel along walk 0.87 m; steps L: 85-92 0.15m, 114-124 0.49m | R: 96-107 0.52m

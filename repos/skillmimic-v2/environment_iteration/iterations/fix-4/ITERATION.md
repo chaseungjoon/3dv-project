@@ -195,3 +195,9 @@ contact sheets; each shows what it was chosen for.
 Write what you saw per clip: where the hands are, slipping, one-hand vs two-hand, balance, timing, contact.
 
 ## 8. Decision -> next iteration
+
+Direction (human, 2026-11-20): `ENV_FIX_PLAN.md` (copy in `iterations/fix-5/`): diagnose feet / hands / book on one
+time axis (E1), book load (E2), right-hand release (E3), then make one change by the plan's section 7 table. The
+agent ran E1 / E2 on this iteration's e3000 policy (fix-5 ITERATION.md §0): the walk fails only on the policy's own
+pickup path, and book load is not the cause -> **fix-5**: connection starts from the policy's own post-pickup states.
+
