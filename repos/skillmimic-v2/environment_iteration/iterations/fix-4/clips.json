@@ -1,0 +1,15 @@
+{
+  "epoch": 3000,
+  "note": "Frames are control steps after reset. Evaluation episodes cannot be replayed exactly; these are fresh rollouts.",
+  "rollouts": [
+    {"cell": "stoch", "seed": 101, "num_envs": 8, "horizon": 180},
+    {"cell": "stoch_perturb", "seed": 101, "num_envs": 8, "horizon": 180}
+  ],
+  "clips": [
+    {"id": "1_early_lift", "cell": "stoch", "seed": 101, "select": {"mode": ["lead", "off_path"]}, "anchor": "first_bad", "pre": 15, "post": 20, "max_episodes": 3, "why": "New in fix-4: every clean episode lifts (fix-1: 47%), but the grasp comes at ~49 (reference ~53-56) and the track breaks at 58-60, earlier than fix-1's 66. Look at which hand takes the book (traces: left wrist stays at 0.13 m, right leaves at ~70), how it is lifted compared with the green pivot-and-rotate, and whether the book is ahead (lead) or beside (off_path) the reference."},
+    {"id": "2_carry_no_walk", "cell": "stoch", "seed": 101, "select": {"all": true}, "anchor": "frame", "start": 75, "end": 135, "max_episodes": 3, "why": "Main fix-4 failure: the character holds the book in the left hand but squats (pelvis 0.68 m vs 0.86 m standing from frame ~60) and hardly walks (0.26 m vs the reference's ~1.1 m sideways). Watch the legs and feet: does it try to step at all, or stand still while the green dots walk away? fix-1 walked and fell; fix-4 stays up (0% in-clip falls) by not walking."},
+    {"id": "3_drop", "cell": "stoch", "seed": 101, "select": {"event": "drop"}, "anchor": "drop", "pre": 25, "post": 15, "max_episodes": 2, "why": "99% drop the book at median frame 129 (floor at 137) while standing, without falling. Look at what happens in the left hand before the drop: slow slip, wrist rotation, or the arm reaching after the reference that has moved ~1 m away."},
+    {"id": "4_perturbed_pickup", "cell": "stoch_perturb", "seed": 101, "select": {"mode": ["no_lift", "knock", "lag"]}, "anchor": "first_bad", "pre": 20, "post": 15, "max_episodes": 3, "why": "With the book displaced/rotated, 28% never lift (no_lift / knock at 30-45, lag at ~54). Check whether the hand goes to the red book or to the green reference."},
+    {"id": "5_full_overview", "cell": "stoch", "seed": 101, "select": {"all": true}, "anchor": "frame", "start": 30, "end": 147, "max_episodes": 1, "why": "Whole sequence at slow motion: early one-hand grasp, lift, squat, standing still, drop."}
+  ]
+}

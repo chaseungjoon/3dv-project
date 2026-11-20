@@ -20,6 +20,7 @@ import importlib
 REGISTRY = {
     "SkillMimicParahomeIterContact": "contact",      # (unused) fix-2 investigation: objectShapeProps / handShapeProps env keys
     "SkillMimicParahomeIterContactOffset": "contact_offset",   # fix-3: handContactOffset / objectContactOffset
+    "SkillMimicParahomeIterATS": "ats",                        # fix-4: atsSampler (ATS reaches the start-frame sampler)
 }
 
 
