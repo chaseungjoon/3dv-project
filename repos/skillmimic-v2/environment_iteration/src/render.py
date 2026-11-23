@@ -28,7 +28,7 @@ clips.json (iterations/<it>/clips.json; written by the agent from analysis/, edi
   {"epoch": 3000,
    "rollouts": [{"cell": "stoch", "seed": 101, "num_envs": 8, "horizon": 180}],
    "clips": [{"id": "lift_lag", "cell": "stoch", "seed": 101,
-              "select": {"mode": ["lag", "off_path"]} | {"event": "drop"} | {"all": true},
+              "select": {"mode": ["lag", "off_path"]} | {"event": "drop"} | {"outcome": "fall_back"} | {"all": true},
               "anchor": "first_bad" | "grasp" | "off_desk" | "rot_off" | "drop" | "floor" | "fall" | "frame",
               "pre": 20, "post": 15,            (anchor-relative window)  or  "start": 40, "end": 75 (anchor "frame")
               "max_episodes": 3, "why": "what to look for"}]}
@@ -227,6 +227,9 @@ def select(evs, sel):
         out = [v for v in out if v["mode"] in ms]
     if "event" in sel:
         out = [v for v in out if anchor_frame(v, sel["event"]) is not None]
+    if "outcome" in sel:     # metrics.body_outcome label (walk_up, stand_squat, fall_fwd, fall_back, ...)
+        os_ = sel["outcome"] if isinstance(sel["outcome"], list) else [sel["outcome"]]
+        out = [v for v in out if v.get("outcome") in os_]
     return out
 
 
@@ -268,6 +271,8 @@ def run_group(env, cams, ck, epoch, cell, seed, perturb, clips, out_dir, slowmo,
              paper_need=env.paper_need, box=cams.box if len(cams.box) == 8 else None)
     ph = MX.ref_phases(MX.clean_ref(S, c["n_clip"]), c["obj_z0"])
     evs = [MX.failure_events(S, S["fall_t"], c, e, ph) for e in range(env.num_envs)]
+    for e, ev in enumerate(evs):
+        ev["outcome"], ev["walk_progress_m"], ev["feet_progress_m"] = MX.body_outcome(S, e, c["n_clip"])
     mets = [MX.episode_metrics(S, S["fall_t"], c, e) for e in range(env.num_envs)]
     np.savez_compressed(os.path.join(out_dir, "trace.npz"), **S)
     L.write_json(os.path.join(out_dir, "events.json"),
@@ -341,11 +346,13 @@ def write_index(out_dir, head, evs, mets, rows):
     lines = [f"# {head}", "", "Fresh rollout with cameras (src/render.py); events re-detected in this rollout.",
              "Green wireframe = reference book, green dots = reference key bodies, red box = simulated book.", "",
              "## Episodes of this rollout", "", "| env | mode | broke at | detail | grasp | drop | floor | fall | "
-             "task | lift | full video |", "|---:|---|---:|---|---:|---:|---:|---:|---:|---:|---|"]
+             "task | lift | walk outcome (root / feet along walk) | full video |",
+             "|---:|---|---:|---|---:|---:|---:|---:|---:|---:|---|---|"]
     for ev, m in zip(evs, mets):
         lines.append(f"| {ev['env']} | {ev['mode']} | {ev['first_bad']} | {ev['detail']} | {ev['grasp_frame']} | "
                      f"{ev['drop_frame']} | {ev['floor_frame']} | {ev['fall_frame']} | {m['task_success']} | "
-                     f"{m['lift_success']} | full/env{ev['env']:02d}.mp4 |")
+                     f"{m['lift_success']} | {ev.get('outcome', '-')} ({ev.get('walk_progress_m', 0):.2f} / "
+                     f"{ev.get('feet_progress_m', 0):.2f} m) | full/env{ev['env']:02d}.mp4 |")
     lines += ["", "## Clips", "", "| clip | file | env | mode | anchor | window | detail | what to look for |",
               "|---|---|---:|---|---|---|---|---|"]
     for r in rows:

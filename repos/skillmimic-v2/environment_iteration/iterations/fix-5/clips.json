@@ -1,12 +1,16 @@
 {
- "epoch": 3000,
- "rollouts": [
-  {
-   "cell": "stoch",
-   "seed": 101,
-   "num_envs": 8,
-   "horizon": 180
-  }
- ],
- "clips": []
+  "epoch": 3000,
+  "note": "Frames are control steps after reset. Evaluation episodes cannot be replayed exactly; these are fresh rollouts. 'outcome' = metrics.body_outcome (what the body does in the reference walk, t 82-142).",
+  "rollouts": [
+    {"cell": "stoch", "seed": 101, "num_envs": 16, "horizon": 180},
+    {"cell": "stoch_perturb", "seed": 101, "num_envs": 8, "horizon": 180}
+  ],
+  "clips": [
+    {"id": "1_walk_up", "cell": "stoch", "seed": 101, "select": {"outcome": "walk_up"}, "anchor": "frame", "start": 78, "end": 147, "max_episodes": 2, "why": "New in fix-5 (18% of the evaluation, fix-4 2%): the character walks sideways with the book and stays up (root 0.66 m, both ankles ~0.55 m along the walk; reference 0.87 m). The step detector finds almost no lift-offs (feet in the air < 3 frames), so check whether these are real steps or shuffling / sliding feet. Which hand holds the book, and how far behind the green reference is it?"},
+    {"id": "2_fall_back", "cell": "stoch", "seed": 101, "select": {"outcome": "fall_back"}, "anchor": "fall", "pre": 30, "post": 5, "max_episodes": 3, "why": "Most common fix-5 outcome (42%, fall at median frame 104): after the lift the pelvis drops (~82), the root moves ~0.4 m AGAINST the walk direction and the character falls. fix-1 fell the same way (91/96). Does it start a step (reference: left foot 85-92, right 96-107) and lose balance backwards, or sit down? What do the arms / the book do just before?"},
+    {"id": "3_fall_fwd", "cell": "stoch", "seed": 101, "select": {"outcome": "fall_fwd"}, "anchor": "fall", "pre": 30, "post": 5, "max_episodes": 2, "why": "17%: the root goes 0.9 m along the walk but the feet only ~0.2 m, then a fall at ~126. Look for a lean / topple toward the reference instead of stepping under the body."},
+    {"id": "4_squat", "cell": "stoch", "seed": 101, "select": {"outcome": "stand_squat"}, "anchor": "frame", "start": 78, "end": 147, "max_episodes": 1, "why": "24% still do fix-4's squat in place without walking (pelvis ~0.73 m). Compare with clip 1: is the state at ~80 visibly different (stance, pelvis height, book position)?"},
+    {"id": "5_lift_break", "cell": "stoch", "seed": 101, "select": {"mode": ["lead", "off_path"]}, "anchor": "first_bad", "pre": 15, "post": 15, "max_episodes": 2, "why": "The strict 10 cm track still breaks during the lift (lead @62 / off_path @66), but later than fix-4 (58-60): 88% are within 10 cm at frame 60 (fix-4 18%). Look at how the book rises ahead of / beside the green pivot-and-rotate and when the right hand lets go (~67)."},
+    {"id": "6_perturbed_pickup", "cell": "stoch_perturb", "seed": 101, "select": {"mode": ["no_lift", "knock", "lag", "drop"]}, "anchor": "first_bad", "pre": 20, "post": 15, "max_episodes": 3, "why": "Perturbed lift fell from 72% (fix-4) to 56%. Does the hand go to the displaced red book or to the green reference position?"}
+  ]
 }

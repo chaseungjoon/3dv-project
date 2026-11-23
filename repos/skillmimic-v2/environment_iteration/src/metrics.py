@@ -182,6 +182,45 @@ def rot_err_deg(S, e):
     return np.degrees(2 * np.arccos(d))
 
 
+WALK_FROM, WALK_TO = 82, 142   # frames t of reference frames 85 / 145: the reference carry walk
+WALK_PROGRESS_M = 0.30         # root moved this far along the reference walk direction = it walked (or lunged)
+BACK_M = 0.20                  # root moved this far against the walk direction = it went backwards
+ANKLES = (5, 6)                # jLeftAnkle / jRightAnkle in the keyBodies list (env.yaml) = key_pos columns
+
+
+def body_outcome(S, e, n_clip=148):
+    """What the body does in the reference carry walk (added in fix-5; not part of the failure modes).
+
+    Walk direction = the reference ankles' mean displacement from frame t 82 to 142 (reference frames 85-145).
+    Root progress along it is measured from t 82 up to the fall (or the clip end).
+      walk_up      no fall in the clip, root progress >= 0.30 m at some frame
+      stand_squat  no fall in the clip, less progress (fix-4's squat in place)
+      fall_fwd     fell in the clip after root progress >= 0.30 m (lunge / topple along the walk)
+      fall_back    fell in the clip after the root moved >= 0.20 m against the walk direction
+      fall_inplace fell in the clip otherwise; fell_pre_walk: fell before t 82
+    Returns (label, max progress m, feet progress m = mean ankle displacement along the walk)."""
+    ft = int(S["fall_t"][e]) if "fall_t" in S else -1
+    fell = 0 <= ft < n_clip
+    end = min(ft if fell else n_clip - 1, n_clip - 1)
+    if end <= WALK_FROM:
+        return "fell_pre_walk", 0.0, 0.0
+    ra = S["ref_key_pos"][:, e][:, list(ANKLES), :2].mean(1)
+    wd = ra[WALK_TO] - ra[WALK_FROM]
+    wd = wd / max(np.linalg.norm(wd), 1e-9)
+    prog = (S["root"][WALK_FROM:end + 1, e, :2] - S["root"][WALK_FROM, e, :2]) @ wd
+    kp = S["key_pos"][:, e][:, list(ANKLES), :2]
+    feet = float(((kp[end] - kp[WALK_FROM]) @ wd).mean())
+    if not fell:
+        lab = "walk_up" if prog.max() >= WALK_PROGRESS_M else "stand_squat"
+    elif prog.max() >= WALK_PROGRESS_M:
+        lab = "fall_fwd"
+    elif prog.min() <= -BACK_M:
+        lab = "fall_back"
+    else:
+        lab = "fall_inplace"
+    return lab, float(prog.max()), feet
+
+
 def failure_events(S, fall_t, c, e, phases=None):
     """Failure analysis of env e (LOOP.md 4). Returns the first-failure mode + frames of every notable event.
 

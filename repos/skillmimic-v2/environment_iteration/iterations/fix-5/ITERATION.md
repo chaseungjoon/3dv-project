@@ -167,22 +167,138 @@ learns to walk from those states).
 
 ## 4. Results (from analysis/e3000/REPORT.md)
 
+Epoch 3000, protocol v1, 96 clean stochastic episodes per cell (seeds 101-103 x 32). Rows marked * are computed
+from the stored traces (`eval/stoch/e3000_s*.npz`), not by analyze.py; rows marked † come from
+`src/probes/gait_grip.py fix-5 --start 2,85 --seeds 101,102,103` (fresh rollouts, 96 episodes per start; raw output
+`probes/gait_fix5_e3000.txt`). Training finished 2026-11-20 21:17 (train.sh log `logs/train_20261120_130621.log`).
+
 | metric | fix-4 | fix-5 |
 |---|---:|---:|
-| task success (stoch, 96) | 0.0% (0–4%) | |
-| task success (perturbed) | 0.0% (0–4%) | |
-| paper success | 8.3% / 11.5% | |
-| lift success | 100.0% / 71.9% | |
-| task progress | 40.0% | |
-| fell in clip | 0.0% / 2.1% | |
-| dominant failure (mode @ frame) | off_path 56% @60, lead 44% @58 | |
-| travel along the walk from 85 / lifts in 85-145 / first step (gait_grip.py, start 2, 96) | 0.14 m / 0 / 0% | |
+| task success (stoch, 96; 95% Wilson CI) | 0.0% (0–4%) | 0.0% (0–4%) |
+| task success (perturbed, 96; 95% Wilson CI) | 0.0% (0–4%) | 0.0% (0–4%) |
+| paper success (stoch / perturbed) | 8.3% (4–16%) / 11.5% | **19.8% (13–29%)** / 11.5% |
+| lift success (stoch / perturbed) | 100.0% / 71.9% (62–80%) | 96.9% (91–99%) / **56.2% (46–66%)** |
+| held frames (stoch) | 70.2 | 55.4 |
+| task progress | 40.0% | 43.0% |
+| episodes within 10 cm at frame 60 (path table) | 18% | **88%** |
+| first failure (mode @ median frame) | off_path 56% @60, lead 44% @58 | lead 59% @62, off_path 41% @66 |
+| grasp event (median frame) | 100% @49 | 100% @52 |
+| **fell in clip (stoch / perturbed)** | 0.0% / 2.1% | **58.3% (48–68%)** / 51.0% |
+| fall at any time (300 frames) | 17.7% @262 | 96.9% @131 |
+| drop / floor (median frame) | 99% @129 / 97% @137 | 77% @117 / 86.5% @139 |
+| book error to reference at frame 70 / 90 / 120 (median) | 0.27 / 0.19 / 0.69 m | 0.24 / 0.29 / 1.05 m |
+| * pelvis height at frame 100 (median) | 0.68 m | 0.72 m |
+| * mean reward per step, frames 0-50 / 50-70 / 70-147 | 0.61 / 0.19 / 0.006 | 0.77 / **0.69** / **0.16** |
+| * holding hand at frame 100 (wrist within 0.2 m of the book) | left 98%, right 0% | left 82%, right 0% |
+| * body outcome in the walk (`metrics.body_outcome`, see below) | stand_squat 94, walk_up 2 | **walk_up 17**, fall_fwd 16, fall_back 40, stand_squat 23 |
+| † from frame 2: root travel along the walk from 85 (median) / steps in 85-145 / first step | 0.14 m / 0 / 0% | 0.03 m / 0 / 17-18% |
+| † from frame 2: root progress >= 0.3 m along the walk (share, median frame) | 1% | 44-49% @107 |
+| † from frame 2: pelvis drop / right release / left slip (share @ median frame) | 100% @63 / 100% @70 / 100% @115 | 79-84% @85 / 97-100% @67 / 75-79% @94 |
+| † from reference frame 85 (60 frames): travel / steps / book err / drop | 0.78 m / 3 / 0.07 m / 5% | 0.77 m / 3 / 0.08 m / 0% |
+
+**Body outcome** (new, `src/metrics.py` `body_outcome`, added for this analysis; it does not change any failure mode
+or metric). Walk direction = reference ankles from frame 85 to 145; root progress along it from frame 85 to the fall
+or the clip end. `walk_up` = no fall in the clip and progress >= 0.30 m; `stand_squat` = no fall, less progress;
+`fall_fwd` = fell after progress >= 0.30 m; `fall_back` = fell after moving >= 0.20 m against the walk direction.
+fix-5 stoch per group (96 episodes):
+
+| outcome | n (95% CI) | fall frame (median) | max root progress | ankles along walk | pelvis @100 | book err @120 | reward / step 85-147 |
+|---|---|---:|---:|---:|---:|---:|---:|
+| walk_up | 17 (11–27%) | - (221 after the clip) | 0.66 m | 0.56 m | 0.82 m | 0.20 m | 0.31 |
+| fall_fwd | 16 (11–25%) | 126 | 0.88 m | 0.23 m | 0.81 m | 0.22 m | 0.18 |
+| fall_back | 40 (32–52%) | 104 | 0.00 m | -0.14 m | 0.59 m | 1.84 m | 0.04 |
+| stand_squat | 23 (17–33%) | - (170) | 0.00 m | -0.02 m | 0.73 m | 0.96 m | 0.05 |
+
+The same classifier on the older iterations: fix-1 stoch fall_back 91/96, fix-4 stand_squat 94/96 (walk_up 2).
+
+Own starts (training log `runs/fix-5_s0/train.log`, 129 `[own]` lines): the first captures came at step ~12,000
+(~epoch 375 at 32 steps per epoch, once the policy lifted), the buffer was full by step ~18,000, and from then to
+the end own starts were 19.6-20.2% of resets, captured at reference frames 75-95 (median 84), buffer book error 0.07-0.11 m.
+Restore check every line: max error 7.6e-6, root 0.5-0.7 cm from the restored state after one step. **Reward per
+step from own starts rose from 0.14 (step 12,000) to 0.38-0.45 (steps 48,000-96,000)**; reference-start reward
+0.43 -> 0.67-0.69. The policy learned to collect reward from its own post-pickup states, as intended.
 
 ## 5. Failure analysis (agent)
 
+**Hypothesis result: partly supported, with a new failure.** The change did what it was designed to do in training
+(own-start reward 0.02 at the fix-4 checkpoint -> ~0.4), and on the frame-2 evaluation path the policy now leaves the
+fix-4 squat in about half of the episodes: 33/96 move the root >= 0.3 m along the walk (fix-4 2/96), and 17/96
+(18%, CI 11–27%) walk ~0.66 m sideways with the book and stay up to the clip end (book error ~0.2 m at frame 120).
+But the hypothesis also required falls to stay low, and they did not: **58% fall in the clip (fix-4 0%)**. The
+§2 median criteria are therefore not met: median travel from frame 85 is 0.03 m (falls end the measurement), the
+book error at frame 120 is 1.05 m (fix-4 0.69), and the drop is rarer (77% vs 99%) but earlier (117 vs 129)
+because the falls throw the book. By the falsification rule (travel <= 0.3 m *with no stepping*) it is not
+falsified: there is walking now, but it is unstable.
+
+**What the population looks like (four outcomes, videos `1_walk_up` .. `4_squat`):**
+
+1. `walk_up` (18%): upright (pelvis 0.82 m), the book in one hand at the side, both ankles move ~0.55 m along the
+   walk, reward 0.31 / step in the walk. The step detector finds < 3 consecutive airborne frames per foot, so these
+   may be short shuffling or sliding steps rather than the reference's 0.3-0.5 m strides (to check in the video).
+2. `fall_fwd` (17%): the root travels 0.88 m along the walk (as far as the reference) while the ankles move only
+   ~0.23 m. The body leans toward the departing reference like a plank and topples at ~126 (sheet `3_fall_fwd`).
+3. `fall_back` (42%, the largest group): the pelvis drops at ~82, the root moves away from the walk direction and
+   the character collapses backwards next to the desk at ~104 (sheet `2_fall_back`), the book thrown onto the desk
+   or the floor. This is fix-1's signature (91/96 fall_back by the same classifier).
+4. `stand_squat` (24%): fix-4's wide squat in place, book held low near the desk edge.
+
+The state at the start of the walk does not separate the groups: at reference frames 75-95 all four have pelvis
+~0.79-0.80 m and book error 0.25-0.31 m, and the share of frames that would have qualified for capture (book
+within 0.20 m) is not lower in the falling groups (fall_back 0.48, walk_up 0.10). So it is not that the falling
+episodes reach states the buffer never contains. The divergence happens after frame ~85, inside the walk, and the
+stochastic policy picks one of these four behaviours per episode. From the reference state at frame 85 the same
+policy walks cleanly (0.77 m, 3 steps, book error 0.08 m, 0% drop, 0% pelvis drop), as fix-4 did.
+
+**Interpretation (not proven).** The own-start states (captured with the book within 0.2 m) give the walk a reward
+signal, and the policy uses it, but from the own post-pickup state it has not found a stable way to shift the
+support for the first step: it either leans along the walk without stepping (fall_fwd), sits back (fall_back), or
+does not try (squat). Where it does walk, the feet are rarely airborne for 3 frames (shuffling?). 60 frames from an own
+start end at ~frame 145, so own-start episodes cover the whole walk; their reward per step stays at ~0.4 (reference
+starts ~0.68), so they are still far from the reference or end early (the log does not say which). Whether the falls come from the own-start training
+itself (the policy learned a lean that pays off in short own-start episodes but is unstable over the full path) or
+from the walk being harder from the squat posture is not separated by these data.
+
+**Lift and the strict criterion.** The pickup did not suffer in the clean cell (lift 97% vs 100%, within noise;
+grasp 52 vs 49, closer to the reference 53-56), and it got more precise: 88% of episodes are within 10 cm at frame
+60 (fix-4 18%), the first break moved from 58-60 to 62-66, and the reward per step in frames 50-70 rose from 0.19
+to 0.69. The strict track still breaks during the pivot-and-rotate: the book is 14-20 cm up at frame ~62 where the
+reference is 5-9 cm, ~30° from the reference orientation (REPORT clip candidates).
+
+**Perturbed cell.** Lift 56% (CI 46–66%) vs fix-4's 72% (62–80%), CIs barely overlap: the pickup of a displaced book
+got worse. Sheet `6_perturbed_pickup`: the hand pushes the displaced book across the desk (knock, env 2), lifts and
+loses it during the rotation (env 1), or reaches toward the green reference pose while the red book lies elsewhere
+(env 9: classified no_lift at 21 because the perturbed start is already ~10 cm off). One possible cause: 20% of
+resets now go to own starts, leaving fewer pickup episodes (including the STF-noisy ones that resemble a displaced
+book); not tested.
+
+**Learning curve (det, 8 envs per point; trends only).** Lift 8/8 from e1000 on, no lift oscillation. Fell in clip
+oscillates: 8/8 at e1250-e2000, 0/8 at e2250-e2500, 1/8 at e2750, 3/8 at e3000. Progress 41-50%, held 60-89 frames.
+The fall rate at e3000 is not a settled state: e2250 / e2500 might fall far less on the 96-episode cells (not
+evaluated; eval.sh evaluates e3000 only).
+
+**What this does not show.** Whether walk_up episodes take real steps (video). Whether an earlier checkpoint (e2250 /
+e2500, 0/8 falls in the curve) keeps the walk without the falls. Whether the falls come from the frame-2 path only or
+also appear from own-start states (a policy_starts / gait_grip run from captured own states would need the buffer,
+which is not saved). Whether two-hand carrying would be more stable.
+
 ## 6. Videos
 
-clips.json -> `video/fix-5/...` (see INDEX.md there). Recommended clips and what to look for:
+clips.json -> `video/fix-5/e3000_stoch_s101/INDEX.md` (16 envs) and `video/fix-5/e3000_stoch_perturb_s101/INDEX.md`
+(fresh rollouts, not replays). In this stoch rollout: walk_up 3, fall_fwd 5, fall_back 6, stand_squat 2 of 16, all
+lifted. New selector for this iteration: `"select": {"outcome": ...}` in clips.json (render.py), using
+`metrics.body_outcome`; the INDEX episode table has a new "walk outcome" column. I checked every contact sheet; each
+shows what it was chosen for.
+
+- `1_walk_up` (env 2, 4; frames 78-147): **the new behaviour.** Upright, book held at the side in one hand, the body
+  moves along the walk while the green reference pulls ahead. Watch the feet: real steps or shuffling / sliding?
+- `2_fall_back` (env 0, 1, 3; 30 frames before the fall): **the most common outcome.** The character sinks and
+  falls backwards beside the desk, the book ends on the desk or floor. Is there a step attempt first? What triggers
+  it: the right-hand release (~67), the pelvis drop (~82), or the first reference step (left foot 85-92)?
+- `3_fall_fwd` (env 5, 8): walks / leans toward the reference, then topples forward stiffly with the book.
+- `4_squat` (env 6): fix-4's squat in place, for comparison with clip 1 at frame ~80.
+- `5_lift_break` (env 0, 1; frames 47-78): the lift, closer to the reference than fix-4 but ahead of it at ~62.
+- `6_perturbed_pickup` (perturbed s101, env 1 / 2 / 9): book lifted and lost, book pushed, hand toward the reference.
+- Full real-time episodes: `full/env00-15.mp4` in each folder (the outcome per env is in INDEX.md).
 
 ## 7. Video notes (human)
 
