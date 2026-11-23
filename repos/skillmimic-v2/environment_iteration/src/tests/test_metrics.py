@@ -21,10 +21,18 @@ import iterlib as L  # noqa: E402
 import metrics as MX  # noqa: E402
 
 
+def check_truncated_walk():
+    short_trace = {"ref_key_pos": np.zeros((40, 1, 7, 3)), "fall_t": np.array([-1])}
+    assert MX.body_outcome(short_trace, 0) == ("walk_not_observed", 0.0, 0.0)
+    short_trace["fall_t"][0] = 20
+    assert MX.body_outcome(short_trace, 0) == ("fell_pre_walk", 0.0, 0.0)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--max", type=int, default=40, help="max result files to check")
     a = ap.parse_args()
+    check_truncated_walk()
     files = sorted(glob.glob(os.path.join(L.REPO, "experiments/results_paper_*/eval/*/*/*.json")))[:a.max]
     if not files:
         print("[test_metrics] SKIP: no stored evaluate.py results found")

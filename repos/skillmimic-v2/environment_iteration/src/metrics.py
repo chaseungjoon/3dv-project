@@ -198,12 +198,16 @@ def body_outcome(S, e, n_clip=148):
       fall_fwd     fell in the clip after root progress >= 0.30 m (lunge / topple along the walk)
       fall_back    fell in the clip after the root moved >= 0.20 m against the walk direction
       fall_inplace fell in the clip otherwise; fell_pre_walk: fell before t 82
+      walk_not_observed  the rollout ended before the reference walk direction could be measured
     Returns (label, max progress m, feet progress m = mean ankle displacement along the walk)."""
+    n_clip = min(n_clip, len(S["ref_key_pos"]))
     ft = int(S["fall_t"][e]) if "fall_t" in S else -1
     fell = 0 <= ft < n_clip
-    end = min(ft if fell else n_clip - 1, n_clip - 1)
-    if end <= WALK_FROM:
+    if fell and ft <= WALK_FROM:
         return "fell_pre_walk", 0.0, 0.0
+    if n_clip <= WALK_TO:
+        return "walk_not_observed", 0.0, 0.0
+    end = ft if fell else n_clip - 1
     ra = S["ref_key_pos"][:, e][:, list(ANKLES), :2].mean(1)
     wd = ra[WALK_TO] - ra[WALK_FROM]
     wd = wd / max(np.linalg.norm(wd), 1e-9)
