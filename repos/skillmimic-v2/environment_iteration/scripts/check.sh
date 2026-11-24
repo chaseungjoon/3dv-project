@@ -13,6 +13,7 @@ for f in "$EI"/scripts/*.sh; do bash -n "$f" && continue; bad "bash syntax $f"; 
 "$PY" -m py_compile "$EI_SRC"/*.py "$EI_SRC"/tasks/*.py "$EI_SRC"/tests/*.py && ok "python syntax (src/)" || bad "python syntax"
 "$PY" "$EI_SRC/tests/test_metrics.py" --max 400 | tail -1 | grep -q PASS && ok "metrics == experiments/tools/evaluate.py" \
   || bad "metrics regression (run: $PY $EI_SRC/tests/test_metrics.py)"
+"$PY" "$EI_SRC/tests/test_obj_rot.py" && ok "book rotation reward" || bad "book rotation reward"
 "$PY" - <<PYEOF && ok "protocol + iterations load" || bad "protocol / iteration definitions"
 import sys; sys.path.insert(0, "$EI_SRC"); import iterlib as L
 p = L.protocol(); assert p["train"]["epochs"] in p["eval"]["curve"]["epochs"], "budget epoch must be a curve epoch"

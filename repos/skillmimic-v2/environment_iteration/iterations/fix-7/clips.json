@@ -1,0 +1,12 @@
+{
+ "epoch": 3000,
+ "rollouts": [
+  {
+   "cell": "stoch",
+   "seed": 101,
+   "num_envs": 8,
+   "horizon": 180
+  }
+ ],
+ "clips": []
+}
