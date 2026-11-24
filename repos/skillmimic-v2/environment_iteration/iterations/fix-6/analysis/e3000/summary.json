@@ -1,0 +1,936 @@
+{
+ "iteration": "fix-6",
+ "epoch": 3000,
+ "protocol_version": 1,
+ "cells": {
+  "stoch": {
+   "n": 96,
+   "aggregate": {
+    "fell": 1.0,
+    "fall_frame": 200.875,
+    "fell_in_clip": 0.10416666666666667,
+    "task_success": 0.010416666666666666,
+    "task_progress": 0.48402308558558554,
+    "obj_err_mean": 0.09149274489997576,
+    "obj_err_max": 0.32848208808961016,
+    "obj_err_end": 0.22035156116755897,
+    "body_err_mean": 0.08804263065879543,
+    "lift_max": 0.4698304732640584,
+    "lift_success": 1.0,
+    "held_frames": 118.16666666666667,
+    "held_frames_clip": 83.89583333333333,
+    "paper_frames": 109.76041666666667,
+    "paper_success": 0.9375,
+    "paper_success_clip": 0.9375,
+    "first_bad": 71.63541666666667,
+    "grasp_frame": 55.15625,
+    "drop_frame": 185.0340909090909,
+    "off_desk_frame": 62.677083333333336,
+    "rot_off_frame": 95.70786516853933,
+    "floor_frame": 192.94791666666666,
+    "env": 15.5,
+    "start_ref_frame": 3.0,
+    "n_episodes": 96,
+    "task_success_ci95": [
+     0.001841122818436635,
+     0.056667554927112326
+    ]
+   },
+   "modes": {
+    "success": {
+     "n": 1,
+     "frac": 0.010416666666666666,
+     "first_bad_median": 148.0,
+     "first_bad_p25": 148.0,
+     "first_bad_p75": 148.0,
+     "phases": {
+      "after_clip": 1
+     },
+     "help": "object within 10 cm of the reference for the whole clip, no fall"
+    },
+    "lead": {
+     "n": 12,
+     "frac": 0.125,
+     "first_bad_median": 63.0,
+     "first_bad_p25": 62.75,
+     "first_bad_p75": 63.0,
+     "phases": {
+      "lift": 12
+     },
+     "help": "held, but ahead of the reference along its path (too fast)"
+    },
+    "off_path": {
+     "n": 83,
+     "frac": 0.8645833333333334,
+     "first_bad_median": 68.0,
+     "first_bad_p25": 66.0,
+     "first_bad_p75": 72.0,
+     "phases": {
+      "lift": 69,
+      "carry": 14
+     },
+     "help": "held, on time, but displaced from the reference path (wrong place / height)"
+    }
+   },
+   "events": {
+    "grasp": {
+     "frac": 1.0,
+     "median": 55.0
+    },
+    "drop": {
+     "frac": 0.9166666666666666,
+     "median": 190.0
+    },
+    "off_desk": {
+     "frac": 1.0,
+     "median": 62.5
+    },
+    "rot_off": {
+     "frac": 0.9270833333333334,
+     "median": 94.0
+    },
+    "floor": {
+     "frac": 1.0,
+     "median": 200.0
+    },
+    "fall": {
+     "frac": 1.0,
+     "median": 210.0,
+     "in_clip_frac": 0.10416666666666667
+    },
+    "track_lost": {
+     "median": 67.0
+    }
+   },
+   "path": {
+    "frames": [
+     0,
+     30,
+     50,
+     60,
+     70,
+     80,
+     90,
+     100,
+     110,
+     120,
+     130,
+     140,
+     147
+    ],
+    "ref_z": [
+     0.7435374855995178,
+     0.7418967485427856,
+     0.7467305660247803,
+     0.7972072958946228,
+     0.9916005730628967,
+     1.1957098245620728,
+     1.022416114807129,
+     0.9730585217475891,
+     1.0149320363998413,
+     1.0070898532867432,
+     0.9831326603889465,
+     0.9673566222190857,
+     0.9536294341087341
+    ],
+    "ref_dist": [
+     0.0,
+     0.0028599300421774387,
+     0.014239378273487091,
+     0.006464757956564426,
+     0.06264503300189972,
+     0.42146289348602295,
+     0.8361247181892395,
+     1.1198508739471436,
+     1.294812798500061,
+     1.4681453704833984,
+     1.6105009317398071,
+     1.6919913291931152,
+     1.715916633605957
+    ],
+    "z_median": [
+     0.7417605519294739,
+     0.7417597770690918,
+     0.7502201199531555,
+     0.7870509624481201,
+     1.0833828449249268,
+     1.1806061267852783,
+     0.9617401361465454,
+     0.9902147054672241,
+     0.9925554990768433,
+     0.9731806516647339,
+     0.9612460136413574,
+     0.9482688903808594,
+     0.9605507850646973
+    ],
+    "dist_median": [
+     0.0005447626463137567,
+     0.0008474282803945243,
+     0.01179900486022234,
+     0.03438917547464371,
+     0.16347745060920715,
+     0.5765799283981323,
+     0.9015552997589111,
+     1.1242566108703613,
+     1.3012218475341797,
+     1.4729773998260498,
+     1.601208209991455,
+     1.6494877338409424,
+     1.670564889907837
+    ],
+    "err_median": [
+     0.0018585638608783484,
+     0.002381258876994252,
+     0.016495438292622566,
+     0.03862101957201958,
+     0.1363406926393509,
+     0.16541442275047302,
+     0.10922570526599884,
+     0.12823298573493958,
+     0.12387192249298096,
+     0.15354040265083313,
+     0.1751585602760315,
+     0.2103084921836853,
+     0.2309369146823883
+    ],
+    "within_10cm": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     0.2708333333333333,
+     0.15625,
+     0.4166666666666667,
+     0.3645833333333333,
+     0.3333333333333333,
+     0.23958333333333334,
+     0.15625,
+     0.03125,
+     0.03125
+    ]
+   }
+  },
+  "stoch_perturb": {
+   "n": 96,
+   "aggregate": {
+    "fell": 1.0,
+    "fall_frame": 182.84375,
+    "fell_in_clip": 0.2708333333333333,
+    "task_success": 0.0,
+    "task_progress": 0.4304617117117117,
+    "obj_err_mean": 0.37378782286153484,
+    "obj_err_max": 1.0629622163251042,
+    "obj_err_end": 0.871319263960634,
+    "body_err_mean": 0.1342975798373421,
+    "lift_max": 0.2476397299518188,
+    "lift_success": 0.5416666666666666,
+    "held_frames": 54.947916666666664,
+    "held_frames_clip": 40.979166666666664,
+    "paper_frames": 45.40625,
+    "paper_success": 0.3541666666666667,
+    "paper_success_clip": 0.3333333333333333,
+    "first_bad": 63.708333333333336,
+    "grasp_frame": 57.10606060606061,
+    "drop_frame": 162.18,
+    "off_desk_frame": 63.442622950819676,
+    "rot_off_frame": 71.63333333333334,
+    "floor_frame": 179.37037037037038,
+    "env": 15.5,
+    "start_ref_frame": 3.0,
+    "n_episodes": 96,
+    "task_success_ci95": [
+     0.0,
+     0.03847694748481595
+    ]
+   },
+   "modes": {
+    "fall": {
+     "n": 1,
+     "frac": 0.010416666666666666,
+     "first_bad_median": 57.0,
+     "first_bad_p25": 57.0,
+     "first_bad_p75": 57.0,
+     "phases": {
+      "lift": 1
+     },
+     "help": "the character fell (pelvis below termination height) while the object was still on track"
+    },
+    "no_lift": {
+     "n": 30,
+     "frac": 0.3125,
+     "first_bad_median": 60.0,
+     "first_bad_p25": 45.25,
+     "first_bad_p75": 64.75,
+     "phases": {
+      "static": 10,
+      "lift": 20
+     },
+     "help": "hands reached the object but it stayed at its start pose while the reference lifted it"
+    },
+    "knock": {
+     "n": 7,
+     "frac": 0.07291666666666667,
+     "first_bad_median": 55.0,
+     "first_bad_p25": 52.0,
+     "first_bad_p75": 61.5,
+     "phases": {
+      "lift": 4,
+      "static": 3
+     },
+     "help": "the object moved (pushed, slid, tipped over) without ever being in hand"
+    },
+    "lag": {
+     "n": 3,
+     "frac": 0.03125,
+     "first_bad_median": 66.0,
+     "first_bad_p25": 66.0,
+     "first_bad_p75": 66.0,
+     "phases": {
+      "lift": 3
+     },
+     "help": "held, but behind the reference along its path (too slow)"
+    },
+    "lead": {
+     "n": 4,
+     "frac": 0.041666666666666664,
+     "first_bad_median": 62.0,
+     "first_bad_p25": 62.0,
+     "first_bad_p75": 62.25,
+     "phases": {
+      "lift": 4
+     },
+     "help": "held, but ahead of the reference along its path (too fast)"
+    },
+    "off_path": {
+     "n": 51,
+     "frac": 0.53125,
+     "first_bad_median": 68.0,
+     "first_bad_p25": 64.0,
+     "first_bad_p75": 70.0,
+     "phases": {
+      "lift": 42,
+      "carry": 9
+     },
+     "help": "held, on time, but displaced from the reference path (wrong place / height)"
+    }
+   },
+   "events": {
+    "grasp": {
+     "frac": 0.6875,
+     "median": 56.0
+    },
+    "drop": {
+     "frac": 0.5208333333333334,
+     "median": 185.5
+    },
+    "off_desk": {
+     "frac": 0.6354166666666666,
+     "median": 63.0
+    },
+    "rot_off": {
+     "frac": 0.9375,
+     "median": 65.0
+    },
+    "floor": {
+     "frac": 0.5625,
+     "median": 195.0
+    },
+    "fall": {
+     "frac": 1.0,
+     "median": 205.5,
+     "in_clip_frac": 0.2708333333333333
+    },
+    "track_lost": {
+     "median": 64.0
+    }
+   },
+   "path": {
+    "frames": [
+     0,
+     30,
+     50,
+     60,
+     70,
+     80,
+     90,
+     100,
+     110,
+     120,
+     130,
+     140,
+     147
+    ],
+    "ref_z": [
+     0.7435374855995178,
+     0.7418967485427856,
+     0.7467305660247803,
+     0.7972072958946228,
+     0.9916005730628967,
+     1.1957098245620728,
+     1.022416114807129,
+     0.9730585217475891,
+     1.0149320363998413,
+     1.0070898532867432,
+     0.9831326603889465,
+     0.9673566222190857,
+     0.9536294341087341
+    ],
+    "ref_dist": [
+     0.0,
+     0.0028599300421774387,
+     0.014239378273487091,
+     0.006464757956564426,
+     0.06264503300189972,
+     0.42146289348602295,
+     0.8361247181892395,
+     1.1198508739471436,
+     1.294812798500061,
+     1.4681453704833984,
+     1.6105009317398071,
+     1.6919913291931152,
+     1.715916633605957
+    ],
+    "z_median": [
+     0.7417606115341187,
+     0.7417582273483276,
+     0.7440306544303894,
+     0.7713753581047058,
+     0.9008368253707886,
+     1.0161325931549072,
+     0.9047229290008545,
+     0.9100380539894104,
+     0.7878754138946533,
+     0.7609487771987915,
+     0.7418484687805176,
+     0.7417960166931152,
+     0.7417628765106201
+    ],
+    "dist_median": [
+     0.04936280474066734,
+     0.048710037022829056,
+     0.051465682685375214,
+     0.058786094188690186,
+     0.1256089210510254,
+     0.20395627617835999,
+     0.36912453174591064,
+     0.6143910884857178,
+     0.7214378118515015,
+     0.7251763343811035,
+     0.882896900177002,
+     0.943960428237915,
+     0.9369469881057739
+    ],
+    "err_median": [
+     0.049394771456718445,
+     0.047858089208602905,
+     0.05072588846087456,
+     0.06700849533081055,
+     0.1968131959438324,
+     0.40436577796936035,
+     0.5649173259735107,
+     0.7421609163284302,
+     0.7290031909942627,
+     0.9849008917808533,
+     1.0836738348007202,
+     1.2491308450698853,
+     1.2569142580032349
+    ],
+    "within_10cm": [
+     1.0,
+     0.9895833333333334,
+     0.8958333333333334,
+     0.7291666666666666,
+     0.125,
+     0.09375,
+     0.11458333333333333,
+     0.07291666666666667,
+     0.0625,
+     0.03125,
+     0.010416666666666666,
+     0.0,
+     0.010416666666666666
+    ]
+   }
+  }
+ },
+ "ref_phases": {
+  "static": [
+   0,
+   53
+  ],
+  "lift": [
+   53,
+   79
+  ],
+  "carry": [
+   79,
+   147
+  ],
+  "placed": [
+   147,
+   148
+  ]
+ },
+ "curve": [
+  {
+   "epoch": 250,
+   "task_success": 0.0,
+   "paper_success": 0.0,
+   "lift_success": 0.0,
+   "task_progress": 0.4391891891891892,
+   "held_frames_clip": 0.0,
+   "fell_in_clip": 0.0,
+   "modes": {
+    "no_lift": 8
+   }
+  },
+  {
+   "epoch": 500,
+   "task_success": 0.0,
+   "paper_success": 0.0,
+   "lift_success": 0.0,
+   "task_progress": 0.4391891891891892,
+   "held_frames_clip": 0.0,
+   "fell_in_clip": 0.0,
+   "modes": {
+    "no_lift": 8
+   }
+  },
+  {
+   "epoch": 750,
+   "task_success": 0.0,
+   "paper_success": 0.0,
+   "lift_success": 0.625,
+   "task_progress": 0.47719594594594594,
+   "held_frames_clip": 35.875,
+   "fell_in_clip": 0.0,
+   "modes": {
+    "lag": 3,
+    "off_path": 5
+   }
+  },
+  {
+   "epoch": 1000,
+   "task_success": 0.0,
+   "paper_success": 1.0,
+   "lift_success": 1.0,
+   "task_progress": 0.4189189189189189,
+   "held_frames_clip": 73.875,
+   "fell_in_clip": 0.0,
+   "modes": {
+    "lead": 2,
+    "off_path": 6
+   }
+  },
+  {
+   "epoch": 1250,
+   "task_success": 0.0,
+   "paper_success": 0.0,
+   "lift_success": 0.75,
+   "task_progress": 0.43158783783783783,
+   "held_frames_clip": 29.0,
+   "fell_in_clip": 1.0,
+   "modes": {
+    "off_path": 8
+   }
+  },
+  {
+   "epoch": 1500,
+   "task_success": 0.0,
+   "paper_success": 1.0,
+   "lift_success": 1.0,
+   "task_progress": 0.4391891891891892,
+   "held_frames_clip": 71.125,
+   "fell_in_clip": 1.0,
+   "modes": {
+    "off_path": 8
+   }
+  },
+  {
+   "epoch": 1750,
+   "task_success": 0.0,
+   "paper_success": 1.0,
+   "lift_success": 1.0,
+   "task_progress": 0.44932432432432434,
+   "held_frames_clip": 70.625,
+   "fell_in_clip": 1.0,
+   "modes": {
+    "off_path": 8
+   }
+  },
+  {
+   "epoch": 2000,
+   "task_success": 0.0,
+   "paper_success": 1.0,
+   "lift_success": 1.0,
+   "task_progress": 0.47381756756756754,
+   "held_frames_clip": 86.0,
+   "fell_in_clip": 0.0,
+   "modes": {
+    "off_path": 8
+   }
+  },
+  {
+   "epoch": 2250,
+   "task_success": 0.0,
+   "paper_success": 0.875,
+   "lift_success": 1.0,
+   "task_progress": 0.42820945945945943,
+   "held_frames_clip": 85.0,
+   "fell_in_clip": 0.0,
+   "modes": {
+    "lead": 8
+   }
+  },
+  {
+   "epoch": 2500,
+   "task_success": 0.0,
+   "paper_success": 0.0,
+   "lift_success": 0.375,
+   "task_progress": 0.4391891891891892,
+   "held_frames_clip": 13.0,
+   "fell_in_clip": 0.0,
+   "modes": {
+    "off_path": 8
+   }
+  },
+  {
+   "epoch": 2750,
+   "task_success": 0.0,
+   "paper_success": 1.0,
+   "lift_success": 1.0,
+   "task_progress": 0.4653716216216216,
+   "held_frames_clip": 86.0,
+   "fell_in_clip": 0.0,
+   "modes": {
+    "off_path": 8
+   }
+  },
+  {
+   "epoch": 3000,
+   "task_success": 0.0,
+   "paper_success": 1.0,
+   "lift_success": 1.0,
+   "task_progress": 0.44172297297297297,
+   "held_frames_clip": 87.625,
+   "fell_in_clip": 0.0,
+   "modes": {
+    "off_path": 8
+   }
+  }
+ ],
+ "clip_candidates": [
+  {
+   "cell": "stoch",
+   "seed": 101,
+   "env": 20,
+   "mode": "lead",
+   "first_bad": 63,
+   "phase": "lift",
+   "grasp": 54,
+   "rot_off": 64,
+   "drop": 199,
+   "fall": 214,
+   "detail": "nearest reference frame 68 (5 ahead, 1 cm); centre 19 cm up vs reference 8 cm, 42 deg from reference orientation"
+  },
+  {
+   "cell": "stoch",
+   "seed": 101,
+   "env": 31,
+   "mode": "lead",
+   "first_bad": 63,
+   "phase": "lift",
+   "grasp": 53,
+   "rot_off": 64,
+   "drop": 196,
+   "fall": 209,
+   "detail": "nearest reference frame 68 (5 ahead, 1 cm); centre 18 cm up vs reference 8 cm, 44 deg from reference orientation"
+  },
+  {
+   "cell": "stoch",
+   "seed": 102,
+   "env": 7,
+   "mode": "lead",
+   "first_bad": 63,
+   "phase": "lift",
+   "grasp": 54,
+   "rot_off": 66,
+   "drop": 186,
+   "fall": 215,
+   "detail": "nearest reference frame 68 (5 ahead, 1 cm); centre 18 cm up vs reference 8 cm, 37 deg from reference orientation"
+  },
+  {
+   "cell": "stoch",
+   "seed": 101,
+   "env": 2,
+   "mode": "off_path",
+   "first_bad": 68,
+   "phase": "lift",
+   "grasp": 57,
+   "rot_off": 93,
+   "drop": 185,
+   "fall": 223,
+   "detail": "on time but 2 cm off the path; centre 26 cm up vs reference 19 cm, 36 deg from reference orientation"
+  },
+  {
+   "cell": "stoch",
+   "seed": 101,
+   "env": 3,
+   "mode": "off_path",
+   "first_bad": 68,
+   "phase": "lift",
+   "grasp": 54,
+   "rot_off": 68,
+   "drop": 189,
+   "fall": 209,
+   "detail": "on time but 3 cm off the path; centre 28 cm up vs reference 19 cm, 46 deg from reference orientation"
+  },
+  {
+   "cell": "stoch",
+   "seed": 101,
+   "env": 11,
+   "mode": "off_path",
+   "first_bad": 68,
+   "phase": "lift",
+   "grasp": 54,
+   "rot_off": null,
+   "drop": 195,
+   "fall": 214,
+   "detail": "on time but 3 cm off the path; centre 27 cm up vs reference 19 cm, 37 deg from reference orientation"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 101,
+   "env": 1,
+   "mode": "fall",
+   "first_bad": 57,
+   "phase": "lift",
+   "grasp": null,
+   "rot_off": null,
+   "drop": null,
+   "fall": 57,
+   "detail": "fell at frame 57"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 101,
+   "env": 7,
+   "mode": "no_lift",
+   "first_bad": 60,
+   "phase": "lift",
+   "grasp": null,
+   "rot_off": 67,
+   "drop": null,
+   "fall": 140,
+   "detail": "object moved 0 cm, rose -0 cm, 38 deg from reference orientation"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 102,
+   "env": 15,
+   "mode": "no_lift",
+   "first_bad": 60,
+   "phase": "lift",
+   "grasp": 65,
+   "rot_off": 59,
+   "drop": 192,
+   "fall": 222,
+   "detail": "object moved 0 cm, rose -0 cm, 49 deg from reference orientation"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 102,
+   "env": 24,
+   "mode": "no_lift",
+   "first_bad": 60,
+   "phase": "lift",
+   "grasp": null,
+   "rot_off": 57,
+   "drop": null,
+   "fall": 147,
+   "detail": "object moved 4 cm, rose 0 cm, 57 deg from reference orientation"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 102,
+   "env": 18,
+   "mode": "knock",
+   "first_bad": 55,
+   "phase": "lift",
+   "grasp": null,
+   "rot_off": 58,
+   "drop": null,
+   "fall": 151,
+   "detail": "object moved 6 cm, rose -0 cm, 38 deg from reference orientation, never in hand"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 103,
+   "env": 2,
+   "mode": "knock",
+   "first_bad": 52,
+   "phase": "static",
+   "grasp": null,
+   "rot_off": 53,
+   "drop": null,
+   "fall": 57,
+   "detail": "object moved 7 cm, rose 7 cm, 43 deg from reference orientation, never in hand"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 103,
+   "env": 10,
+   "mode": "knock",
+   "first_bad": 52,
+   "phase": "static",
+   "grasp": null,
+   "rot_off": 61,
+   "drop": null,
+   "fall": 225,
+   "detail": "object moved 10 cm, rose -0 cm, 13 deg from reference orientation, never in hand"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 101,
+   "env": 14,
+   "mode": "lag",
+   "first_bad": 66,
+   "phase": "lift",
+   "grasp": 63,
+   "rot_off": 64,
+   "drop": 111,
+   "fall": 150,
+   "detail": "nearest reference frame 58 (8 behind, 5 cm); centre 5 cm up vs reference 13 cm, 52 deg from reference orientation"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 103,
+   "env": 9,
+   "mode": "lag",
+   "first_bad": 66,
+   "phase": "lift",
+   "grasp": 65,
+   "rot_off": 55,
+   "drop": 134,
+   "fall": 140,
+   "detail": "nearest reference frame 56 (10 behind, 2 cm); centre 3 cm up vs reference 13 cm, 66 deg from reference orientation"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 103,
+   "env": 31,
+   "mode": "lag",
+   "first_bad": 66,
+   "phase": "lift",
+   "grasp": 66,
+   "rot_off": 34,
+   "drop": 89,
+   "fall": 143,
+   "detail": "nearest reference frame 55 (11 behind, 2 cm); centre 2 cm up vs reference 13 cm, 81 deg from reference orientation"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 101,
+   "env": 10,
+   "mode": "lead",
+   "first_bad": 62,
+   "phase": "lift",
+   "grasp": 54,
+   "rot_off": 65,
+   "drop": 186,
+   "fall": 194,
+   "detail": "nearest reference frame 68 (6 ahead, 3 cm); centre 17 cm up vs reference 7 cm, 37 deg from reference orientation"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 101,
+   "env": 20,
+   "mode": "lead",
+   "first_bad": 62,
+   "phase": "lift",
+   "grasp": 54,
+   "rot_off": 63,
+   "drop": 205,
+   "fall": 215,
+   "detail": "nearest reference frame 67 (5 ahead, 3 cm); centre 16 cm up vs reference 7 cm, 42 deg from reference orientation"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 103,
+   "env": 28,
+   "mode": "lead",
+   "first_bad": 62,
+   "phase": "lift",
+   "grasp": 53,
+   "rot_off": 64,
+   "drop": 193,
+   "fall": 207,
+   "detail": "nearest reference frame 67 (5 ahead, 6 cm); centre 14 cm up vs reference 7 cm, 40 deg from reference orientation"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 101,
+   "env": 31,
+   "mode": "off_path",
+   "first_bad": 68,
+   "phase": "lift",
+   "grasp": 57,
+   "rot_off": 65,
+   "drop": null,
+   "fall": 250,
+   "detail": "on time but 6 cm off the path; centre 9 cm up vs reference 19 cm, 87 deg from reference orientation"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 102,
+   "env": 5,
+   "mode": "off_path",
+   "first_bad": 68,
+   "phase": "lift",
+   "grasp": 54,
+   "rot_off": 69,
+   "drop": 193,
+   "fall": 209,
+   "detail": "on time but 4 cm off the path; centre 26 cm up vs reference 19 cm, 44 deg from reference orientation"
+  },
+  {
+   "cell": "stoch_perturb",
+   "seed": 103,
+   "env": 11,
+   "mode": "off_path",
+   "first_bad": 68,
+   "phase": "lift",
+   "grasp": 55,
+   "rot_off": 134,
+   "drop": 196,
+   "fall": 211,
+   "detail": "on time but 7 cm off the path; centre 23 cm up vs reference 19 cm, 38 deg from reference orientation"
+  }
+ ],
+ "seeds": {
+  "stoch": [
+   101,
+   102,
+   103
+  ],
+  "stoch_perturb": [
+   101,
+   102,
+   103
+  ]
+ },
+ "target": {
+  "metric": "task_success",
+  "cell": "stoch",
+  "threshold": 0.7,
+  "also_report": [
+   "paper_success",
+   "lift_success",
+   "task_progress",
+   "held_frames_clip",
+   "fell_in_clip"
+  ],
+  "value": 0.010416666666666666,
+  "reached": false
+ }
+}
