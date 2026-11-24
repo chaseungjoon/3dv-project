@@ -1,0 +1,11 @@
+{
+  "epoch": 3000,
+  "note": "Second render (tag 'extra'): clips.json's 5_post_clip_drop picked an in-clip drop (env00, fall_fwd) and 6_success found no match in 16 envs of seed 101. The one strict success of the evaluation was seed 103, so this rollout uses seed 103 with 32 envs (fresh rollout, not a replay).",
+  "rollouts": [
+    {"cell": "stoch", "seed": 103, "num_envs": 32, "horizon": 230}
+  ],
+  "clips": [
+    {"id": "5_post_clip_drop", "cell": "stoch", "seed": 103, "select": {"outcome": "walk_up", "event": "drop"}, "anchor": "drop", "pre": 40, "post": 15, "max_episodes": 1, "why": "Typical fix-6 ending: walks up through the clip, then drops the book at ~190 and falls at ~210, after the reference ends (t 147). Outside the metric; check it is just the end of the demonstration."},
+    {"id": "6_success", "cell": "stoch", "seed": 103, "select": {"mode": "success"}, "anchor": "frame", "start": 50, "end": 147, "max_episodes": 1, "why": "1 of 96 evaluation episodes (seed 103) passed the strict criterion. What does a passing lift look like compared with clip 2 (off_path)?"}
+  ]
+}

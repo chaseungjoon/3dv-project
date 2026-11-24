@@ -34,15 +34,33 @@ Fix-5 baselines are from [its evaluation report](../fix-5/analysis/e3000/REPORT.
 
 | Metric | fix-5 | fix-6 |
 |---|---:|---:|
-| Strict task success, clean (95% Wilson CI) | 0.0% (0–4%) | Pending |
-| Strict task success, perturbed (95% Wilson CI) | 0.0% (0–4%) | Pending |
-| Paper success, clean | 19.8% | Pending |
-| Lift success, clean | 96.9% | Pending |
-| Task progress, clean | 43.0% | Pending |
-| Fell in clip, clean | 58.3% | Pending |
-| Median first >10 cm while alive, clean | t63 | Pending |
-| Median peak 3D error, clean t45–85 | 28.4 cm | Pending |
-| Median peak vertical lead, clean t45–85 | 20.9 cm | Pending |
+| Strict task success, clean (95% Wilson CI) | 0.0% (0–4%) | 1.0% (0–6%) |
+| Strict task success, perturbed (95% Wilson CI) | 0.0% (0–4%) | 0.0% (0–4%) |
+| Paper success, clean | 19.8% | 93.8% |
+| Lift success, clean | 96.9% | 100.0% |
+| Task progress, clean | 43.0% | 48.4% |
+| Fell in clip, clean | 58.3% | 10.4% |
+| Median first >10 cm while alive, clean | t63 | t67 (95 of 96 episodes) |
+| Median peak 3D error, clean t45–85 | 28.4 cm | 17.2 cm |
+| Median peak vertical lead, clean t45–85 | 20.9 cm | 9.4 cm |
+
+Additional measures (agent, from the stored epoch-3000 traces; `metrics.body_outcome` for the walk classes, max over t 0–147 for the whole-clip error). fix-4 is included for context.
+
+| Metric (clean stoch, 96 episodes) | fix-4 | fix-5 | fix-6 |
+|---|---:|---:|---:|
+| walk_up / stand_squat | 2% / 98% | 18% / 24% | **90% / 0%** |
+| fall_fwd / fall_back | 0% / 0% | 17% / 42% | 10% / 0% |
+| Median root progress along the walk | 0.15 m | 0.00 m | 0.77 m |
+| Median whole-clip max book error | 1.33 m | 1.57 m | 0.25 m |
+| Episodes with whole-clip max error ≤ 20 cm / ≤ 30 cm | 0% / 0% | 0% / 1% | 27% / 76% |
+| Median drop frame (episodes with a drop) | 129 (99%) | 117 (77%) | 190 (92%) |
+| Episodes within 10 cm at t 70 / 90 / 110 | 0% / 0% / 0% | 5% / 2% / 6% | 27% / 42% / 33% |
+| Perturbed: lift / walk_up / fall_fwd | 72% / 6% / 2% | 56% / 12% / 12% | 54% / 73% / 24% |
+| Perturbed: paper success / fell in clip | 11.5% / 2.1% | 11.5% / 51.0% | 35.4% / 27.1% |
+
+Hypothesis (§2): all three criteria are met (peak t45–85 error 17.2 cm ≤ 24 cm; first live 10 cm excursion t67 ≥ t66; lift 100% ≥ 90%), with fewer in-clip falls (58% → 10%), not more. Strict task success is 1.0% (0–6%); the target is not reached.
+
+Learning curve (det, 8 envs, trend only): lift appears at e750, is 100% from e1500 except e2500 (37.5%, held 13 frames), and is back at e2750–3000. The curve's fell-in-clip flips between 0% and 100% at e1250–1750. Single training seed.
 
 ## 5. Failure analysis
 
@@ -53,9 +71,38 @@ After evaluation, compare the saved traces using the commands below. The probe d
 .venv/bin/python environment_iteration/src/probes/book_tracking.py fix-5 fix-6 --cell stoch_perturb
 ```
 
+Probe output, epoch 3000 (p10 / p50 / p90, 96 episodes per cell):
+
+| t45–85 | fix-5 clean | fix-6 clean | fix-5 perturbed | fix-6 perturbed |
+|---|---|---|---|---|
+| max 3D error (m) | 0.180 / 0.284 / 0.397 | 0.080 / 0.172 / 0.266 | 0.190 / 0.503 / 0.807 | 0.112 / 0.477 / 0.810 |
+| peak vertical lead (m) | 0.097 / 0.209 / 0.280 | 0.025 / 0.094 / 0.149 | 0.000 / 0.064 / 0.199 | -0.002 / 0.005 / 0.121 |
+| first >10 cm while alive (t) | 60 / 63 / 67.5 | 63.4 / 67 / 90.2 | 57 / 65 / 71 | 48 / 64 / 73 |
+| final 3D error, survivors (m) | 0.295 / 1.267 / 1.736 (40) | 0.136 / 0.210 / 0.306 (86) | 0.383 / 1.597 / 1.782 (47) | 0.205 / 0.462 / 1.782 (70) |
+
+What the numbers show:
+
+1. **The carry walk is solved on the clean path.** 90% walk sideways with the book and stay up (root 0.77 m along the walk, ankles ~0.7 m, so real foot travel rather than a lean). fix-5's fall_back (42%) and fix-4's squat (98%) are gone. The book stays in hand through the clip (median drop t 190, after the clip). A stronger direct book-position reward fixed what fix-5's own-state starts only started: following the book along the path requires walking.
+2. **The pickup is tighter but still breaks the strict 10 cm track.** 86% first break off_path at median t 68 (book centre ~27 cm up vs the reference's 19 cm, ~40° off its orientation) and 12% lead at t 63. The vertical overshoot halved (20.9 → 9.4 cm), but at t 70 the book is still 1.08 m vs 0.99 m and ahead of the reference (0.16 vs 0.06 m along the path). Only 27% are within 10 cm at t 70 and 16% at t 80.
+3. **During the carry the error sits just above the line.** Median error 11–15 cm over t 90–130. 33–42% of episodes are back within 10 cm at t 90–110, but strict success needs every frame. The whole-clip max is 25 cm (median); 27% stay within 20 cm for the whole clip. rot_off (> 45°) occurs in 93% at median t 94, so orientation is a large part of the remaining error.
+4. **Perturbed starts did not improve the grasp.** Lift 54% (fix-5 56%, fix-4 72%); first failures are no_lift 31% and knock 7% before the lift. Once lifted, the walk transfers (walk_up 73%, fell in clip 27%).
+5. **What the numbers do not show:** whether the remaining t 63–80 error comes from the timing of the pivot-and-rotate or from a different grip. The 1 strict success (seed 103, env 29) was not reproduced in the fresh video rollouts. The `success` mode is from a single episode. All results come from one training seed.
+
 ## 6. Videos
 
-Select pickup and carry clips after the epoch-3000 analysis.
+Rendered 2026-11-24 with `bash environment_iteration/scripts/video.sh fix-6` (clips.json) and `... --clips environment_iteration/iterations/fix-6/clips_extra.json --tag extra` (clips_extra.json). These are fresh rollouts, so the env numbers do not match the evaluation. The fresh 16-env rollout on seed 101 reproduces the evaluation picture: 14/16 walk_up, 2/16 fall_fwd, 15/16 first break off_path at t 64–96.
+
+| clip | where | what to look for |
+|---|---|---|
+| 1_walk_up | `video/fix-6/e3000_stoch_s101/clips/1_walk_up__env0{1,2}__f078-147.mp4` | The new carry walk. Check for real steps vs sliding. Is the 11–15 cm gap to the green wireframe height, lag, or orientation (HUD shows 25–47°)? |
+| 2_lift_off_path | `.../e3000_stoch_s101/clips/2_lift_off_path__env0{0,1}__f*.mp4` | The dominant break (t 66 / 77). Does the book rise too high / early relative to the green pivot-and-rotate? |
+| 3_lift_lead | `.../e3000_stoch_s101/clips/3_lift_lead__env10__f047-077.mp4` | The same overshoot, earlier (t 62)? |
+| 4_fall_fwd | `.../e3000_stoch_s101/clips/4_fall_fwd__env0{0,9}__f*.mp4` | 10% of episodes: falls at t 135–144 after walking ~1.3 m with the root but ~0.5 m with the feet. A lean ahead of the feet? |
+| 5_post_clip_drop | `video/fix-6/e3000_stoch_s103_extra/clips/5_post_clip_drop__env00__f142-197.mp4` | A typical ending after the reference stops (t 147): the hand opens and the book falls at ~182. The metric excludes this. (`e3000_stoch_s101/clips/5_post_clip_drop__env00` shows an in-clip drop of a fall_fwd episode instead; the selector did not filter by outcome.) |
+| 6_success | not rendered | Neither fresh rollout (16 envs s101, 32 envs s103) contained a strict success. |
+| 7_perturbed_pickup | `video/fix-6/e3000_stoch_perturb_s101/clips/7_perturbed_pickup__env0{1,2,3}__f*.mp4` | no_lift / knock on the displaced book. Does the hand go to the red book or to the green reference? |
+
+Contact sheets: `sheets/*.png` in each folder. Full episodes: `full/envNN.mp4`.
 
 ## 7. Video notes (human)
 

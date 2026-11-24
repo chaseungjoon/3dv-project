@@ -1,12 +1,17 @@
 {
- "epoch": 3000,
- "rollouts": [
-  {
-   "cell": "stoch",
-   "seed": 101,
-   "num_envs": 8,
-   "horizon": 180
-  }
- ],
- "clips": []
+  "epoch": 3000,
+  "note": "Frames are control steps after reset. Evaluation episodes cannot be replayed exactly; these are fresh rollouts. 'outcome' = metrics.body_outcome (what the body does in the reference walk, t 82-142). Horizon 230 on the clean cell so the post-clip drop (~190) and fall (~210) are visible.",
+  "rollouts": [
+    {"cell": "stoch", "seed": 101, "num_envs": 16, "horizon": 230},
+    {"cell": "stoch_perturb", "seed": 101, "num_envs": 8, "horizon": 180}
+  ],
+  "clips": [
+    {"id": "1_walk_up", "cell": "stoch", "seed": 101, "select": {"outcome": "walk_up"}, "anchor": "frame", "start": 78, "end": 147, "max_episodes": 2, "why": "New in fix-6: 90% walk sideways with the book and stay up (median root progress 0.77 m; fix-5 18%, fix-4 2%). The book is 11-15 cm from the green reference during the carry (33-42% within 10 cm at t 90-110). Real steps or sliding? Is the error mostly height, lag, or orientation (rot_off in 93% at ~94)?"},
+    {"id": "2_lift_off_path", "cell": "stoch", "seed": 101, "select": {"mode": "off_path"}, "anchor": "first_bad", "pre": 15, "post": 15, "max_episodes": 2, "why": "86% break the strict 10 cm track here (median t 68): book centre ~27 cm up vs the reference's 19 cm, ~40 deg off its orientation. At t 70 the book is at 1.08 m vs 0.99 m. Does it lift too high / too early, or skip the pivot-and-rotate?"},
+    {"id": "3_lift_lead", "cell": "stoch", "seed": 101, "select": {"mode": "lead"}, "anchor": "first_bad", "pre": 15, "post": 15, "max_episodes": 1, "why": "12%: breaks at t 63, ~5 frames ahead of the reference along its path. Compare with clip 2: same overshoot, just earlier?"},
+    {"id": "4_fall_fwd", "cell": "stoch", "seed": 101, "select": {"outcome": "fall_fwd"}, "anchor": "fall", "pre": 30, "post": 5, "max_episodes": 2, "why": "10% fall in the clip after walking forward (fix-5's fall_back 42% is gone). Lean / topple, or a trip on a step?"},
+    {"id": "5_post_clip_drop", "cell": "stoch", "seed": 101, "select": {"event": "drop"}, "anchor": "drop", "pre": 30, "post": 15, "max_episodes": 1, "why": "After the clip ends (t 147) the reference is over; 92% drop the book at ~190 and all fall at ~210. Outside the metric; check that it is just the end of the demonstration, not a problem that will show up earlier with a better lift."},
+    {"id": "6_success", "cell": "stoch", "seed": 101, "select": {"mode": "success"}, "anchor": "frame", "start": 50, "end": 147, "max_episodes": 1, "why": "1 of 96 evaluation episodes passed the strict criterion; may not appear in this fresh rollout. What does a passing lift look like?"},
+    {"id": "7_perturbed_pickup", "cell": "stoch_perturb", "seed": 101, "select": {"mode": ["no_lift", "knock", "lag"]}, "anchor": "first_bad", "pre": 20, "post": 15, "max_episodes": 3, "why": "Perturbed lift 54% (fix-5 56%, fix-4 72%); 31% no_lift, 7% knock. Does the hand go to the displaced book or to the green reference position?"}
+  ]
 }
