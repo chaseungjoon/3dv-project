@@ -1,0 +1,631 @@
+{
+ "meta": {
+  "iteration": "fix-7",
+  "clip": "place_book",
+  "mode": "det",
+  "num_envs": 8,
+  "horizon": 300,
+  "start_frame": 2,
+  "clip_frames": 150,
+  "n_clip": 148,
+  "obj_z0": 0.7435374855995178,
+  "ref_lift": 0.4530256390571594,
+  "hold_thr": 0.2,
+  "paper_z": 0.9,
+  "paper_need": 60,
+  "state_init_random_prob": 0.0,
+  "checkpoint": "environment_iteration/iterations/fix-7/runs/fix-7_s0/nn/fix-7_s0_00000500.pth",
+  "epoch": 500,
+  "frame": 32768000,
+  "cell": "curve",
+  "seed": 0,
+  "perturb": false,
+  "ref_phases": {
+   "static": [
+    0,
+    53
+   ],
+   "lift": [
+    53,
+    79
+   ],
+   "carry": [
+    79,
+    147
+   ],
+   "placed": [
+    147,
+    148
+   ]
+  },
+  "protocol_version": 1,
+  "git": "e028b80",
+  "evaluated_at": "2026-11-25T06:20:39"
+ },
+ "aggregate": {
+  "fell": 1.0,
+  "fall_frame": 268.875,
+  "fell_in_clip": 0.0,
+  "task_success": 0.0,
+  "task_progress": 0.45354729729729726,
+  "obj_err_mean": 0.5377342104911804,
+  "obj_err_max": 1.5093841552734375,
+  "obj_err_end": 1.5093072950839996,
+  "body_err_mean": 0.4713786914944649,
+  "lift_max": 0.14811306446790695,
+  "lift_success": 0.0,
+  "held_frames": 21.375,
+  "held_frames_clip": 21.375,
+  "paper_frames": 3.0,
+  "paper_success": 0.0,
+  "paper_success_clip": 0.0,
+  "first_bad": 67.125,
+  "grasp_frame": 51.25,
+  "drop_frame": 99.0,
+  "off_desk_frame": 65.5,
+  "rot_off_frame": 72.625,
+  "floor_frame": 109.0,
+  "env": 3.5,
+  "start_ref_frame": 3.0,
+  "n_episodes": 8,
+  "modes": {
+   "success": 0,
+   "fall": 0,
+   "no_reach": 0,
+   "no_lift": 0,
+   "knock": 0,
+   "drop": 0,
+   "lag": 0,
+   "lead": 0,
+   "off_path": 8
+  }
+ },
+ "episodes": [
+  {
+   "fell": 1,
+   "fall_frame": 264,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4527027027027027,
+   "obj_err_mean": 0.5146041512489319,
+   "obj_err_max": 1.4458831548690796,
+   "obj_err_end": 1.4458831548690796,
+   "body_err_mean": 0.4747554659843445,
+   "lift_max": 0.17085832357406616,
+   "lift_success": 0,
+   "held_frames": 32,
+   "held_frames_clip": 32,
+   "paper_frames": 9,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "off_path",
+   "detail": "on time but 10 cm off the path; centre 10 cm up vs reference 16 cm, 16 deg from reference orientation",
+   "first_bad": 67,
+   "phase": "lift",
+   "grasp_frame": 50,
+   "drop_frame": null,
+   "off_desk_frame": 63,
+   "rot_off_frame": 72,
+   "floor_frame": null,
+   "hold_streaks": [
+    [
+     50,
+     97
+    ]
+   ],
+   "events": [
+    [
+     50,
+     "grasp",
+     "hold starts"
+    ],
+    [
+     63,
+     "off_desk",
+     "whole object off the desk"
+    ],
+    [
+     67,
+     "track_lost",
+     "object > 10 cm off (off_path)"
+    ],
+    [
+     72,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     264,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 0,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 1,
+   "fall_frame": 274,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4527027027027027,
+   "obj_err_mean": 0.49865835905075073,
+   "obj_err_max": 1.4195475578308105,
+   "obj_err_end": 1.4195475578308105,
+   "body_err_mean": 0.46574458479881287,
+   "lift_max": 0.16552871465682983,
+   "lift_success": 0,
+   "held_frames": 29,
+   "held_frames_clip": 29,
+   "paper_frames": 7,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "off_path",
+   "detail": "on time but 9 cm off the path; centre 10 cm up vs reference 16 cm, 17 deg from reference orientation",
+   "first_bad": 67,
+   "phase": "lift",
+   "grasp_frame": 51,
+   "drop_frame": null,
+   "off_desk_frame": 63,
+   "rot_off_frame": 72,
+   "floor_frame": null,
+   "hold_streaks": [
+    [
+     51,
+     128
+    ]
+   ],
+   "events": [
+    [
+     51,
+     "grasp",
+     "hold starts"
+    ],
+    [
+     63,
+     "off_desk",
+     "whole object off the desk"
+    ],
+    [
+     67,
+     "track_lost",
+     "object > 10 cm off (off_path)"
+    ],
+    [
+     72,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     274,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 1,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 1,
+   "fall_frame": 264,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4527027027027027,
+   "obj_err_mean": 0.52129727602005,
+   "obj_err_max": 1.4937704801559448,
+   "obj_err_end": 1.493155598640442,
+   "body_err_mean": 0.47344332933425903,
+   "lift_max": 0.16218489408493042,
+   "lift_success": 0,
+   "held_frames": 31,
+   "held_frames_clip": 31,
+   "paper_frames": 8,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "off_path",
+   "detail": "on time but 9 cm off the path; centre 10 cm up vs reference 16 cm, 15 deg from reference orientation",
+   "first_bad": 67,
+   "phase": "lift",
+   "grasp_frame": 51,
+   "drop_frame": 99,
+   "off_desk_frame": 63,
+   "rot_off_frame": 73,
+   "floor_frame": 109,
+   "hold_streaks": [
+    [
+     51,
+     99
+    ]
+   ],
+   "events": [
+    [
+     51,
+     "grasp",
+     "hold starts"
+    ],
+    [
+     63,
+     "off_desk",
+     "whole object off the desk"
+    ],
+    [
+     67,
+     "track_lost",
+     "object > 10 cm off (off_path)"
+    ],
+    [
+     73,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     99,
+     "drop",
+     "object leaves the hands"
+    ],
+    [
+     109,
+     "floor",
+     "object on the floor"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     264,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 2,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 1,
+   "fall_frame": 273,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4527027027027027,
+   "obj_err_mean": 0.5335503816604614,
+   "obj_err_max": 1.5104072093963623,
+   "obj_err_end": 1.5104072093963623,
+   "body_err_mean": 0.4675528407096863,
+   "lift_max": 0.15015703439712524,
+   "lift_success": 0,
+   "held_frames": 22,
+   "held_frames_clip": 22,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "off_path",
+   "detail": "on time but 9 cm off the path; centre 10 cm up vs reference 16 cm, 16 deg from reference orientation",
+   "first_bad": 67,
+   "phase": "lift",
+   "grasp_frame": 51,
+   "drop_frame": null,
+   "off_desk_frame": 63,
+   "rot_off_frame": 73,
+   "floor_frame": null,
+   "hold_streaks": [
+    [
+     51,
+     97
+    ]
+   ],
+   "events": [
+    [
+     51,
+     "grasp",
+     "hold starts"
+    ],
+    [
+     63,
+     "off_desk",
+     "whole object off the desk"
+    ],
+    [
+     67,
+     "track_lost",
+     "object > 10 cm off (off_path)"
+    ],
+    [
+     73,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     273,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 3,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 1,
+   "fall_frame": 267,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4527027027027027,
+   "obj_err_mean": 0.5410337448120117,
+   "obj_err_max": 1.5052683353424072,
+   "obj_err_end": 1.5052683353424072,
+   "body_err_mean": 0.47933733463287354,
+   "lift_max": 0.15200084447860718,
+   "lift_success": 0,
+   "held_frames": 14,
+   "held_frames_clip": 14,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "off_path",
+   "detail": "on time but 8 cm off the path; centre 8 cm up vs reference 16 cm, 7 deg from reference orientation",
+   "first_bad": 67,
+   "phase": "lift",
+   "grasp_frame": 52,
+   "drop_frame": null,
+   "off_desk_frame": 68,
+   "rot_off_frame": 73,
+   "floor_frame": null,
+   "hold_streaks": [
+    [
+     52,
+     89
+    ]
+   ],
+   "events": [
+    [
+     52,
+     "grasp",
+     "hold starts"
+    ],
+    [
+     67,
+     "track_lost",
+     "object > 10 cm off (off_path)"
+    ],
+    [
+     68,
+     "off_desk",
+     "whole object off the desk"
+    ],
+    [
+     73,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     267,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 4,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 1,
+   "fall_frame": 268,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4594594594594595,
+   "obj_err_mean": 0.5842474699020386,
+   "obj_err_max": 1.6193991899490356,
+   "obj_err_end": 1.6193991899490356,
+   "body_err_mean": 0.4646371006965637,
+   "lift_max": 0.09744483232498169,
+   "lift_success": 0,
+   "held_frames": 14,
+   "held_frames_clip": 14,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "off_path",
+   "detail": "on time but 8 cm off the path; centre 9 cm up vs reference 19 cm, 9 deg from reference orientation",
+   "first_bad": 68,
+   "phase": "lift",
+   "grasp_frame": 52,
+   "drop_frame": null,
+   "off_desk_frame": 70,
+   "rot_off_frame": 73,
+   "floor_frame": null,
+   "hold_streaks": [
+    [
+     52,
+     84
+    ]
+   ],
+   "events": [
+    [
+     52,
+     "grasp",
+     "hold starts"
+    ],
+    [
+     68,
+     "track_lost",
+     "object > 10 cm off (off_path)"
+    ],
+    [
+     70,
+     "off_desk",
+     "whole object off the desk"
+    ],
+    [
+     73,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     268,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 5,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 1,
+   "fall_frame": 265,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4527027027027027,
+   "obj_err_mean": 0.5422408580780029,
+   "obj_err_max": 1.5085201263427734,
+   "obj_err_end": 1.5085201263427734,
+   "body_err_mean": 0.475275456905365,
+   "lift_max": 0.14829504489898682,
+   "lift_success": 0,
+   "held_frames": 15,
+   "held_frames_clip": 15,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "off_path",
+   "detail": "on time but 9 cm off the path; centre 10 cm up vs reference 16 cm, 15 deg from reference orientation",
+   "first_bad": 67,
+   "phase": "lift",
+   "grasp_frame": 51,
+   "drop_frame": null,
+   "off_desk_frame": 65,
+   "rot_off_frame": 72,
+   "floor_frame": null,
+   "hold_streaks": [
+    [
+     51,
+     82
+    ]
+   ],
+   "events": [
+    [
+     51,
+     "grasp",
+     "hold starts"
+    ],
+    [
+     65,
+     "off_desk",
+     "whole object off the desk"
+    ],
+    [
+     67,
+     "track_lost",
+     "object > 10 cm off (off_path)"
+    ],
+    [
+     72,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     265,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 6,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 1,
+   "fall_frame": 276,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4527027027027027,
+   "obj_err_mean": 0.566241443157196,
+   "obj_err_max": 1.5722771883010864,
+   "obj_err_end": 1.5722771883010864,
+   "body_err_mean": 0.4702834188938141,
+   "lift_max": 0.13843482732772827,
+   "lift_success": 0,
+   "held_frames": 14,
+   "held_frames_clip": 14,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "off_path",
+   "detail": "on time but 7 cm off the path; centre 8 cm up vs reference 16 cm, 11 deg from reference orientation",
+   "first_bad": 67,
+   "phase": "lift",
+   "grasp_frame": 52,
+   "drop_frame": null,
+   "off_desk_frame": 69,
+   "rot_off_frame": 73,
+   "floor_frame": null,
+   "hold_streaks": [
+    [
+     52,
+     80
+    ]
+   ],
+   "events": [
+    [
+     52,
+     "grasp",
+     "hold starts"
+    ],
+    [
+     67,
+     "track_lost",
+     "object > 10 cm off (off_path)"
+    ],
+    [
+     69,
+     "off_desk",
+     "whole object off the desk"
+    ],
+    [
+     73,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ],
+    [
+     276,
+     "fall",
+     "character fell"
+    ]
+   ],
+   "env": 7,
+   "start_ref_frame": 3
+  }
+ ]
+}

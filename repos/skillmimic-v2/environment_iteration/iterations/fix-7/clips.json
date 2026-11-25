@@ -1,12 +1,15 @@
 {
- "epoch": 3000,
- "rollouts": [
-  {
-   "cell": "stoch",
-   "seed": 101,
-   "num_envs": 8,
-   "horizon": 180
-  }
- ],
- "clips": []
+  "epoch": 3000,
+  "note": "Frames are control steps after reset. Evaluation episodes cannot be replayed exactly; these are fresh rollouts. 'outcome' = metrics.body_outcome (what the body does in the reference walk, t 82-142).",
+  "rollouts": [
+    {"cell": "stoch", "seed": 101, "num_envs": 16, "horizon": 180},
+    {"cell": "stoch_perturb", "seed": 101, "num_envs": 8, "horizon": 180}
+  ],
+  "clips": [
+    {"id": "1_fall_fwd", "cell": "stoch", "seed": 101, "select": {"outcome": "fall_fwd"}, "anchor": "fall", "pre": 40, "post": 5, "max_episodes": 2, "why": "New dominant ending: 94% fall in the clip (fix-6 10%), 90% fall_fwd at median t 130. At t 120 the pelvis is 0.31 m ahead of the feet (fix-6 walk_up -0.03 m) and the feet moved only 0.34 m along the walk (fix-6 0.71 m). Does it lunge / lean after the book instead of stepping?"},
+    {"id": "2_carry_walk", "cell": "stoch", "seed": 101, "select": {"outcome": "fall_fwd"}, "anchor": "frame", "start": 78, "end": 140, "max_episodes": 1, "why": "The whole carry up to the fall. Book orientation is closer to the green wireframe than fix-6 (carry median 21 vs 37 deg), position error is similar (16 vs 14 cm). How many real steps are taken, and when does the upper body start to lead?"},
+    {"id": "3_lift_off_path", "cell": "stoch", "seed": 101, "select": {"mode": "off_path"}, "anchor": "first_bad", "pre": 15, "post": 15, "max_episodes": 2, "why": "91% break the strict 10 cm track here (median t 67, same as fix-6 t 68). Lift rotation error dropped (t55-80 median 20 vs 28 deg). Is the book still too high / ahead (centre ~22 cm up vs reference 16 cm)?"},
+    {"id": "4_stand_squat", "cell": "stoch", "seed": 101, "select": {"outcome": "stand_squat"}, "anchor": "frame", "start": 50, "end": 147, "max_episodes": 1, "why": "6%: no walk and the book 1.5 m off at t 120. Book lost early, then standing? (may not appear in the 16-env rollout)"},
+    {"id": "5_perturbed_pickup", "cell": "stoch_perturb", "seed": 101, "select": {"mode": ["no_lift", "knock"]}, "anchor": "first_bad", "pre": 20, "post": 15, "max_episodes": 2, "why": "Perturbed lift 47% (fix-6 54%): no_lift 19%, knock 16% (fix-6 7%). Does the hand push the displaced book instead of grasping it?"}
+  ]
 }
