@@ -109,23 +109,127 @@ Findings for the human (not changed in fix-8, decision needed):
 3. **`terminationHeight` is dead config** (effective 0.30 m). Making the code follow the YAML (0.25 m) would change
    the fall definition and is a separate behaviour change.
 
-## 4. Results (from analysis/e3000/REPORT.md)
+## 4. Results (epoch 3000)
 
-| metric | fix-6 | fix-8 |
-|---|---:|---:|
-| task success (stoch, 96) | | |
-| task success (perturbed) | | |
-| paper success | | |
-| lift success | | |
-| task progress | | |
-| fell in clip | | |
-| dominant failure (mode @ frame) | | |
+From [analysis/e3000/REPORT.md](analysis/e3000/REPORT.md) and the fix-6 / fix-7 reports. 96 episodes per cell.
+
+| metric | fix-6 | fix-7 | fix-8 |
+|---|---:|---:|---:|
+| task success, clean (95% Wilson CI) | 1.0% (0–6%) | 0.0% (0–4%) | **0.0% (0–4%)** |
+| task success, perturbed (95% Wilson CI) | 0.0% (0–4%) | 0.0% (0–4%) | 0.0% (0–4%) |
+| paper success, clean | 93.8% | 15.6% | **6.2%** |
+| lift success, clean | 100.0% | 77.1% | 90.6% |
+| task progress, clean | 48.4% | 47.7% | 43.6% |
+| fell in clip, clean | 10.4% | 93.8% | **99.0%** |
+| dominant first failure, clean | off_path 86% @ t68 | off_path 91% @ t67 | off_path 90% @ **t64** |
+| late events, clean (median frame) | drop 92% @190, fall 100% @210 | drop 61% @126, fall 96% @130 | drop 96% @125, fall 100% @126 |
+
+§2 criteria (clean stoch; `book_tracking.py fix-6 fix-8`, p10 / p50 / p90):
+
+| t45–85 | fix-6 clean | fix-8 clean | fix-6 perturbed | fix-8 perturbed |
+|---|---|---|---|---|
+| max 3D error (m) | 0.080 / 0.172 / 0.266 | 0.172 / **0.246** / 0.335 | 0.112 / 0.477 / 0.810 | 0.172 / 0.448 / 0.833 |
+| peak vertical lead (m) | 0.025 / 0.094 / 0.149 | 0.009 / 0.086 / 0.141 | -0.002 / 0.005 / 0.121 | -0.002 / 0.007 / 0.119 |
+| signed along-path error (m) | 0.003 / 0.031 / 0.176 | 0.008 / 0.062 / 0.241 | -0.292 / 0.005 / 0.135 | -0.176 / 0.031 / 0.187 |
+| first >10 cm while alive (t) | 63.4 / 67 / 90.2 | 62 / **64** / 67.5 | 48 / 64 / 73 | 47.8 / 63 / 68 |
+| final 3D error, survivors (m) | 0.136 / 0.210 / 0.306 (86) | 1.013 (1) | 0.205 / 0.462 / 1.782 (70) | 1.021 (1) |
+
+| §2 criterion | target | fix-8 | met? |
+|---|---|---:|:---:|
+| median peak t45–85 error | ≤ 15 cm | 24.6 cm (fix-6 17.2) | no (worse) |
+| median first live 10 cm excursion | ≥ t67 | t64 | no (earlier) |
+| lift | ≥ 95% | 90.6% | no |
+| fell in clip | ≤ 15% | 99.0% | no |
+| whole-clip max ≤ 20 cm, no fall | > 27.1% | 0% | no |
+
+Additional measures (agent, from the stored epoch-3000 traces with `metrics.body_outcome` / `metrics.rot_err_deg`;
+carry / lift errors = median over episodes of the per-episode median over live frames, t85–147 / t55–80; "pelvis
+ahead" = root minus mean ankle position along the reference walk direction at t120; reward = trace `reward`, whose
+timing differs between fix-6 (legacy) and fix-8 (synced), so compare it only roughly):
+
+| metric (clean stoch, 96 episodes) | fix-6 | fix-7 | fix-8 |
+|---|---:|---:|---:|
+| walk_up / fall_fwd | 90% / 10% | 0% / 94% | **1% / 96%** |
+| median root / feet progress along the walk | 0.77 / 0.70 m | 1.12 / 0.34 m | 0.88 / 0.22 m |
+| median pelvis ahead of the ankles at t120 | -0.02 m | 0.30 m | 0.38 m |
+| median in-clip fall frame (episodes) | 134 (10) | 130 (90) | 126 (95), p25–p75 124–128 |
+| median carry position error, t85–147 | 14.4 cm | 15.2 cm | **30.7 cm** |
+| median carry / lift rotation error | 37° / 29° | 18° / 23° | 44° / 26° |
+| within 10 cm at t 70 / 90 / 110 / 130 | 27 / 42 / 33 / 16% | 23 / 19 / 17 / 0% | 2 / 0 / 0 / 0% |
+| whole-clip max ≤ 20 / 30 cm, no fall | 27 / 76% | 0 / 0% | 0 / 0% |
+| mean reward per step t50–70 / t85–119 | 0.757 / 0.502 | 0.669 / 0.273 | 0.678 / 0.151 |
+| perturbed: lift / walk_up / fell in clip | 54% / 73% / 27% | 47% / 2% / 70% | 52% / 1% / 99% |
+| perturbed: no_lift / knock (first failure) | 31% / 7% | 19% / 16% | 24% / 9% |
+
+Learning curve (det, 8 envs, trend only), `body_outcome` per curve checkpoint:
+
+| epoch | 250–750 | 1000 | 1250 | 1500 | 1750 | 2000 | 2250–3000 |
+|---|---|---|---|---|---|---|---|
+| fix-6 | stand 8 | walk_up 8 | fall_fwd 8 | fall_fwd 8 | fall_fwd 8 | **walk_up 8** | **walk_up 8** |
+| fix-7 | stand 8 | stand 8 | fall_fwd 8 | walk_up 7, fall_fwd 1 | fall_fwd 8 | fall_fwd 8 | fall_fwd 8 |
+| fix-8 | stand 8 | fall_fwd 5, walk_up 3 | fall_fwd 8 | fall_fwd 4, stand 3, walk_up 1 | fall_fwd 8 | fall_fwd 8 | fall_fwd 8 |
+
+Lift appears at e1000 (87.5%) and stays at 75–100%. Paper success peaks at e1500 (87.5%, 8 envs) and is ~0 from e1750.
+Single training seed.
 
 ## 5. Failure analysis (agent)
 
+Hypothesis (§2): **falsified.** Every criterion moved the wrong way: the pickup is looser (peak error 24.6 vs
+17.2 cm, first break t64 vs t67), and fix-6's carry walk is gone (walk_up 90% → 1%, fell in clip 10% → 99%).
+Fix-8 is the worst of fix-6/7/8 on every clean measure except lift and rotation.
+
+What the numbers show:
+
+1. **Fix-8 has fix-7's lunge, without fix-7's reward change.** The ending is the same forward fall: fall_fwd 96%
+   at t126 (p25–p75 124–128), pelvis 0.38 m ahead of the ankles at t120, feet 0.22 m along the walk while the root
+   reaches 0.88 m. Contact sheet `2_carry_walk`: the knees bend into a kneel, the right arm reaches the book out
+   toward the green wireframe, then the body topples. 16/16 fresh rollouts on seed 101 are fall_fwd at t122–127.
+   Fix-7's §5 attributed the lunge to `op` 60 + rotation reward. Fix-8 keeps fix-6's weights (`op` 30, no rotation)
+   and still lunges, so that attribution does not hold on its own.
+2. **The lunge is a shared intermediate stage of training.** All three runs are fall_fwd on the 8-env curve at
+   e1250–1750. Fix-6 left it for walk_up at e2000 and stayed there. Fix-7 and fix-8 did not leave it within 3,000
+   epochs. One seed per configuration cannot say whether fix-6's escape is caused by its configuration or by luck in
+   that run. The difference between fix-6 and fix-8 is a one-step shift in reward timing, which should matter little
+   to PPO (γ = 0.99, GAE). That makes run-to-run variance a serious candidate for the whole 90% → 1% walk change.
+3. **The pickup also got worse, but less dramatically.** The first break is earlier (t64 vs t67). The book is ahead
+   along the path (median +6 cm vs +3) and laterally off (p10 −11 cm vs −4), while the vertical lead is the same
+   (8.6 vs 9.4 cm). Only 2% are within 10 cm at t70 (fix-6 27%). The `op` 30 position factor over t55–75 is lower
+   (median 0.88 vs 0.96). Immediate credit did not tighten the lift.
+4. **Carry error doubled before the fall.** Median 30.7 cm over t85–147 vs fix-6's 14.4 cm. The reward per carry step
+   t85–119 is 0.15 (fix-6 0.50, fix-7 0.27), so the lunge here is not a reward-efficient carry, unlike fix-7, which
+   kept the book near the reference (15 cm) while lunging. The policy is stuck in a poorer local optimum, not
+   exploiting the reward.
+5. **The perturbed cell is unchanged at the pickup** (lift 52% vs 54%, no_lift 24% vs 31%, knock 9% vs 7%). It
+   inherits the lunge afterwards (fell in clip 99%).
+6. **What the numbers do not show:** whether fix-6's configuration reliably produces the walk (no second seed
+   exists for any iteration). Also unknown: whether the state sync itself is neutral, harmful or helpful once the
+   walk is found. The protocol findings in §3 (evaluation pairs the book with the previous reference frame; phase
+   lags one frame) apply equally to fix-6 and fix-8, so they do not explain the difference.
+
+Suggestion for the human's decision (§8; evidence above, not implemented): before attributing further reward or
+environment changes, measure run-to-run variance. Retrain fix-6 unchanged with `train.seed` 1, ideally also fix-8
+seed 1. If fix-6 seed 1 also lunges, fix-6's walk was a lucky escape, and later iterations need a change that
+targets the e1250–1750 lunge stage directly (e.g. a balance / centre-of-mass or foot-progress term, or starts that
+put the policy into the walk). If fix-6 seed 1 walks, the state sync is the likely cause and fix-9 should drop it.
+A second seed is a protocol-level decision (LOOP §2, protocol.json `train.seed`).
+
 ## 6. Videos
 
-clips.json -> `video/fix-8/...` (see INDEX.md there). Recommended clips and what to look for:
+Rendered 2026-11-28 with `bash environment_iteration/scripts/video.sh fix-8` ([clips.json](clips.json)). These are
+fresh rollouts, so env numbers do not match the evaluation. The 16-env clean rollout reproduces the evaluation:
+16/16 fall_fwd (root 0.79–0.98 m, feet 0.17–0.28 m), falls at t122–127, 15/16 first break off_path at t62–67, 1 lead
+at t62.
+
+| clip | where | what to look for |
+|---|---|---|
+| 1_fall_fwd | `video/fix-8/e3000_stoch_s101/clips/1_fall_fwd__env0{0,1}__f08*-1*.mp4` | The dominant ending (96%, t~126). Same kneel / lunge as fix-7? Does any foot leave the ground before the fall? |
+| 2_carry_walk | `.../e3000_stoch_s101/clips/2_carry_walk__env00__f078-135.mp4` | The whole carry. The right arm holds the book out ahead of the body and the knees fold (sheet: book error 0.27 → 0.45 m at t96–116). How many real steps happen? When does the upper body start to lead? |
+| 3_lift_off_path | `.../e3000_stoch_s101/clips/3_lift_off_path__env0{0,1}__f04*-07*.mp4` | The pickup break (t63–64). Is the book lifted earlier or further forward than the green pivot? Compare with fix-6's `2_lift_off_path` (t66 / 77). |
+| 4_walk_up | not rendered | No walk_up episode in the 16-env rollout (1% in the evaluation). |
+| 5_perturbed_pickup | `video/fix-8/e3000_stoch_perturb_s101/clips/5_perturbed_pickup__env0{2,5}__f*.mp4` | no_lift on the displaced book (env 2 at t34, env 5 at t59). Does the hand go to the red book or to the green reference? |
+
+For a direct comparison of the walk, watch next to fix-6's `video/fix-6/e3000_stoch_s101/clips/1_walk_up__env01__f078-147.mp4`.
+Contact sheets: `sheets/*.png` in each folder. Full episodes: `full/envNN.mp4`.
 
 ## 7. Video notes (human)
 

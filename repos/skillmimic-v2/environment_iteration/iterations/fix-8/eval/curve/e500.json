@@ -1,0 +1,457 @@
+{
+ "meta": {
+  "iteration": "fix-8",
+  "clip": "place_book",
+  "mode": "det",
+  "num_envs": 8,
+  "horizon": 300,
+  "start_frame": 2,
+  "clip_frames": 150,
+  "n_clip": 148,
+  "obj_z0": 0.7435374855995178,
+  "ref_lift": 0.4530256390571594,
+  "hold_thr": 0.2,
+  "paper_z": 0.9,
+  "paper_need": 60,
+  "state_init_random_prob": 0.0,
+  "checkpoint": "environment_iteration/iterations/fix-8/runs/fix-8_s0/nn/fix-8_s0_00000500.pth",
+  "epoch": 500,
+  "frame": 32768000,
+  "cell": "curve",
+  "seed": 0,
+  "perturb": false,
+  "ref_phases": {
+   "static": [
+    0,
+    53
+   ],
+   "lift": [
+    53,
+    79
+   ],
+   "carry": [
+    79,
+    147
+   ],
+   "placed": [
+    147,
+    148
+   ]
+  },
+  "protocol_version": 1,
+  "git": "6f06bc1",
+  "evaluated_at": "2026-11-28T12:31:35"
+ },
+ "aggregate": {
+  "fell": 0.0,
+  "fall_frame": -1.0,
+  "fell_in_clip": 0.0,
+  "task_success": 0.0,
+  "task_progress": 0.4391891891891892,
+  "obj_err_mean": 0.6482490077614784,
+  "obj_err_max": 1.7292560636997223,
+  "obj_err_end": 1.7292560636997223,
+  "body_err_mean": 0.5566269755363464,
+  "lift_max": 0.010562479496002197,
+  "lift_success": 0.0,
+  "held_frames": 0.0,
+  "held_frames_clip": 0.0,
+  "paper_frames": 0.0,
+  "paper_success": 0.0,
+  "paper_success_clip": 0.0,
+  "first_bad": 65.0,
+  "rot_off_frame": 62.0,
+  "env": 3.5,
+  "start_ref_frame": 3.0,
+  "n_episodes": 8,
+  "modes": {
+   "success": 0,
+   "fall": 0,
+   "no_reach": 0,
+   "no_lift": 8,
+   "knock": 0,
+   "drop": 0,
+   "lag": 0,
+   "lead": 0,
+   "off_path": 0
+  }
+ },
+ "episodes": [
+  {
+   "fell": 0,
+   "fall_frame": -1,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.647896409034729,
+   "obj_err_max": 1.7284138202667236,
+   "obj_err_end": 1.7284138202667236,
+   "body_err_mean": 0.5570470690727234,
+   "lift_max": 0.010435104370117188,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 0 cm, rose -0 cm, 54 deg from reference orientation",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "off_desk_frame": null,
+   "rot_off_frame": 62,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     62,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ]
+   ],
+   "env": 0,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 0,
+   "fall_frame": -1,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.6486606001853943,
+   "obj_err_max": 1.7297894954681396,
+   "obj_err_end": 1.7297894954681396,
+   "body_err_mean": 0.5584272146224976,
+   "lift_max": 0.01067197322845459,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 0 cm, rose -0 cm, 54 deg from reference orientation",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "off_desk_frame": null,
+   "rot_off_frame": 62,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     62,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ]
+   ],
+   "env": 1,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 0,
+   "fall_frame": -1,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.6479916572570801,
+   "obj_err_max": 1.7294577360153198,
+   "obj_err_end": 1.7294577360153198,
+   "body_err_mean": 0.5569207668304443,
+   "lift_max": 0.010348320007324219,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 0 cm, rose -0 cm, 53 deg from reference orientation",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "off_desk_frame": null,
+   "rot_off_frame": 62,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     62,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ]
+   ],
+   "env": 2,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 0,
+   "fall_frame": -1,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.6484353542327881,
+   "obj_err_max": 1.7294281721115112,
+   "obj_err_end": 1.7294281721115112,
+   "body_err_mean": 0.5557060837745667,
+   "lift_max": 0.010823845863342285,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 0 cm, rose -0 cm, 54 deg from reference orientation",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "off_desk_frame": null,
+   "rot_off_frame": 62,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     62,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ]
+   ],
+   "env": 3,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 0,
+   "fall_frame": -1,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.6481881737709045,
+   "obj_err_max": 1.7297194004058838,
+   "obj_err_end": 1.7297194004058838,
+   "body_err_mean": 0.5566580295562744,
+   "lift_max": 0.010255038738250732,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 0 cm, rose -0 cm, 54 deg from reference orientation",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "off_desk_frame": null,
+   "rot_off_frame": 62,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     62,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ]
+   ],
+   "env": 4,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 0,
+   "fall_frame": -1,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.6483526825904846,
+   "obj_err_max": 1.7292699813842773,
+   "obj_err_end": 1.7292699813842773,
+   "body_err_mean": 0.5556830167770386,
+   "lift_max": 0.01085352897644043,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 0 cm, rose -0 cm, 54 deg from reference orientation",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "off_desk_frame": null,
+   "rot_off_frame": 62,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     62,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ]
+   ],
+   "env": 5,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 0,
+   "fall_frame": -1,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.6478940844535828,
+   "obj_err_max": 1.7284218072891235,
+   "obj_err_end": 1.7284218072891235,
+   "body_err_mean": 0.557151198387146,
+   "lift_max": 0.01043933629989624,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 0 cm, rose -0 cm, 54 deg from reference orientation",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "off_desk_frame": null,
+   "rot_off_frame": 62,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     62,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ]
+   ],
+   "env": 6,
+   "start_ref_frame": 3
+  },
+  {
+   "fell": 0,
+   "fall_frame": -1,
+   "fell_in_clip": 0,
+   "task_success": 0,
+   "task_progress": 0.4391891891891892,
+   "obj_err_mean": 0.648573100566864,
+   "obj_err_max": 1.7295480966567993,
+   "obj_err_end": 1.7295480966567993,
+   "body_err_mean": 0.5554224252700806,
+   "lift_max": 0.010672688484191895,
+   "lift_success": 0,
+   "held_frames": 0,
+   "held_frames_clip": 0,
+   "paper_frames": 0,
+   "paper_success": 0,
+   "paper_success_clip": 0,
+   "mode": "no_lift",
+   "detail": "object moved 0 cm, rose -0 cm, 54 deg from reference orientation",
+   "first_bad": 65,
+   "phase": "lift",
+   "grasp_frame": null,
+   "drop_frame": null,
+   "off_desk_frame": null,
+   "rot_off_frame": 62,
+   "floor_frame": null,
+   "hold_streaks": [],
+   "events": [
+    [
+     62,
+     "rot_off",
+     "> 45 deg from the reference orientation"
+    ],
+    [
+     65,
+     "track_lost",
+     "object > 10 cm off (no_lift)"
+    ],
+    [
+     147,
+     "clip_end",
+     "last reference frame"
+    ]
+   ],
+   "env": 7,
+   "start_ref_frame": 3
+  }
+ ]
+}
